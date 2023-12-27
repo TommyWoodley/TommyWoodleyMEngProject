@@ -1,0 +1,41 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load .dockerignore
+#1 transferring context: 2B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.98kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/ubuntu:18.04
+#3 DONE 0.0s
+
+#4 [ 1/14] FROM docker.io/library/ubuntu:18.04
+#4 DONE 0.0s
+
+#5 [ 2/14] RUN apt-get update && apt-get install -y     wget     lsb-release     gnupg2     protobuf-compiler     libeigen3-dev     libopencv-dev     python-rosdep     python-rosinstall     python-rosinstall-generator     python-wstool     build-essential
+#5 CACHED
+
+#6 [ 3/14] RUN apt-get update && apt-get install -y wget &&     wget https://raw.githubusercontent.com/PX4/Devguide/master/build_scripts/ubuntu_sim_common_deps.sh -O - | bash
+#6 CACHED
+
+#7 [ 4/14] RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' &&     apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 &&     apt-get update
+#7 CACHED
+
+#8 [ 5/14] RUN pip install python-catkin-pkg-modules
+#8 0.135 /bin/sh: 1: pip: not found
+#8 ERROR: process "/bin/sh -c pip install python-catkin-pkg-modules" did not complete successfully: exit code: 127
+------
+ > [ 5/14] RUN pip install python-catkin-pkg-modules:
+0.135 /bin/sh: 1: pip: not found
+------
+Dockerfile:28
+--------------------
+  26 |         apt-get update
+  27 |     
+  28 | >>> RUN pip install python-catkin-pkg-modules
+  29 |     RUN apt-get install -y ros-melodic-desktop-full
+  30 |     
+--------------------
+ERROR: failed to solve: process "/bin/sh -c pip install python-catkin-pkg-modules" did not complete successfully: exit code: 127
