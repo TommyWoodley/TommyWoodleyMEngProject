@@ -8,9 +8,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./03_Final_report_and_presentation
     steps:
     - uses: actions/checkout@v2
-    - name: Compile LaTeX Document
+    - name: Compile Interim Report
       uses: xu-cheng/latex-action@v2
       with:
-        root_file: 03_Final_report_and_presentation/main.tex
+        root_file: interim_report.tex
+        working_directory: ./03_Final_report_and_presentation
+    - name: Compile Final Report
+      uses: xu-cheng/latex-action@v2
+      with:
+        root_file: main.tex
+        working_directory: ./03_Final_report_and_presentation
+
