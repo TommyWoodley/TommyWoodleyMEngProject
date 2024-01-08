@@ -1,7 +1,7 @@
 name: Compile and Release LaTeX on Master
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -17,15 +17,17 @@ jobs:
       uses: xu-cheng/latex-action@v2
       with:
         root_file: interim_report.tex
+        working_directory: ./03_Final_report_and_presentation
     - name: Compile Final Report
       uses: xu-cheng/latex-action@v2
       with:
         root_file: main.tex
+        working_directory: ./03_Final_report_and_presentation
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: Compiled-PDF
-        path: interim_report.pdf
+        path: ./03_Final_report_and_presentation/interim_report.pdf
     - name: Extract branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -51,6 +53,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: interim_report.pdf
+        asset_path: ./03_Final_report_and_presentation/interim_report.pdf
         asset_name: interim_report.pdf
         asset_content_type: application/pdf
