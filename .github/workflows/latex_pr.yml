@@ -17,10 +17,10 @@ jobs:
       uses: xu-cheng/latex-action@v2
       with:
         root_file: interim_report.tex
-        working-directory: ./03_Final_report_and_presentation
+        working_directory: ./03_Final_report_and_presentation
     - name: Compile Final Report
       uses: xu-cheng/latex-action@v2
       with:
         root_file: main.tex
-        working-directory: ./03_Final_report_and_presentation
+        working_directory: ./03_Final_report_and_presentation
 
