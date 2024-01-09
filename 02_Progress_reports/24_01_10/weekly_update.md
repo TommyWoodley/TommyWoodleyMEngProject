@@ -27,6 +27,9 @@ _paginate: false # or use `_paginate: skip`
 ---
 ### Mapless Navigation for UAVs via Reinforcement Learning from Demonstrations
 - Soft Actor Critic from Demonstrations
+- Presents an algorithm for Navigation - based on sensor readings from obstacles
+- This allowed learning even when obstacles were moved
+- Gives background for perch based coordinate system
 
 ---
 ### Inverse Reinforcement Learning Control for Trajectory Tracking of a Multirotor UAV
