@@ -79,7 +79,7 @@ _paginate: false # or use `_paginate: skip`
 - Successful Attempts
 - Energy Consumption
 
-- Main area that I need to think more aboutand understand.
+- Main area that I need to think more about and understand.
 
 ---
 # Plans Until Next
@@ -91,3 +91,4 @@ _paginate: false # or use `_paginate: skip`
   - i.e. should I expect understanding of RL? understanding of drone movements?
 - Feedback on Project Plan
 - What makes a good evaluation? Should I be comparing to an existing system?
+- What data is available at the moment?
