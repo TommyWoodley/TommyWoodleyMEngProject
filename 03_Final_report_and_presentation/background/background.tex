@@ -49,8 +49,8 @@ I(s_{t}, a_{t}) M(t) & \text{else}
 \end{cases}
 \]
 
-\[I(s_{t}, a_{t}) = 3 \times 10 ^ 5 \times (0.1 - min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4\]
-\[M(t) = \frac{t_{max} - t}{t_{max} - t_{I}}\]
+\[I(s_{t}, a_{t}) = 3 \times 10 ^ 5 \times (0.1 - \min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4\]
+\[M(t) = \frac{t_{\max} - t}{t_{\max} - t_{I}}\]
 
 \[
 R_{2}(s_{t}, a_{t}) =
@@ -62,11 +62,11 @@ R_{2}(s_{t}, a_{t}) =
 
 \todo{rephrase this section}
 where $s_{\alpha}$ and $s_{\alpha}$ are the roll angel of the current and the baseline state; 
-$t_{max}$ is the maximum time of the simulation; 
+$t_{\max}$ is the maximum time of the simulation; 
 $t_{I}$ is the time where the final point should be reacted.
 where RL is the reward from the last step dtarget is the distance to the target position; 
 ddrone is the size of the drone; 
-∆Xtarget and ∆Xbranch is the change in the distance made to the final position and to the branch, and lr is the length of the rope.
+$\delta$Xtarget and $\delta$Xbranch is the change in the distance made to the final position and to the branch, and lr is the length of the rope.
 
 However this method may constrain the range of possible solutions.
 By favouring approaches that resemble the baseline, this could prevent the system from learning novel, potentially more efficient strategies.
@@ -81,7 +81,7 @@ There is a need to devise a system capable of efficiently learning from a very l
 
 % FYP7 - "An Application of Reinformcent Learning to Aerobatic Helicopter Flight (P. Abel 2007)" - Demonstration
 One of the earliest applications of Reinforcement Learning (RL) was in Aerobatic Helicopter Flight\cite{abbeelRLAerobaticFlight}.
-Inverse Reinforcment Learning(IRL) was employed to learn a helicopter model and its associated reward function from human demonstrations.
+Inverse Reinforcment Learning (IRL) was employed to learn a helicopter model and its associated reward function from human demonstrations.
 This led to the first successfuly autonomous completion of four complex manuevers.
 This apporach was motivated by the high amount of exploratory searching required in conventional Reinforcement Learning, which would lead to unsafe conditions and crashes.
 Instead Apprentiship Learning was employed, allowing the system to create a model from demonstration flight data for each manuever.
@@ -106,7 +106,7 @@ This presents a challenge in scenerios where expert data is not necessarily poss
 % - FYP9 - DeepQ Learning from Demonstration
 
 More recent advancements in integrating demonstration data in training have utilised deep learning techniques to achieve significant success\cite{deepQLearningFromDemo}.
-An algorithm, Deep Q-learning from Demonstrations(DQfD) was developed that makes use of a very small set of demonstration data to speed up the training time.
+An algorithm, Deep Q-learning from Demonstrations (DQfD) was developed that makes use of a very small set of demonstration data to speed up the training time.
 The performance of DQfD was evaluated using Atari Games, a popular benchmark in RL, DQfD outperformed its counterparts during the first million stages on 41 of 42 games, and acheieved state-of-the-art scores in 11 games.
 This research was motivated by the unavailability of an accurate simulation environemnt.
 DQfD incorporates a pre-training phase where the agent samples from demonstration datasets.
@@ -121,7 +121,7 @@ Once pre-training is complete, the system begins interacting with the actual env
 These additional experiences are collected in a replay buffer along with the original demonstration examples.
 The demonstrated data is kept always kept in the buffer and not overridden, additionally it is sampled at a higher frequency than the agent collected data.
 This effectively treats the demonstrated data a special type of collected data.
-This provides a balance between the imitation and further exploration of the state space to produce "superhuman" results.
+This provides a balance between the imitation and further exploration of the state space to produce ``superhuman'' results.
 The DQfD agent additonally has a strong resiliance to suboptimal demonstrations or outliers.
 The agent outperformed the worst demonstration provided in 29 out of 42 games.
 In 14 of the 42 games, the agent was able to surpass the performance of the best demonstration provided, further proving the possibility for improvement beyond the provided examples.
