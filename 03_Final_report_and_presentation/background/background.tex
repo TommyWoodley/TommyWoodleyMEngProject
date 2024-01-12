@@ -8,7 +8,7 @@
 % - Perching Approaches
 % - Reinforcment Learning
 %   - Traditional
-%     - Previous Work
+%     - Previous Work - done
 %     - FYP8 - Human-Level Control through Deep Reinforcment Learning
 %   - Apprentiship Reinformcent Learning 
 %     - FYP7 - "An Application of Reinformcent Learning to Aerobatic Helicopter Flight (P. Abel 2007)"
@@ -20,3 +20,54 @@
 %     - FYP10 - Soft Actor-Critic with Inhibitory Networks for Retraining UAV Controllers Faster
 %   - Learned Skills
 %     - FYP-15 - Demonstration Guided Reinforcment Learning with Learned Skills
+
+Previous work has explored the use of Reinforcement Learning in automatically generating trajectories for drone perching\cite{learnedTetheredPerchingFabian}.
+In this approach a Soft Actor Critic algorithm was employed to develop a series of energy optimised trajectories.
+The trajectory was divided into three seperate stages.
+The initial approach and contact phases used trajectories formulated using analytical solutions.
+The Reinformcent Learning aspect was specifically applied for the more complex manuver of flipping the drone beneath the branch.
+
+\todo{diagram for this manuever}
+A Markov Decision Process was defined using observations $o_{t} \in O$ where $o_{t}$ denotes the drone's relative position and $a_{t}$ determines its roll rate.
+An experimental baseline provided a potential solution using a constant roll rate.
+This method integreated two components of a reward function.
+In the initial training stages, the algorithm priotitised conforming to the baseline.
+As training progresses, there is a shift in the reward function's focus, increasingly favouring a faster, more energy efficient trajectory.
+This shift allows a greater exploration of the parameter space.
+
+\[
+R_{1}(s_{t}, a_{t}) = 
+\begin{cases} 
+I(s_{t}, a_{t}) & \text{for } t \leq t_{I} \\
+I(s_{t}, a_{t}) M(t) & \text{else} 
+\end{cases}
+\]
+
+\[I(s_{t}, a_{t}) = 3 \times 10 ^ 5 \times (0.1 - min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4\]
+\[M(t) = \frac{t_{max} - t}{t_{max} - t_{I}}\]
+
+\[
+R_{2}(s_{t}, a_{t}) =
+\begin{cases}
+  R_{L} + \frac{\Delta X_{target} - 0.005}{l_{r}} \times 50 & \text{for } \frac{d_{target}}{d_{drone}} > 1 \\
+  R_{L} + \frac{\Delta X_{branch}}{d_{drone}} \times 100 & \text{else}
+\end{cases}
+\]
+
+\todo{rephrase this section}
+where $s_{\alpha}$ and $s_{\alpha}$ are the roll angel of the current and the baseline state; 
+$t_{max}$ is the maximum time of the simulation; 
+$t_{I}$ is the time where the final point should be reacted.
+where RL is the reward from the last step dtarget is the distance to the target position; 
+ddrone is the size of the drone; 
+∆Xtarget and ∆Xbranch is the change in the distance made to the final position and to the branch, and lr is the length of the rope.
+
+However this method may constrain the range of possible solutions.
+By favouring approaches that resemble the baseline, this could prevent the system from learning novel, potentially more efficient strategies.
+Since just roll rate was explored, this limits the range of solutions into 2 dimensions which reduces the computational complexity but may not fully explore paths.
+Additioanlly one of the main challenges in the previous work was simulation.
+Accurately modelling the dynamics between the tether and the drone presented significant challenges.
+Performing training in a real-world setting would be exceptionally difficult, given the extensive number of trials required and the risk of errors causing physical damage to the drone.
+
+There is a need to devise a system capable of efficiently learning from a very limited number of experiments, while ensuring safety of the drone.
+
