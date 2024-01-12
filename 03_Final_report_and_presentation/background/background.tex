@@ -23,6 +23,10 @@
 
 % Previous Work - Fabian
 
+\section{Perching Approaches}
+
+\section{Traditional Reinforcement Learning}
+
 Previous work has explored the use of Reinforcement Learning in automatically generating trajectories for drone perching\cite{learnedTetheredPerchingFabian}.
 In this approach a Soft Actor Critic algorithm was employed to develop a series of energy optimised trajectories.
 The trajectory was divided into three seperate stages.
@@ -73,6 +77,8 @@ Performing training in a real-world setting would be exceptionally difficult, gi
 
 There is a need to devise a system capable of efficiently learning from a very limited number of experiments, while ensuring safety of the drone. \\\\
 
+\section{Reinforcement Learning with Demonstrations}
+
 % FYP7 - "An Application of Reinformcent Learning to Aerobatic Helicopter Flight (P. Abel 2007)" - Demonstration
 One of the earliest applications of Reinforcement Learning (RL) was in Aerobatic Helicopter Flight\cite{abbeelRLAerobaticFlight}.
 Inverse Reinforcment Learning(IRL) was employed to learn a helicopter model and its associated reward function from human demonstrations.
@@ -95,5 +101,41 @@ However a notable limitation of this approach is its reliance on expert generate
 The demonstration data is presumed to represent the optimal solution, an assumption that is unlikely to hold true in the vast majority of applications.
 The agent's performance is inherently limited by the expertise of the demonstrator.
 Sicne the reward function is estabilished from the demonstration data, there lacks a mechanism to reward or even acknowlege improvements beyond the demonstrated capabilities.
-This presents a challenge in scenerios where expert data is not necessarily possible or where surpassing the skill of a human pilot is required.
+This presents a challenge in scenerios where expert data is not necessarily possible or where surpassing the skill of a human pilot is required. \\\\
 
+% - FYP9 - DeepQ Learning from Demonstration
+
+More recent advancements in integrating demonstration data in training have utilised deep learning techniques to achieve significant success\cite{deepQLearningFromDemo}.
+An algorithm, Deep Q-learning from Demonstrations(DQfD) was developed that makes use of a very small set of demonstration data to speed up the training time.
+The performance of DQfD was evaluated using Atari Games, a popular benchmark in RL, DQfD outperformed its counterparts during the first million stages on 41 of 42 games, and acheieved state-of-the-art scores in 11 games.
+This research was motivated by the unavailability of an accurate simulation environemnt.
+DQfD incorporates a pre-training phase where the agent samples from demonstration datasets.
+Multiple loss functions were employed, including supervised loss which was essential for the pre-training phase.
+By its nature, demonstration data covers a very narrow margin of the state space, often exclusing potentially hazardous actions.
+However simply using the demonstration data as part of an experience replay buffer is not sufficient as the agent will not adequently learn that these non-provided actions are more likely to be dangerous.
+Without this supervised loss, the agent might favour these unseen areas of the state space which are likely to contain dangerous actions.
+L2 regularisation loss was applied to the weights and biases of the network to ensure that the agent doesn't overfit consdiering the very small number of demonstration examples.
+By incorporating these elements, DQfD accelerates the training process.
+
+Once pre-training is complete, the system begins interacting with the actual environment, collecting additional data in a manner similar to standard DQN learning.
+These additional experiences are collected in a replay buffer along with the original demonstration examples.
+The demonstrated data is kept always kept in the buffer and not overridden, additionally it is sampled at a higher frequency than the agent collected data.
+This effectively treats the demonstrated data a special type of collected data.
+This provides a balance between the imitation and further exploration of the state space to produce "superhuman" results.
+The DQfD agent additonally has a strong resiliance to suboptimal demonstrations or outliers.
+The agent outperformed the worst demonstration provided in 29 out of 42 games.
+In 14 of the 42 games, the agent was able to surpass the performance of the best demonstration provided, further proving the possibility for improvement beyond the provided examples.
+
+This research shows the potential ability to overcome some of the difficulties as encoutered in the drone perching environemnt where the dynamics of the environment are complex to simulate.
+This study demonstraits that utilising demonstration data can be a valuable way to address the safety aspects encountered when using real-world environments.
+This is achieved with a relatively small amount of demonstration data from several minutes of gameplay per game.
+However it is unknown whether demonstration data alone would provide enough safety for the drone trajectories.
+Additionally increasing the performance from the demonstration data still requires a high number of training episodes.
+Although this is certianly an improvement, it would likely still take a very large amount of training time to sucessfully improve which is key to becoming better than the given demonstrations and allowing a drone to develop good trajectories from non-expert demonstrations.
+Finally this research only covers domains with discrete action spaces, in the drone perching environment, we have the ability to perform actions across a continuous action space.
+This is likely to be more computationally expensive which is another challenge that will need to be overcome.
+One of the major differences is the reward associated.
+In the Atari games environment, the reward is tied directly to the score achieved by the agent, this makes evaluating performance clear.
+However in the drone perching environment this is more challenging.
+It is not immediately clear how to balance rewards between actually achieving the perching action, with safety to prevent crashes and speed and energy efficiency.
+This makes evaluating the performance less clear.
