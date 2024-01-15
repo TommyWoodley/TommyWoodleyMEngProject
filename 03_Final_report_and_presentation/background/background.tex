@@ -13,7 +13,7 @@
 %   - Apprentiship Reinformcent Learning 
 %     - FYP7 - "An Application of Reinformcent Learning to Aerobatic Helicopter Flight (P. Abel 2007)" - done
 %   - Demonstration
-%     - FYP9 - DeepQ Learning from Demonstration
+%     - FYP9 - DeepQ Learning from Demonstration - done
 %     - FYP-16 - Forgetful Experience Replay in Hierechical Reinfrocment Learning from Expert Demonstrations.
 %     - FYP17 - Mapless navigation for UAVs via Reinforcement Learning
 %   - Transfer Learning
@@ -138,4 +138,48 @@ One of the major differences is the reward associated.
 In the Atari games environment, the reward is tied directly to the score achieved by the agent, this makes evaluating performance clear.
 However in the drone perching environment this is more challenging.
 It is not immediately clear how to balance rewards between actually achieving the perching action, with safety to prevent crashes and speed and energy efficiency.
-This makes evaluating the performance less clear.
+This makes evaluating the performance less clear. \\\\
+
+
+% FYP17 - Mapless navigation for UAVs via Reinforcement Learning
+
+In other areas of Reinfrocment Learning variants of the Soft Actor Critic Algorithm have performed well.
+Motivated by the lack of success from DQfD in complex environments, an algorithm, Soft Actor Critic from Demonstrations (SACfD) was proposed\cite{SACfDMaplessNavigation}.
+This aimed to combine the strong sucess of SAC algorithms in complex environments.
+The aim of this task was to navigate a drone towards a destination while avioding obstacles in a simulation environment.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{background/fyp17-sacfd.png}
+  \caption{Mapless navigation environment for Soft Actor Critic from Demonstrations}
+\label{fig:fyp17-sacfd}
+\end{figure}
+
+The reward used 3 cases as shown in Equation.~\ref*{eq:fyp17-sacfd-reward}. 
+The final case effectively shows a hieristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
+
+\begin{equation}
+  r(s_{t}, a_{t}) =
+  \begin{cases} 
+    r_{arrive} & |x_{t} - g_{t}| < \delta \\
+    r_{obstacle} & l_{t} < \epsilon \\
+    1-0.1 |x_{t} - g_{t}| & \text{otherwise}
+  \end{cases}
+  \label{eq:fyp17-sacfd-reward}
+\end{equation}
+
+One of the most interesting parts of this particular paper was its effective use of coordinate frames.
+Given one of the main aims for agent to learn to aviod the obstacles.
+Rather than being provided with a view on the map or locations of the obstacles, observations were provided around the drone, which effectively gave distances to obstacles in each direction around the drone.
+This is effectivley measuring everything from a drone coordinate frame.
+Within the particular drone perching task, the choice of coordinate frames in more complex, since there are multiple relations between objects that are important to account for.
+There is the drone itself, the perching branch and also the tether.
+An in particular since the dynamics between the tether and the drone are complex to model in simulation, this is an are where demonstration could be a very useful application.
+
+An interesting observation in this paper is that many reinforcment learning algorithms are trained on a single map.
+One of the major aims here was in generalisation and the understanding from measurements for any map rather than "memorizing" a particular map.
+Therefore in this environment the positions of the obstacles and destination were randomly assigned in each episode to ensure that generalisation from observations occurred.
+One area of note in this particular examples, is the trajectories themselves that this algorithm generate are largely not smooth and could prove complex and non-efficient to actually fly in a real environment.
+
+\todo{improve diagram showing the environment}
+
