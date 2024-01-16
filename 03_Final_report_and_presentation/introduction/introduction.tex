@@ -40,6 +40,7 @@ This project aims to generate agile trajectories for tethered drone perching, ef
 
 A tethered drone employs a pendulum merchanism, including a rope of length with a weight at one end, allowing the pendulum to move freely as shown in Figure.~\ref*{fig:intro-tethered-drone}.
 For perching on a tree, the drone's tether system is designed to wrap around a target branch as shown in Figure.~\ref{fig:intro-wrapping}.
+This process is futher explained in Section 2.1.
 
 \begin{figure}[htbp]
   \centering
@@ -48,6 +49,17 @@ For perching on a tree, the drone's tether system is designed to wrap around a t
 \label{fig:intro-wrapping}
 \end{figure}
 
-\section{Objectives}
-\section{Challenges}
+One of the major challenges encountered in previous work in the area was in simulation.
+It was difficult to simulate the pendulum and all of the forces exerted on it.
+Additionally modelling the tether wrapping around branch proved to be extremely difficult.
+Therefore several assumptions had to be made that didn't necessarily prove to be correct when done on real data.
+In some sections, the simulations were done without the tether being present, it was noted that this seemed oversimplified and caused trajectories to be generated that were infeasible.
+This therefore motivates the need for an algorithm that can learn from real-world non-simulated environments quickly and safely.
+
+In previous work a demonstration, target trajectory, was used to speed up training.
+However the major issue is that the reinforcment learning agent is limited to the ability of the demonstration, it assumes the demonstration is perfect which is usually not the case.
+This motivates the learning of trajectories from non-expert demonstrations.
+The aim of this project is to design and implement a framework for learning agile perching trajecteries from non-expert demonstrations.
+This work therefore fits into the intersection between Imitation Learning (IR) and Reinforcement Learning (RL).
+
 \section{Contributions}
