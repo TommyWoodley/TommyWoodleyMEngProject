@@ -88,12 +88,14 @@ There is a need to devise a system capable of efficiently learning from a very l
 
 \section{Reinforcement Learning}
 % Intro
-Reinforcement learning involves an agent that interacts with an environment to gain knowledge and recieves feedback in the form of rewards.
+Reinforcement learning involves an agent that interacts with an environment to gain knowledge and recieve feedback in the form of rewards~\cite{rlIntroSuttonBarlo}.
 The agent explores the environment, discovers which actions yield the most reward, and then refines its strategy to produce an optimal policy.
 States are a mathematic representation of the environment, and must contain all information required to compute the optimal policy.
 Within the particular task of drone perching, this is likely to include coordinate positions along 3 and angles along all axis and the velocities along all axes.
 The actions here represent what the drone will execute to solve the problem which for this problem represents the coordinate positions of movement which will represent the trajectory.
+The development of Deep Q-Networks combining neural networks with reinforcement learning has proved extremely successful in the Atari Games, a popular benchmark in RL.
 
+\todo{do this diagram and finish the text above}
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.33\textwidth]{frog.png}
@@ -108,8 +110,9 @@ Therefore when investigating work on reinforcement learning this was a particula
 In 2022 a review paper\cite{aerialNavReview} on UAV navigation using RL identified 159 papers that use RL to solve UAV navigation challenges.
 Within path planning the review described papers based on both mapless and map-based navigation.
 A map-based navigation approach uses a representation of the environment, largely including terrain or obstacles.
-Within drone perching this would likely relate to 
-aerialNavReview
+Within drone perching this would likely relate to s \todo{finish this}
+
+
 
 \section{Reinforcement Learning with Demonstrations}
 
