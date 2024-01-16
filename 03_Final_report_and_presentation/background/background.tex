@@ -86,7 +86,22 @@ Performing training in a real-world setting would be exceptionally difficult, gi
 
 There is a need to devise a system capable of efficiently learning from a very limited number of experiments, while ensuring safety of the drone. \\\\
 
-\section{Traditional Reinfrocement Learning}
+\section{Reinforcement Learning}
+% Intro
+Reinforcement learning involves an agent that interacts with an environment to gain knowledge and recieves feedback in the form of rewards.
+The agent explores the environment, discovers which actions yield the most reward, and then refines its strategy to produce an optimal policy.
+States are a mathematic representation of the environment, and must contain all information required to compute the optimal policy.
+Within the particular task of drone perching, this is likely to include coordinate positions along 3 and angles along all axis and the velocities along all axes.
+The actions here represent what the drone will execute to solve the problem which for this problem represents the coordinate positions of movement which will represent the trajectory.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.33\textwidth]{frog.png}
+  \caption{TODO}
+\label{fig:rl-intro-drone}
+\end{figure}
+
+
 % FYP11 - Review Paper - maybe just discuss some findings
 The problem of trajectory generation for drone perching has a large overlap with UAV navigation.
 Therefore when investigating work on reinforcement learning this was a particular area that was focussed on since the objective is largely the same.
