@@ -103,7 +103,6 @@ The development of Deep Q-Networks combining neural networks with reinforcement 
 \label{fig:rl-intro-drone}
 \end{figure}
 
-
 % FYP11 - Review Paper - maybe just discuss some findings
 The problem of trajectory generation for drone perching has a large overlap with UAV navigation.
 Therefore when investigating work on reinforcement learning this was a particular area that was focussed on since the objective is largely the same.
@@ -112,7 +111,22 @@ Within path planning the review described papers based on both mapless and map-b
 A map-based navigation approach uses a representation of the environment, largely including terrain or obstacles.
 Within drone perching this would likely relate to s \todo{finish this}
 
+However one of the major limitations of traditional reinforcement learning in this context is the high number of episodes required to train.
+This is different to navigation tasks which can be simulated reasonably well. \\\\
 
+% FYP8 Human-Level Control through Deep Reinforcment Learning
+Human-Level Control was achieved over the the Atari Gameset \cite{humanLevelControlDQN} using a deep Q-network.
+This involves approximating the Q value function using a neural network.
+One of the major inovations was the use of experience replay, where experiences are stored in a buffer and replayed in randomly sampled mini batches.
+Since deep neural networks require a large amount of data, this massively increased the efficiency of data by reusing, this in turn drastically reduced the number of episodes required.
+Other techniques have gone further than, rather than sampling randomly, they use alterative strategies such as prioritising the experiences that cause the network to have the largest change in weights.
+Another key aspect was the use of skipping and stacking frames.
+4 Frames were stacked on top of each other for each pass, this potentially provides the network some idea of the change between different frames.
+Frames were also skipped, a 10Hz sampling was performed on the games, this reduced the amount of data and therefore the number of steps required similar to what a human would be capable of.
+This aspect will likely transfer well to the drone perching task, where a decision about the frequency of decisions will need to be made.
+By making the sampling frequency similar to that which a human can perform would allow similar or better than human performance while being much more efficient.
+However the real benefit was that this reduced the overall time of the simulations since computing an action was much more computationally expensive than performing a step of simulation.
+Within the real-world task this is likely to be the other way round, so increasing the sampling frequency may actually allow for more training from a single run which could potentially be better.
 
 \section{Reinforcement Learning with Demonstrations}
 
