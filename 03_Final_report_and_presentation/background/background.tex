@@ -43,6 +43,13 @@ The initial approach and contact phases used trajectories formulated using analy
 The Reinformcent Learning aspect was specifically applied for the more complex manuver of flipping the drone beneath the branch.
 
 \todo{diagram for this manuever}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.33\textwidth]{frog.png}
+  \caption{TODO}
+\label{fig:previous-work-manuever-diagram}
+\end{figure}
+
 A Markov Decision Process was defined using observations $o_{t} \in O$ where $o_{t}$ denotes the drone's relative position and $a_{t}$ determines its roll rate.
 An experimental baseline provided a potential solution using a constant roll rate.
 This method integreated two components of a reward function.
@@ -115,18 +122,23 @@ However one of the major limitations of traditional reinforcement learning in th
 This is different to navigation tasks which can be simulated reasonably well. \\\\
 
 % FYP8 Human-Level Control through Deep Reinforcment Learning
-Human-Level Control was achieved over the the Atari Gameset \cite{humanLevelControlDQN} using a deep Q-network.
-This involves approximating the Q value function using a neural network.
-One of the major inovations was the use of experience replay, where experiences are stored in a buffer and replayed in randomly sampled mini batches.
-Since deep neural networks require a large amount of data, this massively increased the efficiency of data by reusing, this in turn drastically reduced the number of episodes required.
-Other techniques have gone further than, rather than sampling randomly, they use alterative strategies such as prioritising the experiences that cause the network to have the largest change in weights.
-Another key aspect was the use of skipping and stacking frames.
-4 Frames were stacked on top of each other for each pass, this potentially provides the network some idea of the change between different frames.
-Frames were also skipped, a 10Hz sampling was performed on the games, this reduced the amount of data and therefore the number of steps required similar to what a human would be capable of.
-This aspect will likely transfer well to the drone perching task, where a decision about the frequency of decisions will need to be made.
-By making the sampling frequency similar to that which a human can perform would allow similar or better than human performance while being much more efficient.
-However the real benefit was that this reduced the overall time of the simulations since computing an action was much more computationally expensive than performing a step of simulation.
-Within the real-world task this is likely to be the other way round, so increasing the sampling frequency may actually allow for more training from a single run which could potentially be better.
+Human-level control was achieved in the Atari Gameset using a deep Q-network (DQN) \cite{humanLevelControlDQN}.
+This was primarily due to the innovative approximation of the Q-value function using a neural network.
+One of the major inovations was the use of experience replay.
+This involves storing experiences in a replay buffer and randomly sampling mini-batches for replay.
+Since deep neural networks require a large amount of data, experience replay significantly enhances the efficiency of data by reusing
+This approach in turn drastically reduces the number of episodes required for effective training.
+Building on this, some techniques have gone beyond random sampling to incorporate strategies such as prioritising experiences that lead to the most substantial changes in network weight.
+
+Another key component of the success was the use of frame skipping and stacking techniques.
+The system stacks 4 frames on top of each other for each pass, this potentially provides the network some insights into the changes between frames.
+Additionally frame skipping was used, with a 10Hz sampling rate applied to the game.
+This reduced the amount of data and therefore the number of steps required to be similar to what a human would be capable of.
+
+The real benefit of this approach is its ability to reduce the overall simulation time.
+For the Atari Games, computing an action was significantly more computationally expensive than performing a simulation step.
+However in real world tasks, the situation might be reversed, with actual execution of the tasks being more time-consuming that decision making.
+Increasing the sampling rate for a drone application will increase the amount of data collected, which could lead to more being learnt from each run.
 
 \section{Reinforcement Learning with Demonstrations}
 
