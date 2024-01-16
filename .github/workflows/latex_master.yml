@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '03_Final_report_and_presentation/**'
 
 jobs:
   build-and-release:

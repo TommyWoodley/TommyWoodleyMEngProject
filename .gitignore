@@ -20,7 +20,7 @@
 *.inx
 *.ps
 *.dvi
-*.pdf
+03_Final_report_and_presentation/**/*.pdf
 *.thm
 *.nav
 *.pre
