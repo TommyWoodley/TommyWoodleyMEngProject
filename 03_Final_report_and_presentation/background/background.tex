@@ -138,9 +138,64 @@ This reduced the amount of data and therefore the number of steps required to be
 The real benefit of this approach is its ability to reduce the overall simulation time.
 For the Atari Games, computing an action was significantly more computationally expensive than performing a simulation step.
 However in real world tasks, the situation might be reversed, with actual execution of the tasks being more time-consuming that decision making.
-Increasing the sampling rate for a drone application will increase the amount of data collected, which could lead to more being learnt from each run.
+Increasing the sampling rate for a drone application will increase the amount of data collected, which could lead to more being learnt from each run. \\\\
 
 %     - FYP12/23 - Autonomous Waypoint Navigation
+
+In the are of autonomous waypoint navigation, various methods have been explored and implemented.
+One of the primary challenges is operating in a continuous enviornment, which adds complexity to the training process.
+A common strategy involves discretising the environment, enhancing the performance by simplifying the state space.
+However this sacrifices flexibility for performance.
+The nature of the continous envionment is often lost and navigation becomes inherently more intricate.
+A drone moving in a discretised environemnt would transition from point to point, resulting in neither a smooth or efficient path.
+This leads to trajectories that are instable and inefficient.
+To deal with this, a substantial increase in the number of states is required.
+However this negatively impacts performance, particularly in a three-dimensional Euclidean space where drones operate with six degrees of freedom.
+
+An interesting approach to deal with these issues was proposed to use waypoints and Bezier curves to define a trajectory \cite{fyp12-waypoint-navigation}.
+This approach splits the system into two distinct parts as shown in Figure.~\ref{fig:fyp12-waypoint-nav-framework}.
+The high-level component focuses on choosing waypoints that minimise thrust cost, thereby reducing energy usage.
+The lower-level component creates smooth trajectories through these waypoints.
+The overall goal of the system is to produce seamless trajectories that aviod obstacles within known 3D environments.
+This goal significantly resembles the drone perching task, making it an interesting paper to examine.
+
+\todo{do this diagram}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{background/fyp12-waypoint-nav-framework.png}
+  \caption{Waypoint Navigation Framework}
+\label{fig:fyp12-waypoint-nav-framework}
+\end{figure}
+
+At the higher level, the system utilises a Deep Q-Network (DQN).
+The 3D envionment is discretised into an N x N x N grid, where actions are defines as potential waypoints in a 3 x 3 x 3 grid surrounding the current position.
+This gives 26 potential actions for each state.
+Convolutional Neural Networks (CNNs) are used to process the 3D input state (the known 3D environment) with a fully-connected output layer, with 26 neurons, each corresponding to one of the possible actions.
+
+The reward is defined as the weighted sum of two components:
+\[R(s, a) = \alpha R_{p} + \beta R_{c}\]
+
+where $R_{p}$ is the position reward:
+\[
+R_{p}(s, a) = 
+\begin{cases} 
+10 & \text{reach target position} \\
+-10 & \text{collide with obstacle} \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+and $R_{c}$ represents the control reward, defined as the negative L1 norm of the thurst cost, provided by the lower level system.
+This balances the reward between reaching targets, avioding obstacles and minimising thrust cost.
+The lower-level system follows a more traditional control-based algorithm \cite{fyp12-waypoint-nav2}.
+
+This two part system was a novel approach that significantly reduces the number of states in a discretised environment while still achieving a smooth, minimised trajectory.
+It simplifies the reinforcement learning system to focus on the optimal positions rather than explicitly learning flight control.
+However since this model is focussed on obstacle aviodance and navigation, the state is simply made up of the translational coordinates.
+For tasks such as perching, incorporating all 6 dimensions, including rotational ones, is likely to complicate computation further.
+In previous work, occasionally the weight on the drone collided with either the string or the drone itself.
+Treating the weight as an obstacle that could collide with itself could be an interesting approach to potentially reduce the chances of this happening.
+However this would further complicate the envionment, and make defining a reward function even more complicated to the point where it would be very challenging to manually define.
 
 %     - FYP13 - Noise Injection
 
