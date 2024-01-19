@@ -266,6 +266,57 @@ This makes evaluating the performance less clear. \\\\
 
 
 %     - FYP14 - Learning from Imperfect Demonstrations
+In the area of learning from demonstrations, it is usually assumed that the demonstration data provided is expert behaviour.
+Although there is the possibility of improving from these demonstrations, the improvements is often minor and imperfect demonstrations can have a large performance impact.
+However, in real-world scenarios, the demonstrations provided are often sub-optimal, this is critical when there is a requirements to improve beyond the demonstration data.
+To address this challenges, the Normalised Actor-Critic (NAC) method has been proposed, showing robustness against poor or even detrimental demonstrations \cite{fyp14-rl-imperfect-demos}.
+
+Demonstrations are typically a highly biased sample of the environment.
+For example, it is unlikely that a demonstrations datasets to include a drone crash scenario.
+Although alternative algorithms can understand that demonstration data is generally good, they often have no ability to understand that alternative actions are worse.
+This lack of negative demonstrations, especially in off-policy learning, can lead to unintended consequences.
+The NAC approach introduced a soft policy gradient that reduced the Q-values of actions not present in demonstrations.
+This differs from the standard soft Q-learning gradient, defined as $ \Delta_{\theta} Q_{\theta}(s, a)(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a)) $.
+The normalised version includes an additional term, $\Delta_{\theta} V_Q(s)$, preventing the inflation of Q-values for actions that are unseen:
+\[ (\Delta_{\theta} Q_{\theta}(s, a) - \Delta_{\theta} V_Q(s))(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a))\]
+
+The full algorithm has been reproduced here in Algorithm.~\ref{algo:nac-imperfect-demos}.
+
+\begin{algorithm}
+\label{algo:nac-imperfect-demos}
+\caption{Normalised Actor-Critic for Learning from Demonstration~\cite{fyp14-rl-imperfect-demos}}
+\begin{algorithmic}[1] % The number tells where the line numbering should start
+\State Initialize parameters $\theta$ for the rapid Q network, $\theta'$ for the target Q network
+\State Initialize $D$: demonstrations collected by human or a trained policy network
+\State Initialize $T$: target network update frequency
+\State Initialize $M$: replay buffer
+\State Initialize $k$: number of steps to train on the demonstrations
+
+\For {$t = 1, 2, \dots$} % The range of t
+    \If {$t \leq k$}
+        \State Sample a mini-batch of transitions from $D$
+    \Else
+        \State Start from $s$, sample $a$ from $\pi$, execute $a$, observe $(s',r)$
+        \State Store $(s, a, r, s')$ in $M$
+        \State Sample a mini-batch of transitions from $M$
+    \EndIf
+    \State Update $\theta$ with gradient: $\nabla_\theta J_{PG} + \nabla_\theta J_V$
+    \If {$t \mod T = 0$} % Condition for updating the target network
+        \State $\theta' \gets \theta$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm was compared with the Deep Q-learning from demonstraion algorithm \cite{deepQLearningFromDemo} in a minecraft style environment, and two driving games; Torcs and GTA.
+The NAC algorithm has shown remarkable performance.
+Overall NAC performed marginly better than DQfD in the Torcs game but significantly stronger in the GTA game especially when the agent is allowed to interact with the real environment after demonstrations.
+The true advantage of NAC becomes evident when leveraging imperfect demonstrations.
+With datasets containing 30\%, 50\%, and 80\% imperfect data, NAC's performance only marginly decreases, wheras the perfromance of DQfD drops to approximatelty 40\% of the original under higher imperfect demonstration percentages.
+NAC's ability to learn beneficial behaviours while avioding suboptimal ones is extremely effective.
+
+NAC is resilient to imperfect demonstrations, this is particularly beneficial in real-world scneraios where providing good demonstrations is difficult.
+It enables the collection of demonstrations, followed by continuous, safe training in real-world conditions. \\\\
 
 
 % FYP17 - Mapless navigation for UAVs via Reinforcement Learning
