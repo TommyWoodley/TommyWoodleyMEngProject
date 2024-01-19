@@ -34,11 +34,9 @@ The majority of the current literature focuses on mechanical attachment methods,
 This project aims to generate agile trajectories for tethered drone perching.
 A tethered drone employs a pendulum mechanism, including a rope of length $l$ with a weight at one end, allowing the pendulum to move freely as shown in Figure.~\ref*{fig:intro-tethered-drone}.
 
-\todo{make this figure better with l, w}
-
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.33\textwidth]{introduction/tetheredDroneImage.png}
+  \includegraphics[width=0.33\textwidth]{introduction/TetheredDrone.drawio.png}
   \caption{Tethered Drone: A UAV with a tether attached with a small weight}
 \label{fig:intro-tethered-drone}
 \end{figure}
@@ -63,7 +61,7 @@ This therefore motivates the need for an algorithm that can learn from real-worl
 
 In previous work, a single demonstration, target trajectory, was used to speed up training.
 However the major limitation with this type of reinforcement learning agent is the reliance on the ability of the demonstration, it assumes the demonstration is perfect or near perfect which is usually not the case for real-world demonstrations.
-Traditional RL algorithms have shown a limited ability to improve upon demonstrations and struggle to perform well on non-expert or 
+Traditional RL algorithms have shown a limited ability to improve upon demonstrations and struggle to perform well on non-expert or detrimental demonstrations.
 
 This motivates the learning of trajectories from non-expert demonstrations.
 This project aims to design and implement a framework for learning agile perching trajectories from non-expert demonstrations.
