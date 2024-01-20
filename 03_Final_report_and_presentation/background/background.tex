@@ -362,9 +362,58 @@ One area of note in this particular examples, is the trajectories themselves tha
 \todo{improve diagram showing the environment}
 
 
-\section{Inverse Reinforcement Learning}
-% FYP10 Soft Actor-Critic with Inhibitory Networks for Retraining UAV Controllers Faster
-
+\section{Transfer Learning}
 %     - FYP10 - Soft Actor-Critic with Inhibitory Networks for Retraining UAV Controllers Faster
+Transfer Learning is a growing field in Reinforcment Learning.
+This approach addresses a key limitation of traditional RL, where each new task typically requires restarting the learning process from scratch.
+A process that can be quite time-consuming. 
+Transfer learning facilitates the reuse of skills acquired from one task for use in another task, thereby significantly accelerating the training process.
+
+In the specific contex of UAVs, real world datasets are often limited or time consuming to collect.
+Transfer learning can be employed to accelerate training time.
+Much of the current work, involves training an RL agent within a simulated environment, where interactions are both less resource-intensive and also considerably faster. 
+The skills learnt in this simulated setting are then transferred to agents designated for real-world tasks.
+Expanding on this, there is is often a need for learning multiple distinct but related tasks.
+Traditional approaches necessitate seperate training for each new task, transfer learning allows for the use of skills learned from an initial task to later subsequent ones, accelerating the training process for this second task.
+
+The conventional Soft Actor Critic (SAC) employs a single parameter responsible for balancing exploration against learned skills.
+This is not particularly sutiable to be used for learning new skills since it often results in catastrophic forgetting of previously learned skills~\cite{fyp10-initial-transfer-learning}.
+
+To mitigate this issue, the Soft Actor Critic with Inhibitory Networks (SAC-I) has been proposed~\cite{fyp10-sac-Inhibitory}.
+SAC-I introduces inhibitory control into the SAC framework, inhibitory control is defined as the capacity to stop ongoing or planned processes.
+This model uses a dual-critic system, each tailored to a specific task.
+When learning a new related task, the model does not start from scratch.
+It introduces a new set of Q-values specific to the new task, maintaining both sets of networks within the same system. 
+A crutial component of SAC-I is the introduction of an inhibition rule, which controls which network is utilised based on environmental conditions.
+This not only keeps the knowledge from previous tasks but also ensures a more efficient training process in learning new tasks, addressing the issue of catastrophic forgetting and enhancing the overall efficacy of the training process.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{background/fyp-10-sac-inhibitors.png}
+  \caption{Soft Actor Critic with Inhibitory Networks Architecture Design}
+\label{fig:fyp17-sacfd}
+\end{figure}
+
+During the training phase, initially a primary network is trained on an original task.
+Subsequently, a secondary network is introduced, inheriting the initial weights from the primary network.
+Then training process then continues for the second task and is carried out on both networks, guided by an inhibitory rule that classifies between the scenrios.
+
+This dual-network system was validated in an obstacle avoidance scenario.
+Initially, a UAV was trained to navigate to its destination point using a traditional Soft Actor Critic (SAC) network. 
+Following this, the Soft Actor Critic with Inhibitory Networks (SAC-I) was introduced. 
+Initially, both networks in the SAC-I framework copied their weights from the SAC network that had been previously trained. 
+Finally, the UAV retrained, with the secondary network focusing specifically on obstacle avoidance and dynamically switching between networks when proximity to an obstacle was detected. 
+This structured approach significantly increased the speed of the training process.
+
+
+Effectively this methodology gives the agent the capacity to deconstruct complex tasks in a manner akin to Hierarchical Reinforcement Learning (HRL). 
+Applying this directly to the drone perching example, this could be used to model different sections of the task.
+For instance, the initial phase could concentrate on mastering the wrapping of the tether, followed by training on the subsequent phase of drone disarmament. 
+The primary advantage of this system is the consolidation of task-specific networks into a unified system.
+
+However, a critical limitation of this approach is the need for manually defining the distinct tasks within the overall objective. 
+Furthermore, the degree of overlap between different task phases remains unclear. 
+For instance, while the flight dynamics in separate phases may exhibit similarities, however given the different goals and objectives of the different phases, it is unknown how weel this would perform in practice. 
+
 %     - FYP18 - Inverse Reinforcement Learning
 %     - FYP-15 - Demonstration Guided Reinforcment Learning with Learned Skills
