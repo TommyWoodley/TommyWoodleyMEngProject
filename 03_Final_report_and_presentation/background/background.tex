@@ -195,9 +195,36 @@ However since this model is focussed on obstacle aviodance and navigation, the s
 For tasks such as perching, incorporating all 6 dimensions, including rotational ones, is likely to complicate computation further.
 In previous work, occasionally the weight on the drone collided with either the string or the drone itself.
 Treating the weight as an obstacle that could collide with itself could be an interesting approach to potentially reduce the chances of this happening.
-However this would further complicate the envionment, and make defining a reward function even more complicated to the point where it would be very challenging to manually define.
+However this would further complicate the envionment, and make defining a reward function even more complicated to the point where it would be very challenging to manually define. \\\\
 
 %     - FYP13 - Noise Injection
+Noise Injection can be utilised within Deep Reinforcement Learning to mitigate the risk of overfitting and to foster the exploratory behaviour of the agent.
+Specificially, the injection of Gaussian Noise has been investigated within the domain of UAV navigation~\cite{fyp13-noise-injection}, offering a promising approach to enhance the robustness and generalisation capabilities of the learning process.
+This technique can be employed when the agent is required to make decisions from partial or noisy inputs like those from real-world experiments.
+This system makes use of a Double Dueling Deep Q Network (D3QN) consisting of a CNN and a double dueling network as shown in Figure.~\ref{fig:fyp13-d3qn-noise}.
+This produces 3 three possible discreet actions; move forward, yaw left or yaw right.
+Gaussian Noise layers were introduced after the CNN and after the dueling neural networks.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{background/fyp13-noise-injection.png}
+  \caption{Double Dueling Deep Q Network with Gaussian Noise Injection}
+\label{fig:fyp13-d3qn-noise}
+\end{figure}
+
+This architecture was then benchmarked against the standard D3QN in a path planning scenrio tht required obstacle aviodance.
+The performance of the models over episodes is illustrated in Figure~\ref{fig:fyp13-results}.
+The results indicate that while both algorithms converge to comparable Q values, the D3QN model with Gaussian Noise has a higher stability during the training phase.
+Although these effects need further investigation within the specific environmental context, this approach is a potential practical tool to avert overfitting. 
+This is particularly relevant when employing demonstration data, where the model's ability to generalise beyond the training samples is crucial. 
+The introduction of Gaussian Noise as a form of regularisation in D3QN presents an innovative method to improve the robustness and reliability of an agent.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{background/fyp13-noise-results.png}
+  \caption{Mean Q values of D3QN and D3QN with GN Injection}
+\label{fig:fyp13-results}
+\end{figure}
 
 \section{Reinforcement Learning with Demonstrations}
 
