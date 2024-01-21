@@ -512,7 +512,43 @@ The primary advantage of this system is the consolidation of task-specific netwo
 
 However, a critical limitation of this approach is the need for manually defining the distinct tasks within the overall objective. 
 Furthermore, the degree of overlap between different task phases remains unclear. 
-For instance, while the flight dynamics in separate phases may exhibit similarities, however given the different goals and objectives of the different phases, it is unknown how weel this would perform in practice. 
+For instance, while the flight dynamics in separate phases may exhibit similarities, however given the different goals and objectives of the different phases, it is unknown how weel this would perform in practice. \\\\
 
-%     - FYP18 - Inverse Reinforcement Learning
+
 %     - FYP-15 - Demonstration Guided Reinforcment Learning with Learned Skills
+Traditional Demonstration Guided RL as previously discussed, is able to combine both a set of demonstrations with reward feedback to learn complex behaviours.
+Traditional approaches treat every new task as a completely different learning problem which incurs the cost of training time.
+In real-world examples such as drone perching, demonstrations and indeed exploration is extremly expensive.
+One way to reduce this cost is by reusing skills between multiple different tasks.
+Motivated by the fact that most tasks are comprised of many reusable skills, Skill-based Learning with Demonstrations (SkiLD) has been proposed~\cite{fyp15-demo-guided-rl-with-skills}.
+
+SkiLD aims to improve the efficency of traditional techniques using previous experiences from different tasks.
+In SkiLD this takes the form of a task agnostic dataset, this is experiences that are not necessarily trained on the particular task but can come from any related task.
+This dataset $D = \{s_t, a_t, \dots\}$ consists of agent behaviours from any related task.
+A secondary dataset $D_{demo} = \{s_{t}^{d}, a_{t}^{d}, \dots\}$ are task specific demonstrations, these are demonstrations from the current task that the agent is attempting to solve.
+From here a set of skills are extracted from the task agnostic dataset as shown in Figure.~\ref{fig:fyp15-skild}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{background/fyp15-skild-architecture.png}
+  \caption{Skill-based Learning with Demonstrations Architecture}
+\label{fig:fyp15-skild}
+\end{figure}
+
+Target demonstrations are used to learn a task-specific skills posterior.
+From here the algorithm aims to utilise the skills posterior when closely aligned to the demonstrations, and utilise the skills prior others and also encourage the policy to match states within the demonstration support.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{background/fyp15-maze-diagram.png}
+  \caption{Visualisation of Maze Environment}
+\label{fig:fyp15-maze}
+\end{figure}
+
+This system was evaluated in three different environments, one of which being a maze navigation environment.
+Figure~\ref{fig:fyp15-maze} shows a visualisation of the maze environment with the skills distributions.
+The SkiLD algorithm is able to learn very fast from just 5 task specific demonstrations, showing faster performance than any comporable algorithm in this environment.
+
+This provides some inspiration in a drone perching context.
+Since there is non task specific data for drone flight readily available this could be used in order to speed up the process.
+This could further reduce the reliance on the number of demonstrations required.
