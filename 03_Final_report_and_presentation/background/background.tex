@@ -265,6 +265,78 @@ This makes evaluating the performance less clear. \\\\
 %     - FYP-16 - Forgetful Experience Replay in Hierechical Reinfrocment Learning from Expert Demonstrations.
 
 
+However, this approach may result in the loss of crucial samples, hindering the learning process.
+
+Experience Replay is an essential technique in Reinforcement Learning, significantly reducing the required number of episodes and, therefore, the number of demonstrations.
+Adjusting the experience replay mechanism is crutial for dealing with suboptimal or low-quality demonstration data.
+Traditional RL methods typically replay samples at the same frequency as they were initially observed.
+However, this approach may result in the loss of crucial samples, hindering the learning process.
+
+A notable approach is the introduction of Prioritised Experience Replay~\cite{fyp-16-prioritised-experience-replay}, a methodology designed to select the sampling of episodes. 
+The core objective of Prioritised Experience Replay is to sample episodes that lead to significant learning improvements for the agent more frequently. 
+This corresponds to those episodes where the expected learning progress is maximized. 
+A reasonable approximation for this metric is the magnitude of a transition's Temporal Difference (TD) error, $\delta$. 
+This error is then used to form a prioritized sampling queue.
+
+However since the values associated with each experience are only updated when an experience is replayed, a purely greedy sampling approach will overlook epiosdes that initially have low scores.
+To counter this limitation, a stochastic sampling method was introduced.
+
+The probability of a transition being sampled is given by:
+
+\[ P(i) = \frac{p_{i}^{\alpha}}{\sum_{k} p_{k}^{\alpha}} \]
+where: $p_{i} = |\delta_{i}| + \epsilon$ and $\epsilon$ is a small positive constant that ensures every transition has a nonzero probability of being sampled.
+While Prioritised Sampling is beneficial, it introduces bias into the learning process, meaning that corrective measures are necessary. 
+The importance sampling weight $w_j$ is shown in Algorithm~\ref{alg:fyp-16-prioritised-experience-replay}.
+
+\begin{algorithm}
+  \caption{Minibatch sampling for Priorisied Experience Replay}
+  \label{alg:fyp-16-prioritised-experience-replay}
+  \begin{algorithmic}[1]
+  \For{$j = 1$ \textbf{to} $minibatch$ $size$}
+      \State Sample transition $j \sim P(j) = \frac{p^{\alpha}_j}{\sum_i p^{\alpha}_i}$
+      \State Compute importance-sampling weight $w_j = \left( N \cdot P(j) \right)^{-\beta} / \max_i w_i$
+      \State Compute TD-error $\delta_j = R_j + \gamma_j Q_{\text{target}} \left( S_j, \arg\max_a Q(S_j, a) \right) - Q(S_{j-1}, A_{j-1})$
+      \State Update transition priority $p_j \leftarrow |\delta_j|$
+      \State Accumulate weight-change $\Delta \leftarrow \Delta + w_j \cdot \delta_j \cdot \nabla_{\theta}Q(S_{j-1}, A_{j-1})$
+  \EndFor
+  \end{algorithmic}
+  \end{algorithm}  
+  
+
+Overall Prioritised Experience Replay significantly improved performance, it led to a new state of the art benchmark for Atari games.
+The success of this approach could have the potential to address challenges associated with lower-quality demonstraion data.
+It is possible that this same methodology could be further refined to accomodate a quality metric of the demonstration, ehancing the adaptability and efficacy of the learning process. \\\\
+
+
+
+While Prioritised Experience Replay addresses the issue of which experiences to sample and the timing of those samples from the replay buffer, the other question of which experiences to retain or discard is also important. 
+In traditional implementations of Prioritised Experience Replay, the control of buffer content is usually not considered, and therefore, not explicitly controlled. 
+However, an algorithm, Forgetful Experience Replay (ForgER) specifically focuses on this aspect, particularly in the context of demonstration data~\cite{fyp16-forgetful-experience-replay}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{background/fyp16-forger-arch.png}
+  \caption{ForgER with dynamic sampling between demonstration and own experience buffers.}
+\label{fig:fyp16-forger-arch}
+\end{figure}
+
+ForgER makes use of hierarchical experience replay techniques paired with managed forgetting to address the retention and discarding of experiences. 
+The proposed algorithm allows for the extraction of subgoals from expert data based on different sections of a complex trajectory. 
+Then, for each identified subgoal, a replay buffer is populated with goal-specific demonstration data. 
+Finally a Forgetful Experience Replay algorithm, which accumulates the agent's own experiences of the subtask while progressively phasing out demonstration data.
+This Forgetful Experience Replay is what we will focus on here.
+
+The algorithm is motivated by the recongisition of suboptimality of expert demonstrations and potential discrepency between the state space of the expert and the agent.
+This discrepency frequently arises due to simplifications of the environement for the agent, such as discretising a continuous state space.
+The paper explores three approaches for sampling from the replay buffers.
+The first involves maintaining all experiences in a single buffer ans sampling uniformly.
+The second strategy entails stroing data in two seperate buffers and sampling evenly between demonstration data and the agent's own experiences.
+The third, and the method proposed by this paper, dynamically adjusts the sampling ration between the two buffers, as shown in Figure~\ref{fig:fyp16-forger-arch}.
+
+In this context, forgetting is the process of gradually reducing the dependency on demonstration data as the agent progressively learns from its own experiences.
+This can be implemented linearly where $f_{rg}(k) = \min(1, k/d)$, effectively managing the balance between leveraging demonstration data and incorporating the agent's personal experiences.
+This presents a interesting approach to utilising demonstration data, ensuring a balance between the integration of expert knowledge with the agent's autonomously gained insights. \\\\
+
 %     - FYP14 - Learning from Imperfect Demonstrations
 In the area of learning from demonstrations, it is usually assumed that the demonstration data provided is expert behaviour.
 Although there is the possibility of improving from these demonstrations, the improvements is often minor and imperfect demonstrations can have a large performance impact.
