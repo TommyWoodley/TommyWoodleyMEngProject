@@ -157,10 +157,10 @@ There is a need to devise a system capable of efficiently learning from a very l
 
 \section{Reinforcement Learning}
 % Intro
-Reinforcement learning involves an agent that interacts with an environment to gain knowledge and recieve feedback in the form of rewards~\cite{rlIntroSuttonBarlo}.
+Reinforcement learning involves an agent that interacts with an environment to gain knowledge and receive feedback in the form of rewards~\cite{rlIntroSuttonBarlo}.
 The agent explores the environment, discovers which actions yield the most reward, and then refines its strategy to produce an optimal policy.
 States are a mathematic representation of the environment, and must contain all information required to compute the optimal policy.
-Within the particular task of drone perching, this is likely to include coordinate positions along 3 and angles along all axis and the velocities along all axes.
+Within the particular task of drone perching, this is likely to include coordinate positions along 3 and angles along all axes and the velocities along all axes.
 The actions here represent what the drone will execute to solve the problem which for this problem represents the coordinate positions of movement which will represent the trajectory.
 The development of Deep Q-Networks combining neural networks with reinforcement learning has proved extremely successful in the Atari Games, a popular benchmark in RL.
 
@@ -186,39 +186,39 @@ This is different to navigation tasks which can be simulated reasonably well. \\
 % FYP8 Human-Level Control through Deep Reinforcment Learning
 Human-level control was achieved in the Atari Gameset using a deep Q-network (DQN) \cite{humanLevelControlDQN}.
 This was primarily due to the innovative approximation of the Q-value function using a neural network.
-One of the major inovations was the use of experience replay.
+One of the major innovations was the use of experience replay.
 This involves storing experiences in a replay buffer and randomly sampling mini-batches for replay.
 Since deep neural networks require a large amount of data, experience replay significantly enhances the efficiency of data by reusing
 This approach in turn drastically reduces the number of episodes required for effective training.
 Building on this, some techniques have gone beyond random sampling to incorporate strategies such as prioritising experiences that lead to the most substantial changes in network weight.
 
-Another key component of the success was the use of frame skipping and stacking techniques.
+Another key component of the success was the use of frame-skipping and stacking techniques.
 The system stacks 4 frames on top of each other for each pass, this potentially provides the network some insights into the changes between frames.
 Additionally frame skipping was used, with a 10Hz sampling rate applied to the game.
 This reduced the amount of data and therefore the number of steps required to be similar to what a human would be capable of.
 
 The real benefit of this approach is its ability to reduce the overall simulation time.
 For the Atari Games, computing an action was significantly more computationally expensive than performing a simulation step.
-However in real world tasks, the situation might be reversed, with actual execution of the tasks being more time-consuming that decision making.
-Increasing the sampling rate for a drone application will increase the amount of data collected, which could lead to more being learnt from each run. \\\\
+However, in real-world tasks, the situation might be reversed, with the actual execution of the tasks being more time-consuming than decision-making.
+Increasing the sampling rate for a drone application will increase the amount of data collected, which could lead to more being learned from each run. \\\\
 
 %     - FYP12/23 - Autonomous Waypoint Navigation
 
-In the are of autonomous waypoint navigation, various methods have been explored and implemented.
-One of the primary challenges is operating in a continuous enviornment, which adds complexity to the training process.
-A common strategy involves discretising the environment, enhancing the performance by simplifying the state space.
+In the area of autonomous waypoint navigation, various methods have been explored and implemented.
+One of the primary challenges is operating in a continuous environment, which adds complexity to the training process.
+A common strategy involves discretising the environment and enhancing the performance by simplifying the state space.
 However this sacrifices flexibility for performance.
-The nature of the continous envionment is often lost and navigation becomes inherently more intricate.
-A drone moving in a discretised environemnt would transition from point to point, resulting in neither a smooth or efficient path.
-This leads to trajectories that are instable and inefficient.
+The nature of the continuous environment is often lost and navigation becomes inherently more intricate.
+A drone moving in a discretised environment would transition from point to point, resulting in neither a smooth nor efficient path.
+This leads to trajectories that are unstable and inefficient.
 To deal with this, a substantial increase in the number of states is required.
-However this negatively impacts performance, particularly in a three-dimensional Euclidean space where drones operate with six degrees of freedom.
+However, this negatively impacts performance, particularly in a three-dimensional Euclidean space where drones operate with six degrees of freedom.
 
 An interesting approach to deal with these issues was proposed to use waypoints and Bezier curves to define a trajectory \cite{fyp12-waypoint-navigation}.
 This approach splits the system into two distinct parts as shown in Figure.~\ref{fig:fyp12-waypoint-nav-framework}.
 The high-level component focuses on choosing waypoints that minimise thrust cost, thereby reducing energy usage.
 The lower-level component creates smooth trajectories through these waypoints.
-The overall goal of the system is to produce seamless trajectories that aviod obstacles within known 3D environments.
+The overall goal of the system is to produce seamless trajectories that avoid obstacles within known 3D environments.
 This goal significantly resembles the drone perching task, making it an interesting paper to examine.
 
 \todo{do this diagram}
@@ -230,7 +230,7 @@ This goal significantly resembles the drone perching task, making it an interest
 \end{figure}
 
 At the higher level, the system utilises a Deep Q-Network (DQN).
-The 3D envionment is discretised into an N x N x N grid, where actions are defines as potential waypoints in a 3 x 3 x 3 grid surrounding the current position.
+The 3D environment is discretised into an N x N x N grid, where actions are defined as potential waypoints in a 3 x 3 x 3 grid surrounding the current position.
 This gives 26 potential actions for each state.
 Convolutional Neural Networks (CNNs) are used to process the 3D input state (the known 3D environment) with a fully-connected output layer, with 26 neurons, each corresponding to one of the possible actions.
 
@@ -241,40 +241,40 @@ where $R_{p}$ is the position reward:
 \[
 R_{p}(s, a) = 
 \begin{cases} 
-10 & \text{reach target position} \\
+10 & \text{reach the target position} \\
 -10 & \text{collide with obstacle} \\
 0 & \text{otherwise}
 \end{cases}
 \]
 
 and $R_{c}$ represents the control reward, defined as the negative L1 norm of the thurst cost, provided by the lower level system.
-This balances the reward between reaching targets, avioding obstacles and minimising thrust cost.
+This balances the reward between reaching targets, avoiding obstacles and minimising thrust cost.
 The lower-level system follows a more traditional control-based algorithm \cite{fyp12-waypoint-nav2}.
 
-This two part system was a novel approach that significantly reduces the number of states in a discretised environment while still achieving a smooth, minimised trajectory.
+This two-part system was a novel approach that significantly reduces the number of states in a discretised environment while still achieving a smooth, minimised trajectory.
 It simplifies the reinforcement learning system to focus on the optimal positions rather than explicitly learning flight control.
-However since this model is focussed on obstacle aviodance and navigation, the state is simply made up of the translational coordinates.
+However since this model is focused on obstacle avoidance and navigation, the state is simply made up of the translational coordinates.
 For tasks such as perching, incorporating all 6 dimensions, including rotational ones, is likely to complicate computation further.
 In previous work, occasionally the weight on the drone collided with either the string or the drone itself.
 Treating the weight as an obstacle that could collide with itself could be an interesting approach to potentially reduce the chances of this happening.
-However this would further complicate the envionment, and make defining a reward function even more complicated to the point where it would be very challenging to manually define. \\\\
+However this would further complicate the environment, and make defining a reward function even more complicated to the point where it would be very challenging to manually define. \\\\
 
 %     - FYP13 - Noise Injection
 Noise Injection can be utilised within Deep Reinforcement Learning to mitigate the risk of overfitting and to foster the exploratory behaviour of the agent.
-Specificially, the injection of Gaussian Noise has been investigated within the domain of UAV navigation~\cite{fyp13-noise-injection}, offering a promising approach to enhance the robustness and generalisation capabilities of the learning process.
+Specifically, the injection of Gaussian Noise has been investigated within the domain of UAV navigation~\cite{fyp13-noise-injection}, offering a promising approach to enhance the robustness and generalisation capabilities of the learning process.
 This technique can be employed when the agent is required to make decisions from partial or noisy inputs like those from real-world experiments.
-This system makes use of a Double Dueling Deep Q Network (D3QN) consisting of a CNN and a double dueling network as shown in Figure.~\ref{fig:fyp13-d3qn-noise}.
+This system makes use of a Double Duelling Deep Q Network (D3QN) consisting of a CNN and a double duelling network as shown in Figure.~\ref{fig:fyp13-d3qn-noise}.
 This produces 3 three possible discreet actions; move forward, yaw left or yaw right.
-Gaussian Noise layers were introduced after the CNN and after the dueling neural networks.
+Gaussian Noise layers were introduced after the CNN and after the duelling neural networks.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{background/fyp13-noise-injection.png}
-  \caption{Double Dueling Deep Q Network with Gaussian Noise Injection}
+  \caption{Double Duelling Deep Q Network with Gaussian Noise Injection}
 \label{fig:fyp13-d3qn-noise}
 \end{figure}
 
-This architecture was then benchmarked against the standard D3QN in a path planning scenrio tht required obstacle aviodance.
+This architecture was then benchmarked against the standard D3QN in a path-planning scenrio that required obstacle avoidance.
 The performance of the models over episodes is illustrated in Figure~\ref{fig:fyp13-results}.
 The results indicate that while both algorithms converge to comparable Q values, the D3QN model with Gaussian Noise has a higher stability during the training phase.
 Although these effects need further investigation within the specific environmental context, this approach is a potential practical tool to avert overfitting. 
@@ -319,7 +319,7 @@ This presents a challenge in scenerios where expert data is not necessarily poss
 More recent advancements in integrating demonstration data in training have utilised deep learning techniques to achieve significant success\cite{deepQLearningFromDemo}.
 An algorithm, Deep Q-learning from Demonstrations (DQfD) was developed that makes use of a very small set of demonstration data to speed up the training time.
 The performance of DQfD was evaluated using Atari Games, a popular benchmark in RL, DQfD outperformed its counterparts during the first million stages on 41 of 42 games, and acheieved state-of-the-art scores in 11 games.
-This research was motivated by the unavailability of an accurate simulation environemnt.
+This research was motivated by the unavailability of an accurate simulation environment.
 DQfD incorporates a pre-training phase where the agent samples from demonstration datasets.
 Multiple loss functions were employed, including supervised loss which was essential for the pre-training phase.
 By its nature, demonstration data covers a very narrow margin of the state space, often exclusing potentially hazardous actions.
