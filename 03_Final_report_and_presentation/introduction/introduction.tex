@@ -8,8 +8,8 @@
 % You are therefore advised to keep this part of the interim report short, focusing on the following questions: What is the problem, why is it interesting and what’s your main idea for solving it?  
 % (DON'T use those three questions as subheadings however!  The answers should emerge from what you write.)
 
-The utilisation of drones (Unmaned Aerial Vehicles) in diverse applications, in particular for data collection in hard-to-reach areas, has gained significant attention~\cite{droneReview}.
-In a dense forest environment, drones have the ability to navigate faster with less disturbance to the surroudning environment.
+The utilisation of drones (Unmanned Aerial Vehicles) in diverse applications, in particular for data collection in hard-to-reach areas, has gained significant attention~\cite{droneReview}.
+In a dense forest environment, drones have the ability to navigate faster with less disturbance to the surrounding environment.
 This can allow for very efficient data collection for a variety of tasks \cite{environmentalSensing} such as autonomous sensor placement, wherein a sensor is placed in a forest environment for a long period of time.
 
 One of the major limitations of the widespread adoption of UAVs for long-term environmental sensing is their limited flight time.
@@ -24,17 +24,17 @@ However, this approach is still limited due to the theoretical minimum energy re
 Another approach involves grounding the UAV temporarily, effectively pausing the flight to conserve energy.
 This strategy could involve the drone performing environmental sensing tasks from the ground.
 Yet, this poses a risk to the UAV of potential damage from unsafe landing areas or interference from wildlife.
-Additionally it might disturb the environment more than aerial sensing, potentially compromising data integrity.
+Additionally, it might disturb the environment more than aerial sensing, potentially compromising data integrity.
 
 Taking inspiration from birds in nature another approach would be perching the UAV upon a branch.
 This which would allow for effective sensing of the environment while reducing the impact on results and protecting the drone.
 This approach allows for silent operation allowing for the observation of wildlife.
-The majority of the current literature focuses on mechanical attachment methods, however the reliance of complex hardware poses significant challenges.
+The majority of the current literature focuses on mechanical attachment methods, however, the reliance on complex hardware poses significant challenges.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.33\textwidth]{introduction/TetheredDrone.drawio.png}
-  \caption{Tethered Drone: A UAV with a tether attached with a small weight}
+  \caption{Tethered Drone: A UAV with a tether attached to a small weight}
 \label{fig:intro-tethered-drone}
 \end{figure}
 
@@ -61,7 +61,7 @@ Some simulations were carried out without the tether being present, it was noted
 This therefore motivates the need for an algorithm that can learn from real-world non-simulated environments quickly and safely.
 
 In previous work, a single demonstration, target trajectory, was used to speed up training.
-However the major limitation with this type of reinforcement learning agent is the reliance on the ability of the demonstration, it assumes the demonstration is perfect or near perfect which is usually not the case for real-world demonstrations.
+However the major limitation of this type of reinforcement learning agent is the reliance on the ability of the demonstration, it assumes the demonstration is perfect or near perfect which is usually not the case for real-world demonstrations.
 Traditional RL algorithms have shown a limited ability to improve upon demonstrations and struggle to perform well on non-expert or detrimental demonstrations.
 
 This motivates the learning of trajectories from non-expert demonstrations.
