@@ -27,13 +27,13 @@
 %     - FYP-15 - Demonstration Guided Reinforcment Learning with Learned Skills
 
 % Previous Work - Fabian
-The aim of this chapter is to provide an extensive review of perching techniques and automated trajectory generation, with particular focus on methods that require minimum simulation interaction.
+The aim of this chapter is to provide an extensive review of perching techniques and automated trajectory generation, with a particular focus on methods that require minimum simulation interaction.
 In order, we will cover various perching approaches, previous work on automated perching and reinforcement learning with demonstrations.
 
 \section{Perching Approaches}
 
 
-There is currently huge interest in deploying UAVs in a variety of environments and consitions, this has motivated many innovative approaches to drone landing or perching.
+There is currently huge interest in deploying UAVs in a variety of environments and conditions, this has motivated many innovative approaches to drone landing or perching.
 Much of the existing body of research predominantly focuses on the mechanical mechanisms involved in enabling drones to perch.
 For example work enabling drones to perch on uneven ground~\cite{perching-uneven-ground} or water surfaces~\cite{perching-water1,perching-water2}, often with the assistance of a human pilot.
 
@@ -54,7 +54,7 @@ However, their use is inherently limited to surfaces of magnetic materials, whic
   \begin{subfigure}[b]{0.45\textwidth}
       \centering
       \includegraphics[width=\textwidth]{background/perching-gripper2.png}
-      \caption{Gripper utilising a three fingered robotic arm taken from~\cite{perching-gripper2}}
+      \caption{Gripper utilising a three-fingered robotic arm taken from~\cite{perching-gripper2}}
       \label{fig:perching-gripper2}
   \end{subfigure}
   \caption{Perching Mechanisms}
@@ -71,27 +71,27 @@ Additionally, the research by A. McLaren et al~\cite{perching-gripper2} presents
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{background/perching-tum.png}
-  \caption{Bird inspired perching on a branch taken from~\cite{perching-tum-bird}}
+  \caption{Bird-inspired perching on a branch taken from~\cite{perching-tum-bird}}
 \label{fig:perching-tum-bird}
 \end{figure}
 
 To date, a prototype has been successfully tested, demonstrating its capability to latch onto a variety of objects under the control of a human pilot.
-Bioinspired perching mechanisms have also been proposed for UAVs~\cite{perching-tum-bird} utilising bird-feet style gripper to attach to a branch-like structures.
+Bioinspired perching mechanisms have also been proposed for UAVs~\cite{perching-tum-bird} utilising bird-feet style gripers to attach to a branch-like structure.
 This mechanism has the ability to exert a significant gripping force while consuming minimal power.
 To date, a prototype has been successfully tested, demonstrating its ability to perch onto a variety of branch-like objects under the control of a human pilot.
 
 As discussed, much of the existing literature predominantly concentrates on the mechanical attachment process for the UAV.
 This project will focus towards a more flight-oriented approach.
-We will utilise a simple bioinspired tethered drone, as depicted in in Figure~\ref{fig:intro-tethered-drone}, and aim to automate the perching process.
+We will utilise a simple bioinspired tethered drone, as depicted in Figure~\ref{fig:intro-tethered-drone}, and aim to automate the perching process.
 This UAV design incorporates a pendulum mechanism situated beneath the drone body, the pendulum is able to move freely under the drone.
-This mechanism is extremly straightforward from a mechanical perspective, it does not require any specialised hardware and can easily be retro-fitted onto an existing UAV.
-Furthermore, unlike many other mechanical mechanisms, the diameter of the branch is not as crutial, any branch that can hold the weight would be suitable.
+This mechanism is extremely straightforward from a mechanical perspective, it does not require any specialised hardware and can easily be retrofitted onto an existing UAV.
+Furthermore, unlike many other mechanical mechanisms, the diameter of the branch is not as crucial, any branch that can hold the weight would be suitable.
 
-The perching maneuver involves the drone wrapping its tether around a branch and disarming to suspend itself beneath the branch. 
+The perching manoeuvre involves the drone wrapping its tether around a branch and disarming to suspend itself beneath the branch. 
 This state of suspension requires no energy to maintain, this is an extremely energy-efficient solution for a UAV and enables long-term monitoring of an environment. 
-The detachment process, requires the drone to unravel the tether from the branch before resuming flight. 
-Previous work in this area has indicated the feasibility of executing the initial phase of this maneuver, as further discussed in Section~\ref{sec:background-prev-work}, this project aims to refine and complete the process. 
-It aims to leverage innovative techniques to successfully execute the entire maneuver, thereby contributing to the advancement of UAV perching technology in real-world applications.
+The detachment process requires the drone to unravel the tether from the branch before resuming flight. 
+Previous work in this area has indicated the feasibility of executing the initial phase of this manoeuvre, as further discussed in Section~\ref{sec:background-prev-work}, this project aims to refine and complete the process. 
+It aims to leverage innovative techniques to successfully execute the entire manoeuvre, thereby contributing to the advancement of UAV perching technology in real-world applications.
 
 \section{Previous Work}
 \label{sec:background-prev-work}
