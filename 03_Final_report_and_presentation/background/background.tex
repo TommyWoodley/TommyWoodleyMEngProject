@@ -113,7 +113,7 @@ The Reinforcement Learning aspect was specifically applied for the more complex 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.33\textwidth]{introduction/dronePerching.png}
+  \includegraphics[width=\textwidth]{introduction/dronePerching.png}
   \caption{The 3-step process showing the drone attaching to a branch.}
 \label{fig:previous-work-manuever-diagram}
 \end{figure}
@@ -238,11 +238,10 @@ The lower-level component creates smooth trajectories through these waypoints an
 The overall goal of the system is to produce seamless trajectories that avoid obstacles within known 3D environments.
 This goal significantly resembles the drone perching task, making it an interesting paper to examine.
 
-\todo{do this diagram}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{background/fyp12-waypoint-nav-framework.png}
-  \caption{Waypoint Navigation Framework}
+  \includegraphics[width=0.8\textwidth]{background/fyp12-waypoint-nav-framework.png}
+  \caption{Waypoint Navigation Framework taken from~\cite{fyp12-waypoint-navigation}}
 \label{fig:fyp12-waypoint-nav-framework}
 \end{figure}
 
@@ -286,8 +285,8 @@ Gaussian Noise layers were introduced after the CNN and after the duelling neura
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{background/fyp13-noise-injection.png}
-  \caption{Double Duelling Deep Q Network with Gaussian Noise Injection}
+  \includegraphics[width=0.8\textwidth]{background/fyp13-noise-injection.png}
+  \caption{Double Duelling Deep Q Network with Gaussian Noise Injection taken from~\cite{fyp13-noise-injection}}
 \label{fig:fyp13-d3qn-noise}
 \end{figure}
 
@@ -301,7 +300,7 @@ The introduction of Gaussian Noise as a form of regularisation in D3QN presents 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.5\textwidth]{background/fyp13-noise-results.png}
-  \caption{Mean Q values of D3QN and D3QN with GN Injection}
+  \caption{Mean Q values of D3QN and D3QN with GN Injection taken from~\cite{fyp13-noise-injection}}
 \label{fig:fyp13-results}
 \end{figure}
 
@@ -358,8 +357,8 @@ However, an algorithm, Forgetful Experience Replay (ForgER) specifically focuses
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.6\textwidth]{background/fyp16-forger-arch.png}
-  \caption{ForgER with dynamic sampling between demonstration and own experience buffers.}
+  \includegraphics[width=0.8\textwidth]{background/fyp16-forger-arch.png}
+  \caption{ForgER with dynamic sampling between demonstration and own experience buffers taken from~\cite{fyp16-forgetful-experience-replay}}
 \label{fig:fyp16-forger-arch}
 \end{figure}
 
@@ -459,17 +458,25 @@ For example, it is unlikely that a demonstration dataset includes a drone crash 
 Although alternative algorithms can understand that demonstration data is generally good, they often have no ability to understand that alternative actions are potentially worse.
 This lack of negative based demonstrations, especially in off-policy learning, can lead to unintended consequences.
 The NAC approach introduced a soft policy gradient that reduced the Q-values of actions not present in demonstrations.
-This differs from the standard soft Q-learning gradient, defined as $ \Delta_{\theta} Q_{\theta}(s, a)(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a)) $.
-The normalised version includes an additional term, $\Delta_{\theta} V_Q(s)$, preventing the inflation of Q-values for actions that are unseen:
-\[ (\Delta_{\theta} Q_{\theta}(s, a) - \Delta_{\theta} V_Q(s))(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a))\]
+This differs from the standard soft Q-learning gradient, defined in Equation~\ref{eq:fyp14-standard-soft-q-learning}.
 
-\todo{seperate this maths}
+\begin{equation}
+  \Delta_{\theta} Q_{\theta}(s, a)(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a))
+  \label{eq:fyp14-standard-soft-q-learning}
+\end{equation}
 
-The full algorithm has been reproduced here in Algorithm.~\ref{alg:nac-imperfect-demos}.
+The normalised version includes an additional term, $\Delta_{\theta} V_Q(s)$, preventing the inflation of Q-values for actions as shown in Equation~\ref{eq:fyp14-normalised-q-version}.
+
+\begin{equation}
+  (\Delta_{\theta} Q_{\theta}(s, a) - \Delta_{\theta} V_Q(s))(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a))
+  \label{eq:fyp14-normalised-q-version}
+\end{equation}
+
+The full algorithm has been reproduced here in Algorithm~\ref{alg:nac-imperfect-demos}.
 
 \begin{algorithm}
+\caption{Normalised Actor-Critic for Learning from Demonstration taken from~\cite{fyp14-rl-imperfect-demos}}
 \label{alg:nac-imperfect-demos}
-\caption{Normalised Actor-Critic for Learning from Demonstration~\cite{fyp14-rl-imperfect-demos}}
 \begin{algorithmic}[1] % The number tells where the line numbering should start
 \State Initialize parameters $\theta$ for the rapid Q network, $\theta'$ for the target Q network
 \State Initialize $D$: demonstrations collected by humans or a trained policy network
@@ -518,7 +525,7 @@ The aim of this task was to navigate a drone towards a destination while avoidin
 \label{fig:fyp17-sacfd}
 \end{figure}
 
-The reward used 3 cases as shown in Equation.~\ref*{eq:fyp17-sacfd-reward}. 
+The reward used 3 cases as shown in Equation~\ref*{eq:fyp17-sacfd-reward}. 
 The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
 \todo{do this for all of the maths}
 \begin{equation}
