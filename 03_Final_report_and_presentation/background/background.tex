@@ -106,7 +106,7 @@ It aims to leverage innovative techniques to successfully execute the entire man
 
 % Previous Work
 
-Previous work has explored the use of Reinforcement Learning in automatically generating trajectories for drone perching\cite{learnedTetheredPerchingFabian}.
+Previous work has explored the use of Reinforcement Learning in automatically generating trajectories for drone perching~\cite{learnedTetheredPerchingFabian}.
 In this approach, a Soft Actor Critic algorithm was employed to develop a series of energy-optimised trajectories.
 The trajectory was divided into three separate stages.
 The initial approach and contact phases used trajectories formulated using analytical solutions.
@@ -120,12 +120,21 @@ The Reinforcement Learning aspect was specifically applied for the more complex 
 \label{fig:previous-work-manuever-diagram}
 \end{figure}
 
-A Markov Decision Process was defined using observations $o_{t} \in O$ where $o_{t}$ denotes the drone's relative position and $a_{t}$ determines its roll rate.
-An experimental baseline provided a potential solution using a constant roll rate.
-This method integrates two components of a reward function.
-In the initial training stages, the algorithm prioritised conforming to the baseline.
-As training progresses, there is a shift in the reward function's focus, increasingly favouring a faster, more energy-efficient trajectory.
-This shift allows a greater exploration of the parameter space.
+\todo{diagram for this manoeuvre}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.33\textwidth]{frog.png}
+  \caption{TODO}
+\label{fig:previous-work-rolling}
+\end{figure}
+
+The disarming manuever is shown in more detail in Figure~\ref{fig:previous-work-rolling}.
+For this manuever, a Markov Decision Process was defined using observations $o_{t} \in O$ where $o_{t}$ denotes the drone's relative position and $a_{t}$ determines its roll rate.
+A single demonstration using a constant roll rate was utilised as a baseline.
+Two components of a reward function were used during training.
+In the initial training stages, the algorithm prioritised conforming to the provided baseline.
+As training progresses, reward shaping was used to shift the focus of the reward function, increasingly favouring a faster, more energy-efficient trajectory.
+This allows for some exploration of the parameter space.
 
 \[
 R_{1}(s_{t}, a_{t}) = 
@@ -154,14 +163,14 @@ where RL is the reward from the last step dtarget is the distance to the target 
 ddrone is the size of the drone; 
 $\delta$Xtarget and $\delta$Xbranch is the change in the distance made to the final position and to the branch, and lr is the length of the rope.
 
-However, this method may constrain the range of possible solutions.
+However, this method constrains the range of possible solutions.
 Favouring approaches that resemble the baseline, could prevent the system from learning novel, potentially more efficient strategies.
-Since just roll rate was explored, this limits the range of solutions into 2 dimensions which reduces the computational complexity but may not fully explore paths.
+Since just roll rate was explored, this limits the range of solutions which reduces the computational complexity but may not fully explore paths.
 Additionally one of the main challenges in the previous work was simulation.
 Accurately modelling the dynamics between the tether and the drone presented significant challenges.
 Performing training in a real-world setting would be exceptionally difficult, given the extensive number of trials required and the risk of errors causing physical damage to the drone.
 
-There is a need to devise a system capable of efficiently learning from a very limited number of experiments while ensuring the safety of the drone. \\\\
+This, therefore, presents a need to devise a system capable of efficiently learning from a very limited number of experiments while ensuring the safety of the drone. \\\\
 
 \section{Reinforcement Learning}
 % Intro
@@ -223,7 +232,7 @@ To deal with this, a substantial increase in the number of states is required.
 However, this negatively impacts performance, particularly in a three-dimensional Euclidean space where drones operate with six degrees of freedom.
 
 An interesting approach to deal with these issues was proposed to use waypoints and Bezier curves to define a trajectory \cite{fyp12-waypoint-navigation}.
-This approach splits the system into two distinct parts as shown in Figure.~\ref{fig:fyp12-waypoint-nav-framework}.
+This approach splits the system into two distinct parts as shown in Figure~\ref{fig:fyp12-waypoint-nav-framework}.
 The high-level component focuses on choosing waypoints that minimise thrust cost, thereby reducing energy usage.
 The lower-level component creates smooth trajectories through these waypoints.
 The overall goal of the system is to produce seamless trajectories that avoid obstacles within known 3D environments.
@@ -271,7 +280,7 @@ However this would further complicate the environment, and make defining a rewar
 Noise Injection can be utilised within Deep Reinforcement Learning to mitigate the risk of overfitting and to foster the exploratory behaviour of the agent.
 Specifically, the injection of Gaussian Noise has been investigated within the domain of UAV navigation~\cite{fyp13-noise-injection}, offering a promising approach to enhance the robustness and generalisation capabilities of the learning process.
 This technique can be employed when the agent is required to make decisions from partial or noisy inputs like those from real-world experiments.
-This system makes use of a Double Duelling Deep Q Network (D3QN) consisting of a CNN and a double duelling network as shown in Figure.~\ref{fig:fyp13-d3qn-noise}.
+This system makes use of a Double Duelling Deep Q Network (D3QN) consisting of a CNN and a double duelling network as shown in Figure~\ref{fig:fyp13-d3qn-noise}.
 This produces 3 three possible discreet actions; move forward, yaw left or yaw right.
 Gaussian Noise layers were introduced after the CNN and after the duelling neural networks.
 
@@ -596,7 +605,7 @@ SkiLD aims to improve the efficiency of traditional techniques using previous ex
 In SkiLD this takes the form of a task-agnostic dataset, this is experiences that are not necessarily trained on the particular task but can come from any related task.
 This dataset $D = \{s_t, a_t, \dots\}$ consists of agent behaviours from any related task.
 A secondary dataset $D_{demo} = \{s_{t}^{d}, a_{t}^{d}, \dots\}$ are task-specific demonstrations, these are demonstrations from the current task that the agent is attempting to solve.
-From here a set of skills are extracted from the task-agnostic dataset as shown in Figure.~\ref{fig:fyp15-skild}.
+From here a set of skills are extracted from the task-agnostic dataset as shown in Figure~\ref{fig:fyp15-skild}.
 
 \begin{figure}[htbp]
   \centering
