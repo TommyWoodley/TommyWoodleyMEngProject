@@ -328,9 +328,13 @@ This error is then used to form a prioritized sampling queue.
 However, since the values associated with each experience are only updated when an experience is replayed, a purely greedy sampling approach will overlook episodes that initially have low scores.
 To counter this limitation, a stochastic sampling method was introduced.
 
-The probability of a transition being sampled is given by:
+The probability of a transition being sampled is given by Equation~\ref{eq:fyp16-sample-prob}.
 
-\[ P(i) = \frac{p_{i}^{\alpha}}{\sum_{k} p_{k}^{\alpha}} \]
+\begin{equation}
+  P(i) = \frac{p_{i}^{\alpha}}{\sum_{k} p_{k}^{\alpha}}
+  \label{eq:fyp16-sample-prob}
+\end{equation}
+
 where: $p_{i} = |\delta_{i}| + \epsilon$ and $\epsilon$ is a small positive constant that ensures every transition has a nonzero probability of being sampled.
 While Prioritised Sampling is beneficial, it introduces some bias into the learning process, meaning that corrective measures are necessary. 
 The importance sampling weight $w_j$ is shown in Algorithm~\ref{alg:fyp-16-prioritised-experience-replay}.
@@ -381,8 +385,13 @@ The second strategy entails storing data in two separate buffers and sampling ev
 The third, and the method proposed by this paper, dynamically adjusts the sampling ratio between the two buffers, as shown in Figure~\ref{fig:fyp16-forger-arch}.
 
 In this context, forgetting is the process of gradually reducing the dependency on demonstration data as the agent progressively learns from its own experiences.
-This can be implemented linearly as: 
-\[f_{rg}(k) = \min(1, k/d)\]
+This can be implemented linearly as in Equation~\ref{eq:fyp16-linear-forgetting}.
+
+\begin{equation}
+  f_{rg}(k) = \min(1, k/d)
+  \label{eq:fyp16-linear-forgetting}
+\end{equation}
+
 This effectively manages the balance between leveraging demonstration data and incorporating the agent's personal experiences.
 This presents an interesting approach to utilising demonstration data, ensuring a balance between the integration of expert knowledge with the agent's autonomously gained insights. \\\\
 
