@@ -461,6 +461,48 @@ It is not immediately clear how to balance rewards between actually achieving th
 This makes evaluating the performance less clear.
 This makes the task of defining a reward function more complex and less straightforward to define. \\\\
 
+% FYP17 - Mapless navigation for UAVs via Reinforcement Learning
+In other areas of Reinforcement Learning variants of the Soft Actor Critic Algorithm have performed well.
+Motivated by the lack of success from DQfD in complex environments, an algorithm, Soft Actor Critic from Demonstrations (SACfD) was proposed~\cite{SACfDMaplessNavigation}.
+This aimed to combine the strong success of SAC algorithms in complex environments.
+The aim of this task was to navigate a drone towards a destination while avoiding obstacles in a simulation environment.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{background/fyp17-sacfd.png}
+  \caption{Mapless navigation environment for Soft Actor Critic from Demonstrations}
+\label{fig:fyp17-sacfd}
+\end{figure}
+
+The reward used 3 cases as shown in Equation~\ref{eq:fyp17-sacfd-reward}. 
+The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
+
+\begin{equation}
+  r(s_{t}, a_{t}) =
+  \begin{cases} 
+    r_{arrive} & |x_{t} - g_{t}| < \delta \\
+    r_{obstacle} & l_{t} < \epsilon \\
+    1-0.1 |x_{t} - g_{t}| & \text{otherwise}
+  \end{cases}
+  \label{eq:fyp17-sacfd-reward}
+\end{equation}
+
+One of the most interesting parts of this particular paper was its effective use of coordinate frames.
+The aim for the agent was to learn to aviod obstacles.
+Rather than being provided with a view on the map or locations of the obstacles, observations were provided around the drone, which effectively gave distances to obstacles in each direction around the drone.
+This effectively measures everything from a drone coordinate frame.
+Within the particular drone perching task, the choice of coordinate frames is more complex, since there are multiple relations between objects that are important to account for.
+There is the drone itself, the perching branch and also the tether.
+In particular since the dynamics between the tether and the drone are complex to model in simulation, this is an area where demonstration could be a very useful application.
+\todo{diagram showing lazer view}
+An interesting observation in this paper is that many reinforcement learning algorithms are trained on a single map.
+One of the major aims here was in generalisation and the understanding of measurements for any map rather than "memorizing" a particular map.
+Therefore in this environment, the positions of the obstacles and destination were randomly assigned in each episode to ensure that generalisation from observations occurred.
+One area of note in this particular example is the trajectories that this algorithm generates are largely not smooth and could prove complex and non-efficient to actually fly in a real environment. \\\\
+
+\todo{improve diagram showing the environment}
+
+
 %     - FYP14 - Learning from Imperfect Demonstrations
 In the area of learning from demonstrations, it is usually assumed that the demonstration data provided is expert behaviour.
 Although there is the possibility of improving from these demonstrations, the improvements are often minor and imperfect demonstrations can have a large performance impact.
@@ -523,50 +565,6 @@ NAC's ability to learn beneficial behaviours while avoiding suboptimal ones is e
 
 NAC is resilient to imperfect demonstrations, this is particularly beneficial in real-world scneraios where providing good demonstrations is difficult.
 It enables the collection of demonstrations, followed by continuous, safe training in real-world conditions. \\\\
-
-
-% FYP17 - Mapless navigation for UAVs via Reinforcement Learning
-\todo{swap around this and the previous one}
-In other areas of Reinforcement Learning variants of the Soft Actor Critic Algorithm have performed well.
-Motivated by the lack of success from DQfD in complex environments, an algorithm, Soft Actor Critic from Demonstrations (SACfD) was proposed~\cite{SACfDMaplessNavigation}.
-This aimed to combine the strong success of SAC algorithms in complex environments.
-The aim of this task was to navigate a drone towards a destination while avoiding obstacles in a simulation environment.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{background/fyp17-sacfd.png}
-  \caption{Mapless navigation environment for Soft Actor Critic from Demonstrations}
-\label{fig:fyp17-sacfd}
-\end{figure}
-
-The reward used 3 cases as shown in Equation~\ref*{eq:fyp17-sacfd-reward}. 
-The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
-\todo{do this for all of the maths}
-\begin{equation}
-  r(s_{t}, a_{t}) =
-  \begin{cases} 
-    r_{arrive} & |x_{t} - g_{t}| < \delta \\
-    r_{obstacle} & l_{t} < \epsilon \\
-    1-0.1 |x_{t} - g_{t}| & \text{otherwise}
-  \end{cases}
-  \label{eq:fyp17-sacfd-reward}
-\end{equation}
-
-One of the most interesting parts of this particular paper was its effective use of coordinate frames.
-The aim for the agent was to learn to aviod obstacles.
-Rather than being provided with a view on the map or locations of the obstacles, observations were provided around the drone, which effectively gave distances to obstacles in each direction around the drone.
-This effectively measures everything from a drone coordinate frame.
-Within the particular drone perching task, the choice of coordinate frames is more complex, since there are multiple relations between objects that are important to account for.
-There is the drone itself, the perching branch and also the tether.
-In particular since the dynamics between the tether and the drone are complex to model in simulation, this is an area where demonstration could be a very useful application.
-\todo{diagram showing lazer view}
-An interesting observation in this paper is that many reinforcement learning algorithms are trained on a single map.
-One of the major aims here was in generalisation and the understanding of measurements for any map rather than "memorizing" a particular map.
-Therefore in this environment, the positions of the obstacles and destination were randomly assigned in each episode to ensure that generalisation from observations occurred.
-One area of note in this particular example is the trajectories that this algorithm generates are largely not smooth and could prove complex and non-efficient to actually fly in a real environment.
-
-\todo{improve diagram showing the environment}
-
 
 \section{Transfer Learning}
 %     - FYP10 - Soft Actor-Critic with Inhibitory Networks for Retraining UAV Controllers Faster
