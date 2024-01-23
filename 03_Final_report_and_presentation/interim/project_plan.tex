@@ -1,1 +1,112 @@
 \chapter{Project Plan}
+% Project Plan (1-2 pages). 
+% You should explain what needs to be done in order to complete the project and roughly what you expect the timetable to be. 
+% Don’t forget to include the project write-up (the final report), as this is a major part of the exercise. 
+% It’s important to identify key milestones and also fall-back positions, in case you run out of time. 
+% You should also identify what extensions could be added if time permits.  
+% The plan should be complete and should include those parts that you have already addressed (make it clear how far you have progressed at the time of writing).  
+% This material will not appear in the final report.
+
+\textbf{Aim: } The project aims to design and implement a framework capable of learning agile perching trajectories for unmanned aerial vehicles (UAVs) from a limited set of non-expert demonstrations. 
+The framework's objective is to beyond the demonstrations provided to enhance energy efficiency while successfully completing the perching task.
+
+\textbf{Progress Overview: } At the time of writing, the literature provided above has been reviewed and compared.
+Additionally we have begun to look into potential simulators that could be used for modelling the tether dynamics.
+We have also considered a collaboration with the Techical University of Munich as discussed in the potential extensions of the project.
+From this date, we plan to begin work on the main body of the plan as detailed below.
+
+\begin{itemize}
+  \item \textbf{Demonstration Data Collection}
+  
+  Collect a diverse set of demonstration trajectories including expert, suboptimal, and incorrect demonstrations from real-world human-piloted flight.
+  This will utilise a UAV equipped with a pendulum within the aerial robotics laboratory.
+  A motion capture system can be used to capture the positions and velocities at the required timesteps of the drone and the tether.
+  These will then be used to compare performance of the framework and understand how it responds to poor demonstration data.
+
+  \item \textbf{Tether Dynamics Model}
+  
+  We aim to fully model the dynamics of the tether and the drone using a supervised learning model.
+  This will significantly help in later work and simplify the learning required in later stages.
+  This will effectively reduce the amount the agent needs to learn in the environment.
+
+  \begin{enumerate}
+    \item \textbf{Data Generation: } 
+    A physics-based simulation engine will be used to generate a dataset that covers a range of scnerios of the tether interacting with the drone and the branch-like structure.
+    This will use a python based physics engine, we are currently examining and comparing possible agents: Box2D, PyBullet, NVIDIA PhysX.
+    Parameters will be systematically varried to build up a strong dataset.
+
+    \item \textbf{Supervised Learning Model for Tether Dynamics: }
+    Utilise a deep neural network to learn this model.
+    This should be capable of prediciting the position of the tether's weight given the previous positions/velocities of the drone.
+    This will need to be validated with new simualted data.
+    Additionally this could be validated based on the data collected from the demonstration data set.
+  \end{enumerate}
+
+  \item \textbf{Learning from Demonstrations Model}
+  
+  Utilise a normalised actor-critic from demonstrations model, incorporating improvements in sampling and utilising demonstrations to speed up the learning process.
+  A reward mechanism will need to be used to focus on milestones of the task like the number of wraps achieved and the disarmment of the drone.
+  Utilised a prioritised replay of demonstrations mechanisms to help combat suboptimal and poor demonstration datasets.
+
+  \item \textbf{Beyond Demonstraions: Improving Energy Efficiency}
+  
+  Integrate additional terms into the reward function and utilise reward shaping to encourage smoother more energy efficient manoeuvres.
+  This can use a combination of energy usage such as the thrust cost calculation as well as penalising changes in velocities which will help generate a smoother curve.
+  Experiment with different weightings to achieve this.
+
+  \item \textbf{Evaluation Stage}
+  
+  Utilising the created model, generate a set of trajectories from a range of 3 dimensional starting positions.
+  Conduct testing of these paths in a simulated platform like Gazebo.
+  Utilise the policy in real world environment to validate the results achieved.
+  This will aim to perform a full manuever including attaching onto a branch-like structure and then unravelling and departing.
+
+\end{itemize}
+
+\textbf{Possible Extensions}
+\begin{itemize}
+  \item \textbf{Collaboration with the TUM}
+  
+  Utilise the pod style drone they have designed and use this same model to design trajectories suitable.
+\end{itemize}
+
+\textbf{Timeline:}
+The timetime for the project is shown in Tabl~\ref{table:project-timeline}.
+Part time refers to during term periods where the project will be done alongside academic modules.
+During this period I plan to spend 2 days per week on the project.
+Full time refers to the period when I am able to dedicate my full time towards this project.
+The timeline includes a 2 week break during which spring term exams will be done.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|p{5cm}|p{3cm}|p{6cm}|}
+
+  \hline
+  Milestone & End Date & Time to Complete \\ \hline
+  Demonstration Data Collection    & 
+  10th March      & 
+  6 Weeks (Part time) in parallel with Tether Dynamics Model.        \\ \hline
+
+  Tether Dynamics Model  & 
+  25th Feburary      & 
+  4 Weeks (Part time) in parallel with Demonstration Data Collection.      \\ \hline
+
+  Learning from Demonstrations Model    & 
+  21st April      & 
+  2 Weeks (Part time) + 4 Weeks (Full time) with break for exam period.        \\ \hline
+
+  Beyond Demonstraions: Improving Energy Efficiency    & 
+  5th April      & 
+  2 Weeks (Full time)        \\ \hline
+
+  Evaluation Stage    & 
+  19th May      & 
+  2 Weeks (Full time)        \\ \hline
+
+  Report Writeup    & 
+  17th June      & 
+  4 Weeks (Full time)        \\ \hline
+  \end{tabular}
+  \caption{Project Timeline}
+  \label{table:project-timeline}
+\end{table}
