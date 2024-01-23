@@ -67,7 +67,6 @@ Examples include the work by H. Zhang et al~\cite{perching-gripper1}, which disc
 Additionally, the research by A. McLaren et al~\cite{perching-gripper2} presents a sophisticated approach involving a three-fingered robotic hand, as illustrated in Figure~\ref{fig:perching-gripper2}.
 This hand wraps around a tree branch-like structure to keep the drone perched.
 
-
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{background/perching-tum.png}
@@ -79,19 +78,19 @@ Bioinspired perching mechanisms have also been proposed for UAVs~\cite{perching-
 This mechanism has the ability to exert a significant gripping force while consuming minimal power.
 To date, a prototype has been successfully tested, demonstrating its ability to perch onto a variety of branch-like objects under the control of a human pilot.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.33\textwidth]{introduction/TetheredDrone.drawio.png}
+  \caption{Tethered Drone: A UAV with a tether attached to a small weight}
+\label{fig:background-tethered-drone}
+\end{figure}
+
 As discussed, much of the existing literature predominantly concentrates on the mechanical attachment process for the UAV.
 This project will instead focus towards a more flight-oriented approach.
 We will utilise a simple bioinspired tethered drone, as depicted in Figure~\ref{fig:background-tethered-drone}, and aim to automate the perching process.
 This UAV design incorporates a pendulum mechanism situated beneath the drone body, the pendulum is able to move freely under the drone.
 This mechanism is extremely straightforward from a mechanical perspective, it does not require any specialised hardware and can easily be retrofitted onto an existing UAV.
 Furthermore, unlike many other mechanical mechanisms, the diameter of the branch is not crucial, any branch that can hold the weight would be suitable.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.33\textwidth]{introduction/TetheredDrone.drawio.png}
-  \caption{Tethered Drone: A UAV with a tether attached to a small weight}
-\label{fig:background-tethered-drone}
-\end{figure}
 
 The perching manoeuvre involves the drone wrapping its tether around a branch and slowly disarming to suspend itself beneath the branch. 
 This state of suspension requires no energy to maintain. 
@@ -221,6 +220,13 @@ It will therefore be interesting to examine this particular propery in a drone e
 
 %     - FYP12/23 - Autonomous Waypoint Navigation
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{background/fyp12-waypoint-nav-framework.png}
+  \caption{Waypoint Navigation Framework taken from~\cite{fyp12-waypoint-navigation}}
+\label{fig:fyp12-waypoint-nav-framework}
+\end{figure}
+
 In the area of autonomous waypoint navigation, various methods have been explored and implemented.
 One of the primary challenges is operating in a continuous environment, which adds complexity to the training process.
 A common strategy involves discretising the environment, enhancing the performance by simplifying the state space.
@@ -238,30 +244,29 @@ The lower-level component creates smooth trajectories through these waypoints an
 The overall goal of the system is to produce seamless trajectories that avoid obstacles within known 3D environments.
 This goal significantly resembles the drone perching task, making it an interesting paper to examine.
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{background/fyp12-waypoint-nav-framework.png}
-  \caption{Waypoint Navigation Framework taken from~\cite{fyp12-waypoint-navigation}}
-\label{fig:fyp12-waypoint-nav-framework}
-\end{figure}
-
 At the higher level, the system utilises a Deep Q-Network (DQN).
 The 3D environment is discretised into an N x N x N grid, where actions are defined as potential waypoints in a 3 x 3 x 3 grid surrounding the current position.
 This gives 26 potential actions for each state.
 Convolutional Neural Networks (CNNs) are used to process the 3D input state (the known 3D environment) with a fully-connected output layer, with 26 neurons, each corresponding to one of the possible actions.
 
-The reward is defined as the weighted sum of two components:
-\[R(s, a) = \alpha R_{p} + \beta R_{c}\]
+The reward is defined as the weighted sum defined in Equation~\ref{eq:fyp12-reward-general}.
 
-where $R_{p}$ is the position reward:
-\[
-R_{p}(s, a) = 
-\begin{cases} 
-10 & \text{reach the target position} \\
--10 & \text{collide with obstacle} \\
-0 & \text{otherwise}
-\end{cases}
-\]
+\begin{equation}
+  R(s, a) = \alpha R_{p} + \beta R_{c}
+  \label{eq:fyp12-reward-general}
+\end{equation}
+
+where $R_{p}$ is the position reward defined in Equation~\ref{eq:fyp12-specific}.
+
+\begin{equation}
+  R_{p}(s, a) = 
+  \begin{cases} 
+  10 & \text{reach the target position} \\
+  -10 & \text{collide with obstacle} \\
+  0 & \text{otherwise}
+  \end{cases}
+\label{eq:fyp12-specific}
+\end{equation}
 
 and $R_{c}$ represents the control reward, defined as the negative L1 norm of the thurst cost, provided by the lower level system.
 This balances the reward between reaching targets, avoiding obstacles and minimising cost.
