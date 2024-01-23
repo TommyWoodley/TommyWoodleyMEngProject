@@ -457,18 +457,20 @@ However, in real-world scenarios, the demonstrations provided are often sub-opti
 To address these challenges, the Normalised Actor-Critic (NAC) method has been proposed, showing robustness against poor or even detrimental demonstrations~\cite{fyp14-rl-imperfect-demos}.
 
 Demonstrations are typically a highly biased sample of the environment.
-For example, it is unlikely that a demonstration dataset to include a drone crash scenario.
-Although alternative algorithms can understand that demonstration data is generally good, they often have no ability to understand that alternative actions are worse.
-This lack of negative demonstrations, especially in off-policy learning, can lead to unintended consequences.
+For example, it is unlikely that a demonstration dataset includes a drone crash scenario.
+Although alternative algorithms can understand that demonstration data is generally good, they often have no ability to understand that alternative actions are potentially worse.
+This lack of negative based demonstrations, especially in off-policy learning, can lead to unintended consequences.
 The NAC approach introduced a soft policy gradient that reduced the Q-values of actions not present in demonstrations.
 This differs from the standard soft Q-learning gradient, defined as $ \Delta_{\theta} Q_{\theta}(s, a)(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a)) $.
 The normalised version includes an additional term, $\Delta_{\theta} V_Q(s)$, preventing the inflation of Q-values for actions that are unseen:
 \[ (\Delta_{\theta} Q_{\theta}(s, a) - \Delta_{\theta} V_Q(s))(Q_{\theta}(s, a) - \hat{Q}_{\theta}(s, a))\]
 
-The full algorithm has been reproduced here in Algorithm.~\ref{algo:nac-imperfect-demos}.
+\todo{seperate this maths}
+
+The full algorithm has been reproduced here in Algorithm.~\ref{alg:nac-imperfect-demos}.
 
 \begin{algorithm}
-\label{algo:nac-imperfect-demos}
+\label{alg:nac-imperfect-demos}
 \caption{Normalised Actor-Critic for Learning from Demonstration~\cite{fyp14-rl-imperfect-demos}}
 \begin{algorithmic}[1] % The number tells where the line numbering should start
 \State Initialize parameters $\theta$ for the rapid Q network, $\theta'$ for the target Q network
@@ -505,7 +507,7 @@ It enables the collection of demonstrations, followed by continuous, safe traini
 
 
 % FYP17 - Mapless navigation for UAVs via Reinforcement Learning
-
+\todo{swap around this and the previous one}
 In other areas of Reinforcement Learning variants of the Soft Actor Critic Algorithm have performed well.
 Motivated by the lack of success from DQfD in complex environments, an algorithm, Soft Actor Critic from Demonstrations (SACfD) was proposed~\cite{SACfDMaplessNavigation}.
 This aimed to combine the strong success of SAC algorithms in complex environments.
@@ -520,7 +522,7 @@ The aim of this task was to navigate a drone towards a destination while avoidin
 
 The reward used 3 cases as shown in Equation.~\ref*{eq:fyp17-sacfd-reward}. 
 The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
-
+\todo{do this for all of the maths}
 \begin{equation}
   r(s_{t}, a_{t}) =
   \begin{cases} 
@@ -532,13 +534,13 @@ The final case effectively shows a heuristic was used to increase rewards closer
 \end{equation}
 
 One of the most interesting parts of this particular paper was its effective use of coordinate frames.
-One of the main aims for the agent was to learn to aviod obstacles.
+The aim for the agent was to learn to aviod obstacles.
 Rather than being provided with a view on the map or locations of the obstacles, observations were provided around the drone, which effectively gave distances to obstacles in each direction around the drone.
 This effectively measures everything from a drone coordinate frame.
 Within the particular drone perching task, the choice of coordinate frames is more complex, since there are multiple relations between objects that are important to account for.
 There is the drone itself, the perching branch and also the tether.
 In particular since the dynamics between the tether and the drone are complex to model in simulation, this is an area where demonstration could be a very useful application.
-
+\todo{diagram showing lazer view}
 An interesting observation in this paper is that many reinforcement learning algorithms are trained on a single map.
 One of the major aims here was in generalisation and the understanding of measurements for any map rather than "memorizing" a particular map.
 Therefore in this environment, the positions of the obstacles and destination were randomly assigned in each episode to ensure that generalisation from observations occurred.
