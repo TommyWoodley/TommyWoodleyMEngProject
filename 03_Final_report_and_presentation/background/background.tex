@@ -193,14 +193,14 @@ The problem of trajectory generation for drone perching has a large overlap with
 Therefore when investigating work on reinforcement learning this was a particular area that was focussed on since the objective is largely the same.
 In 2022 a review paper~\cite{aerialNavReview} on UAV navigation using RL identified 159 papers that use RL to solve UAV navigation challenges.
 Within path planning the review described papers based on both mapless and map-based navigation.
-A map-based navigation approach uses a representation of the environment, largely including terrain or obstacles.
+A map-based navigation approach uses an internal representation of the area, largely including terrain or obstacles.
 Within drone perching this would likely relate to s \todo{finish this}
 
 However one of the major limitations of traditional reinforcement learning in this context is the high number of episodes required to train.
 For navigation tasks, this can be simulated reasonably well, however, as discussed in Section~\ref{sec:background-prev-work}, this is more difficult. \\\\
 
 % FYP8 Human-Level Control through Deep Reinforcement Learning
-The development of Deep Q-Networks combining neural networks with reinforcement learning has proved extremely successful in the Atari Games, a popular benchmark in RL.
+The development of Deep Q-Networks utilising neural networks combined with reinforcement learning has proved extremely successful in the Atari Games, a popular benchmark in RL.
 Human-level control was achieved in the Atari Gameset using a deep Q-network (DQN)~\cite{humanLevelControlDQN}.
 This was primarily due to the innovative approximation of the Q-value function using a neural network.
 Another one of the major innovations was the use of experience replay.
@@ -334,7 +334,7 @@ While Prioritised Sampling is beneficial, it introduces some bias into the learn
 The importance sampling weight $w_j$ is shown in Algorithm~\ref{alg:fyp-16-prioritised-experience-replay}.
 
 \begin{algorithm}
-  \caption{Minibatch sampling for Priorisied Experience Replay}
+  \caption{Minibatch sampling for Priorisied Experience Replay taken from~\ref{alg:fyp-16-prioritised-experience-replay}}
   \label{alg:fyp-16-prioritised-experience-replay}
   \begin{algorithmic}[1]
   \For{$j = 1$ \textbf{to} $minibatch$ $size$}
@@ -417,12 +417,12 @@ More recent advancements in integrating demonstration data in training have util
 An algorithm, Deep Q-learning from Demonstrations (DQfD) was developed that makes use of a very small set of demonstration data to speed up the training time.
 The performance of DQfD was evaluated using Atari Games, a popular benchmark in RL, DQfD outperformed its counterparts during the first million stages on 41 of 42 games and achieved state-of-the-art scores in 11 games.
 This research was motivated by the unavailability of an accurate simulation environment.
-DQfD incorporates a pre-training phase where the agent samples from demonstration datasets.
+DQfD incorporates a primary phase where the agent samples purely from a set of demonstrations.
 Multiple loss functions were employed, including supervised loss which was essential for the pre-training phase.
 By its nature, demonstration data covers a very narrow margin of the state space, often excluding potentially hazardous actions.
 However, simply using the demonstration data as part of an experience replay buffer is not sufficient as the agent will not adequately learn that these non-provided actions are more likely to be dangerous.
 Without this supervised loss, the agent might favour these unseen areas of the state space which are likely to contain dangerous actions.
-L2 regularisation loss was applied to the weights and biases of the network to ensure that the agent doesn't overfit considering the very small number of demonstration examples.
+L2 regularisation loss was used upon the weights and biases in the network to ensure that the agent doesn't overfit considering the very small number of demonstration examples.
 By incorporating these elements, DQfD accelerates the training process.
 
 Once pre-training is complete, the system begins interacting with the actual environment, collecting additional data in a manner similar to standard DQN learning.
