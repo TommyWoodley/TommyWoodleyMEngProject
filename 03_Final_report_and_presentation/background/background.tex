@@ -29,6 +29,7 @@
 % Previous Work - Fabian
 The aim of this chapter is to provide an extensive review of perching techniques and automated trajectory generation, with a particular focus on methods that require minimum simulation interaction.
 In order, we will cover various perching approaches, previous work on automated perching, reinforcement learning, experience replay, inverse reinforcement learning, learning from demonstrations and transfer learning.
+
 \section{Perching Approaches}
 
 
@@ -197,6 +198,7 @@ However one of the major limitations of traditional reinforcement learning in th
 For navigation tasks, this can be simulated reasonably well, however, as discussed in Section~\ref{sec:background-prev-work}, this is more difficult. \\\\
 
 % FYP8 Human-Level Control through Deep Reinforcement Learning
+
 The development of Deep Q-Networks utilising neural networks combined with reinforcement learning has proved extremely successful in the Atari Games, a popular benchmark in RL.
 Human-level control was achieved in the Atari Gameset using a deep Q-network (DQN)~\cite{humanLevelControlDQN}.
 This was primarily due to the innovative approximation of the Q-value function using a neural network.
@@ -461,7 +463,6 @@ It is not immediately clear how to balance rewards between actually achieving th
 This makes evaluating the performance less clear.
 This makes the task of defining a reward function more complex and less straightforward to define. \\\\
 
-% FYP17 - Mapless navigation for UAVs via Reinforcement Learning
 In other areas of Reinforcement Learning variants of the Soft Actor Critic Algorithm have performed well.
 Motivated by the lack of success from DQfD in complex environments, an algorithm, Soft Actor Critic from Demonstrations (SACfD) was proposed~\cite{SACfDMaplessNavigation}.
 This aimed to combine the strong success of SAC algorithms in complex environments.
@@ -476,7 +477,7 @@ The aim of this task was to navigate a drone towards a destination while avoidin
 
 The reward used 3 cases as shown in Equation~\ref{eq:fyp17-sacfd-reward}. 
 The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
-
+\todo{do this for all of the maths}
 \begin{equation}
   r(s_{t}, a_{t}) =
   \begin{cases} 
