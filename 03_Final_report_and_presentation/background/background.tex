@@ -132,33 +132,31 @@ Two components of a reward function were used during training.
 In the initial training stages, the algorithm prioritised conforming to the provided baseline.
 As training progresses, reward shaping was used to shift the focus of the reward function, increasingly favouring a faster, more energy-efficient trajectory.
 This allows for some exploration of the parameter space.
+$R_1$ reproduced in Equation~\ref{eq:previous-r1} is the reward function that encourages the agent to conform to the current baseline.
+$s_{\alpha}$ and $s'_{\alpha}$ represent the current and target roll values.
+This rewards a roll value that is similar to the baseline provided and additional term is included to also encourage the agent taking a similar time period to the baseline.
 
-\[
-R_{1}(s_{t}, a_{t}) = 
-\begin{cases} 
-I(s_{t}, a_{t}) & \text{for } t \leq t_{I} \\
-I(s_{t}, a_{t}) M(t) & \text{else} 
-\end{cases}
-\]
+\begin{equation}
+  R_{1}(s_{t}, a_{t}) = 
+  \begin{cases} 
+    3 \times 10 ^ 5 \times (0.1 - \min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4 & \text{before final point reached}  \\
+    3 \times 10 ^ 5 \times (0.1 - \min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4 \frac{t_{\max} - t}{t_{\max} - t_{I}} & \text{afterwards} 
+  \end{cases}
+  \label{eq:previous-r1}
+\end{equation}
 
-\[I(s_{t}, a_{t}) = 3 \times 10 ^ 5 \times (0.1 - \min(|s_{\alpha} - s'_{\alpha}|, 0.1)) ^ 4\]
-\[M(t) = \frac{t_{\max} - t}{t_{\max} - t_{I}}\]
+During the training process, as the training continues the reward is shifted toward weighting $R_2$ higher.
+$R_2$ represnts the term reposnisble for encourage a more energy efficient manuever.
+This term is reproduced in Equation~\ref{eq:previous-r2}
 
-\[
-R_{2}(s_{t}, a_{t}) =
-\begin{cases}
-  R_{L} + \frac{\Delta X_{target} - 0.005}{l_{r}} \times 50 & \text{for } \frac{d_{target}}{d_{drone}} > 1 \\
-  R_{L} + \frac{\Delta X_{branch}}{d_{drone}} \times 100 & \text{else}
-\end{cases}
-\]
-
-\todo{rephrase this section}
-where $s_{\alpha}$ and $s_{\alpha}$ are the roll angel of the current and the baseline state; 
-$t_{\max}$ is the maximum time of the simulation; 
-$t_{I}$ is the time when the final point should be reacted.
-where RL is the reward from the last step dtarget is the distance to the target position; 
-ddrone is the size of the drone; 
-$\delta$Xtarget and $\delta$Xbranch is the change in the distance made to the final position and to the branch, and lr is the length of the rope.
+\begin{equation}
+  R_{2}(s_{t}, a_{t}) =
+  \begin{cases}
+    R_{L} + \frac{\Delta X_{target} - 0.005}{l_{r}} \times 50 & \text{if } d_{target} > d_{drone} \\
+    R_{L} + \frac{\Delta X_{branch}}{d_{drone}} \times 100 & \text{otherwise}
+  \end{cases}
+  \label{eq:previous-r2}
+\end{equation}
 
 However, this method constrains the range of possible solutions.
 Favouring approaches that resemble the baseline, could prevent the system from learning novel, potentially more efficient strategies.
