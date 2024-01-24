@@ -188,7 +188,8 @@ Therefore when investigating work on reinforcement learning this was a particula
 In 2022 a review paper~\cite{aerialNavReview} on UAV navigation using RL identified 159 papers that use RL to solve UAV navigation challenges.
 Within path planning the review described papers based on both mapless and map-based navigation.
 A map-based navigation approach uses an internal representation of the area, largely including terrain or obstacles.
-Within drone perching this would likely relate to s \todo{finish this}
+Within drone perching this would likely relate to the location of the branch-like structure.
+Additionally, the tether itself could be treated as an obstacle that needs to be avioded.
 
 However one of the major limitations of traditional reinforcement learning in this context is the high number of episodes required to train.
 For navigation tasks, this can be simulated reasonably well, however, as discussed in Section~\ref{sec:background-prev-work}, this is more difficult. \\\\
