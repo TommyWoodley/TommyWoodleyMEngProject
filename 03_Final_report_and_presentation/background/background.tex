@@ -474,7 +474,6 @@ The aim of this task was to navigate a drone towards a destination while avoidin
 
 The reward used 3 cases as shown in Equation~\ref{eq:fyp17-sacfd-reward}. 
 The final case effectively shows a heuristic was used to increase rewards closer to encourage the agent to rate positions closer to the destination as higher.
-\todo{do this for all of the maths}
 \begin{equation}
   r(s_{t}, a_{t}) =
   \begin{cases} 
@@ -492,13 +491,11 @@ This effectively measures everything from a drone coordinate frame.
 Within the particular drone perching task, the choice of coordinate frames is more complex, since there are multiple relations between objects that are important to account for.
 There is the drone itself, the perching branch and also the tether.
 In particular since the dynamics between the tether and the drone are complex to model in simulation, this is an area where demonstration could be a very useful application.
-\todo{diagram showing lazer view}
+
 An interesting observation in this paper is that many reinforcement learning algorithms are trained on a single map.
 One of the major aims here was in generalisation and the understanding of measurements for any map rather than "memorizing" a particular map.
 Therefore in this environment, the positions of the obstacles and destination were randomly assigned in each episode to ensure that generalisation from observations occurred.
 One area of note in this particular example is the trajectories that this algorithm generates are largely not smooth and could prove complex and non-efficient to actually fly in a real environment. \\\\
-
-\todo{improve diagram showing the environment}
 
 
 %     - FYP14 - Learning from Imperfect Demonstrations
