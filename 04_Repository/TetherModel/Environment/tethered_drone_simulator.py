@@ -11,7 +11,7 @@ class TetheredDroneSimulator:
         self.physicsClient = p.connect(p.GUI)
         p.setGravity(0, 0, -10)
         self.drone = Drone()
-        tether_top_position = self.drone.get_tether_connection_point()
+        tether_top_position = self.drone.get_centre_bottom()
         tether = Tether(length=1.0, top_position=tether_top_position)
         tether.attach_to_drone(drone=self.drone)
         tether_bottom_position = tether.get_bottom_pos()
@@ -25,6 +25,6 @@ class TetheredDroneSimulator:
     
     def run(self):
         while True:
-            self.drone.apply_controls()
+            self.drone.apply_controls(upward_force=60)
             self.step_simulation()
             time.sleep(1./240.)
