@@ -21,3 +21,6 @@ class Weight:
     def get_position(self):
         position, _ = p.getBasePositionAndOrientation(self.weight_id)
         return position
+    
+    def get_body_centre_top(self):
+        return [0, 0, self.RADIUS]

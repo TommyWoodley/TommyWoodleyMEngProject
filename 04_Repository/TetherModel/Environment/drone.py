@@ -28,9 +28,12 @@ class Drone:
                              posObj=[0, 0, 0], 
                              flags=p.WORLD_FRAME)
     
-    def get_centre_bottom(self):
+    def get_world_centre_bottom(self):
         # current position of the drone
         position, orientation = p.getBasePositionAndOrientation(self.model)
         
         # bottom centre of the drone is the centre along com minus the half height
         return [position[0], position[1], position[2] - self.HEIGHT]
+    
+    def get_body_centre_bottom(self):
+        return [0, 0, - self.HEIGHT]
