@@ -15,7 +15,7 @@ class TetheredDroneSimulator:
         tether = Tether(length=1.0, top_position=tether_top_position)
         tether.attach_to_drone(drone=self.drone)
         tether_bottom_position = tether.get_bottom_pos()
-        weight = Weight(mass=1.0, radius=0.1, top_position=tether_bottom_position)
+        weight = Weight(top_position=tether_bottom_position)
         tether.attach_weight(weight=weight)
         self.environment = Environment()
 
