@@ -38,7 +38,7 @@ class Tether:
         drone_pos = drone.get_body_centre_bottom()
         tether_attachment_point = self.get_body_centre_top()
 
-        self.create_joint(parent_body_id=drone.model,
+        self.create_rotational_joint(parent_body_id=drone.model,
                           child_body_id=self.model,
                           parent_frame_pos=drone_pos,
                           child_frame_pos=tether_attachment_point)
@@ -48,12 +48,26 @@ class Tether:
         tether_attachment_point = self.get_body_centre_bottom()
         weight_attachment_point = weight.get_body_centre_top()
 
-        self.create_joint(parent_body_id=self.model,
+        self.create_fixed_joint(parent_body_id=self.model,
                           child_body_id=weight.weight_id,
                           parent_frame_pos=tether_attachment_point,
                           child_frame_pos=weight_attachment_point)
+    
+    def create_rotational_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
+        # Use a fixed point between the drone and the tether
+        # TODO: Use a more realistic version of the joints
+        p.createConstraint(parentBodyUniqueId=parent_body_id,
+                           parentLinkIndex=-1,
+                           childBodyUniqueId=child_body_id,
+                           childLinkIndex=-1,
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=parent_frame_pos,
+                           childFramePosition=child_frame_pos,
+                           parentFrameOrientation=[0, 0, 0, 1],
+                           childFrameOrientation=[0, 0, 0, 1])
         
-    def create_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
+    def create_fixed_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
         p.createConstraint(parentBodyUniqueId=parent_body_id,
