@@ -98,3 +98,6 @@ Thumbs.db
 # Directories to exclude
 bin/
 build/
+
+04_Repository/venv
+*.pyc
