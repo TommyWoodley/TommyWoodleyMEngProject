@@ -9,7 +9,7 @@ from environment import Environment
 class TetheredDroneSimulator:
     def __init__(self):
         self.physicsClient = p.connect(p.GUI)
-        p.setGravity(0, 0, -1)
+        p.setGravity(0, 0, -5)
         self.drone = Drone()
         tether_top_position = self.drone.get_world_centre_bottom()
         tether = Tether(length=1.0, top_position=tether_top_position)
@@ -27,7 +27,7 @@ class TetheredDroneSimulator:
         position_gain = 20
         velocity_gain = 10
         target_position = [0, 1, 3]  # for example
-        
+        time.sleep(5)
         while True:
             # self.drone.apply_controls(upward_force=3)
             self.drone.navigate_to_position(target_position=target_position, position_gain=position_gain, velocity_gain=velocity_gain)
