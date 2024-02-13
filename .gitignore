@@ -100,4 +100,6 @@ bin/
 build/
 
 04_Repository/venv
+04_Repository/Gym/venv
+
 *.pyc
