@@ -1,9 +1,10 @@
 import pybullet as p
 
 class Tether:
-    RADIUS = 0.01
-    MASS = 0.5
-    def __init__(self, length, top_position, num_segments=5):
+    RADIUS = 0.005
+    MASS = 1.0
+    def __init__(self, length, top_position, physics_client, num_segments=10):
+        self.physics_client = physics_client
         self.length = length
         self.num_segments = num_segments
         self.segment_length = length / num_segments
@@ -77,7 +78,7 @@ class Tether:
     def create_rotational_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
-        p.createConstraint(parentBodyUniqueId=parent_body_id,
+        p2p_constraint_id = p.createConstraint(parentBodyUniqueId=parent_body_id,
                            parentLinkIndex=-1,
                            childBodyUniqueId=child_body_id,
                            childLinkIndex=-1,
