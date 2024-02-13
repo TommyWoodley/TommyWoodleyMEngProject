@@ -1,3 +1,6 @@
 [submodule "04_Repository/DQfD"]
 	path = 04_Repository/DQfD
 	url = https://github.com/TommyWoodley/DQfD.git
+[submodule "04_Repository/Gymnasium"]
+	path = 04_Repository/Gymnasium
+	url = https://github.com/TommyWoodley/Gymnasium.git
