@@ -7,10 +7,15 @@ from weight import Weight
 from environment import Environment
 
 class TetheredDroneSimulator:
-    def __init__(self):
+    def __init__(self, xs, zs):
+        self.xs = xs
+        self.zs = zs
+        self.iteration = 0
+
+        self.drone_pos = [xs[0], 0, zs[0] + 3]
         self.physicsClient = p.connect(p.GUI)
-        p.setGravity(0, 0, -5)
-        self.drone = Drone()
+        p.setGravity(0, 0, -10)
+        self.drone = Drone(self.drone_pos)
         tether_top_position = self.drone.get_world_centre_bottom()
         tether = Tether(length=1.0, top_position=tether_top_position)
         tether.attach_to_drone(drone=self.drone)
@@ -24,14 +29,14 @@ class TetheredDroneSimulator:
         p.stepSimulation()
     
     def run(self):
-        position_gain = 20
-        velocity_gain = 10
-        target_position = [0, 1, 3]  # for example
         time.sleep(5)
-        while True:
-            # self.drone.apply_controls(upward_force=3)
-            self.drone.navigate_to_position(target_position=target_position, position_gain=position_gain, velocity_gain=velocity_gain)
-            self.drone.stabilize_orientation()
+        while self.iteration < len(self.xs):
+            x = self.xs[self.iteration]
+            z = self.zs[self.iteration] + 3
+            position = [x, 0, z]
+            self.iteration += 100
+            self.drone.set_position(position)
             self.weight.apply_drag()
             self.step_simulation()
             time.sleep(1./240.)
+            print("x: ", x, " z: ", z)
