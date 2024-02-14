@@ -34,5 +34,5 @@ Term 2 - January 2024
 
 Term 2 - Feburary 2024
 - 14th Feburary 2024
-  - TODO: Slides
-  - TODO: MD
+  - [Markdown](./24_02_14/weekly_update.md)
+  - [Slides](./24_02_14/weekly_update.pdf)
