@@ -5,7 +5,7 @@ class Drone:
     WIDTH = 0.1
     LENGTH = 0.1
     HEIGHT = 0.05
-    MASS = 5
+    MASS = 1.0
     def __init__(self, start_pos):
         self.startPos = start_pos
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])

@@ -1,7 +1,7 @@
 import pybullet as p
 
 class Weight:
-    MASS = 3.0
+    MASS = 0.5
     RADIUS = 0.05
     DRAG_COEF=0.472
     def __init__(self, top_position):

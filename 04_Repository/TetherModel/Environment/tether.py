@@ -2,14 +2,14 @@ import pybullet as p
 
 class Tether:
     RADIUS = 0.005
-    MASS = 1.0
-    def __init__(self, length, top_position, physics_client, num_segments=10):
+    MASS = 0.1
+    def __init__(self, length, top_position, physics_client, num_segments=20):
         self.physics_client = physics_client
         self.length = length
         self.num_segments = num_segments
         self.segment_length = length / num_segments
         self.top_position = top_position
-        self.segment_mass = self.MASS / num_segments  # Distribute the mass across the segments
+        self.segment_mass = self.MASS  # Distribute the mass across the segments
         self.segments = []
         self.create_tether()
 
@@ -102,3 +102,7 @@ class Tether:
                            childFramePosition=child_frame_pos,
                            parentFrameOrientation=[0, 0, 0, 1],
                            childFrameOrientation=[0, 0, 0, 1])
+    
+    def cancel_gravity(self):
+        for seg in self.segments:
+          p.applyExternalForce(seg, -1, [0, 0, 10], [0, 0, 0], p.WORLD_FRAME)
