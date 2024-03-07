@@ -1,0 +1,26 @@
+name: Python Style Check
+
+on:
+  push:
+    paths:
+      - '**.py'
+  pull_request:
+    paths:
+      - '**.py'
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install flake8
+      run: pip install flake8
+    - name: Run flake8
+      run: flake8 .
+      env:
+        # Adjust the max-line-length to your preferred limit (PEP8 default is 79 characters)
+        FLAKE8_ARGS: --ignore=E501 --max-line-length=120
