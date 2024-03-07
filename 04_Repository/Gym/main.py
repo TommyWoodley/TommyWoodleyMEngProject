@@ -1,4 +1,7 @@
-
+from simple_drone_env import SimpleDroneEnv
+from stable_baselines3 import SAC
+from stable_baselines3.common.noise import NormalActionNoise
+import numpy as np
 
 # %%
 # Check simple model conforms to gym env
@@ -9,7 +12,7 @@ env = SimpleDroneEnv()
 check_env(env, warn=True)
 
 # %%
-from simple_drone_env import SimpleDroneEnv
+
 
 env = SimpleDroneEnv()
 
@@ -31,10 +34,8 @@ for step in range(n_steps):
         print("Goal reached!", "reward=", reward)
         break
 # %%
-from stable_baselines3 import PPO, A2C, DQN, SAC
-from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.noise import NormalActionNoise
-import numpy as np
+
+
 
 env = SimpleDroneEnv()
 n_actions = env.action_space.shape[-1]

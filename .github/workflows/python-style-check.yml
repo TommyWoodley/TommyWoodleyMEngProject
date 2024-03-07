@@ -23,4 +23,4 @@ jobs:
       run: flake8 .
       env:
         # Adjust the max-line-length to your preferred limit (PEP8 default is 79 characters)
-        FLAKE8_ARGS: --ignore=E501 --max-line-length=120
+        FLAKE8_ARGS: --ignore=E501 --max-line-length 120
