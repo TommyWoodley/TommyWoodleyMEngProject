@@ -99,6 +99,6 @@ Thumbs.db
 bin/
 build/
 
-04_Repository/venv
+04_Repository/.venv
 *.pyc
 
