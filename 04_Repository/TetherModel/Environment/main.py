@@ -1,10 +1,10 @@
-from tethered_drone_simulator import TetheredDroneSimulator
+from run_tethered_drone_simulator import TetheredDroneSimulatorRunner
 
 import numpy as np
 
 
 def main(xs, zs):
-    simulator = TetheredDroneSimulator(xs, zs)
+    simulator = TetheredDroneSimulatorRunner(xs, zs)
     simulator.run()
 
 

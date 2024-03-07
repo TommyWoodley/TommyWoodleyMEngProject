@@ -11,8 +11,6 @@ class TetheredDroneSimulator:
     def __init__(self, xs, zs):
         self.xs = xs
         self.zs = zs
-        self.iteration = 0
-
         self.drone_pos = [xs[0], 0, zs[0] + 3]
         self.physicsClient = p.connect(p.GUI)
         p.setPhysicsEngineParameter(numSolverIterations=500)
@@ -27,27 +25,10 @@ class TetheredDroneSimulator:
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
 
-    def step_simulation(self):
+    def step(self, drone_pos=None):
+        # Update drone position
+        if drone_pos != None:
+            self.drone.set_position(drone_pos)
+        self.weight.apply_drag()
         # Step the physics simulation
         p.stepSimulation()
-
-    def run(self):
-        time.sleep(5)
-        already_moved = False
-        while True:
-            it = min(self.iteration, (len(self.xs) - 1))
-            x = self.xs[it]
-            z = self.zs[it] + 3
-            position = [x, 0, z]
-            self.iteration += 500
-            if self.iteration < len(self.xs) * 2:
-                self.drone.set_position(position)
-            elif not already_moved:
-                self.drone.set_position([x - 0.2, 0, z])
-                already_moved = True
-
-            self.weight.apply_drag()
-            # self.tether.cancel_gravity()
-            self.step_simulation()
-            time.sleep(1./240.)
-            print("x: ", x, " z: ", z)
