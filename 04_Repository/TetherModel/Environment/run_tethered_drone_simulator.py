@@ -4,11 +4,11 @@ import time
 
 class TetheredDroneSimulatorRunner:
     def __init__(self, xs, zs):
-        self.simulator = TetheredDroneSimulator(xs, zs)
+        self.prev_pos = [xs[0], 0, zs[0] + 3]
+        self.simulator = TetheredDroneSimulator(self.prev_pos)
         self.xs = xs
         self.zs = zs
         self.iteration = 0
-        self.prev_pos = [xs[0], 0, zs[0] + 3]
 
     def run(self):
         time.sleep(5)

@@ -8,10 +8,8 @@ from environment import Environment
 
 
 class TetheredDroneSimulator:
-    def __init__(self, xs, zs):
-        self.xs = xs
-        self.zs = zs
-        self.drone_pos = [xs[0], 0, zs[0] + 3]
+    def __init__(self, drone_pos):
+        self.drone_pos = drone_pos
         self.physicsClient = p.connect(p.GUI)
         p.setPhysicsEngineParameter(numSolverIterations=500)
         p.setGravity(0, 0, -10)
