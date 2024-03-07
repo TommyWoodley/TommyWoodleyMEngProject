@@ -1,18 +1,16 @@
 from simple_drone_env import SimpleDroneEnv
 from stable_baselines3 import SAC
+from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.noise import NormalActionNoise
 import numpy as np
 
 # %%
 # Check simple model conforms to gym env
-from stable_baselines3.common.env_checker import check_env
-from simple_drone_env import SimpleDroneEnv
 
 env = SimpleDroneEnv()
 check_env(env, warn=True)
 
 # %%
-
 
 env = SimpleDroneEnv()
 
@@ -35,8 +33,6 @@ for step in range(n_steps):
         break
 # %%
 
-
-
 env = SimpleDroneEnv()
 n_actions = env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.4 * np.ones(n_actions))
@@ -57,7 +53,7 @@ default_model = SAC(
 obs, _ = env.reset()
 n_steps = 20
 for step in range(n_steps):
-    action, _ = model.predict(obs, deterministic=True)
+    action, _ = default_model.predict(obs, deterministic=True)
     print(f"Step {step + 1}")
     print("Action: ", action)
     state, reward, terminated, truncated, info = env.step(action)

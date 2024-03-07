@@ -6,6 +6,7 @@ from tether import Tether
 from weight import Weight
 from environment import Environment
 
+
 class TetheredDroneSimulator:
     def __init__(self, xs, zs):
         self.xs = xs
@@ -29,22 +30,22 @@ class TetheredDroneSimulator:
     def step_simulation(self):
         # Step the physics simulation
         p.stepSimulation()
-    
+
     def run(self):
         time.sleep(5)
         already_moved = False
         while True:
-            it = min(self.iteration, (len(self.xs) -1))
+            it = min(self.iteration, (len(self.xs) - 1))
             x = self.xs[it]
             z = self.zs[it] + 3
             position = [x, 0, z]
             self.iteration += 500
             if self.iteration < len(self.xs) * 2:
-              self.drone.set_position(position)
+                self.drone.set_position(position)
             elif not already_moved:
                 self.drone.set_position([x - 0.2, 0, z])
                 already_moved = True
-                
+
             self.weight.apply_drag()
             # self.tether.cancel_gravity()
             self.step_simulation()

@@ -1,8 +1,10 @@
 import pybullet as p
 
+
 class Tether:
     RADIUS = 0.005
     MASS = 0.1
+
     def __init__(self, length, top_position, physics_client, num_segments=20):
         self.physics_client = physics_client
         self.length = length
@@ -17,19 +19,20 @@ class Tether:
         # Create each segment
         for i in range(self.num_segments):
             segment_top_position = [
-                self.top_position[0], 
-                self.top_position[1], 
+                self.top_position[0],
+                self.top_position[1],
                 self.top_position[2] - i * self.segment_length
             ]
             segment_base_position = [
-                segment_top_position[0], 
-                segment_top_position[1], 
+                segment_top_position[0],
+                segment_top_position[1],
                 segment_top_position[2] - 0.5 * self.segment_length
             ]
 
             # Collision and visual shapes
             collisionShapeId = p.createCollisionShape(p.GEOM_CYLINDER, radius=self.RADIUS, height=self.segment_length)
-            visualShapeId = p.createVisualShape(p.GEOM_CYLINDER, radius=self.RADIUS, length=self.segment_length, rgbaColor=[0, 0, 1, 1])
+            visualShapeId = p.createVisualShape(p.GEOM_CYLINDER, radius=self.RADIUS,
+                                                length=self.segment_length, rgbaColor=[0, 0, 1, 1])
 
             # Create the segment
             segment_id = p.createMultiBody(baseMass=self.segment_mass,
@@ -51,10 +54,10 @@ class Tether:
     def get_world_centre_bottom(self):
         top_x, top_y, top_z = self.top_position
         return [top_x, top_y, top_z - self.length]
-    
+
     def get_body_centre_top(self):
         return [0, 0, 0.5 * self.length]
-    
+
     def get_body_centre_bottom(self):
         return [0, 0, -0.5 * self.length]
 
@@ -78,17 +81,17 @@ class Tether:
     def create_rotational_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
-        p2p_constraint_id = p.createConstraint(parentBodyUniqueId=parent_body_id,
-                           parentLinkIndex=-1,
-                           childBodyUniqueId=child_body_id,
-                           childLinkIndex=-1,
-                           jointType=p.JOINT_POINT2POINT,
-                           jointAxis=[0, 0, 0],
-                           parentFramePosition=parent_frame_pos,
-                           childFramePosition=child_frame_pos,
-                           parentFrameOrientation=[0, 0, 0, 1],
-                           childFrameOrientation=[0, 0, 0, 1])
-        
+        p.createConstraint(parentBodyUniqueId=parent_body_id,
+                        parentLinkIndex=-1,
+                        childBodyUniqueId=child_body_id,
+                        childLinkIndex=-1,
+                        jointType=p.JOINT_POINT2POINT,
+                        jointAxis=[0, 0, 0],
+                        parentFramePosition=parent_frame_pos,
+                        childFramePosition=child_frame_pos,
+                        parentFrameOrientation=[0, 0, 0, 1],
+                        childFrameOrientation=[0, 0, 0, 1])
+
     def create_fixed_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
@@ -102,7 +105,7 @@ class Tether:
                            childFramePosition=child_frame_pos,
                            parentFrameOrientation=[0, 0, 0, 1],
                            childFrameOrientation=[0, 0, 0, 1])
-    
+
     def cancel_gravity(self):
         for seg in self.segments:
-          p.applyExternalForce(seg, -1, [0, 0, 10], [0, 0, 0], p.WORLD_FRAME)
+            p.applyExternalForce(seg, -1, [0, 0, 10], [0, 0, 0], p.WORLD_FRAME)
