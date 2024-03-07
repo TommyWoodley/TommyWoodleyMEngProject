@@ -5,8 +5,10 @@ from gymnasium import spaces
 
 class SimpleDroneEnv(gym.Env):
     """
-    Custom Environment that follows gym interface.
-    This is a simple env where the agent must learn to go always left.
+    Simple Drone Env
+    This is an extemly simple position and goal oriented environment.
+    An agent will attempt to reach a goal.
+    new_state = state + action
     """
 
     metadata = {"render_modes": ["console"]}
