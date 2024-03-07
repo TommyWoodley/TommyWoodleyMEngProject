@@ -25,10 +25,11 @@ class TetheredDroneSimulator:
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
 
-    def step(self, drone_pos=None):
+    def step(self, action=None):
         # Update drone position
-        if drone_pos != None:
-            self.drone.set_position(drone_pos)
+        if action != None:
+            self.drone_pos = [self.drone_pos[0] + action[0], self.drone_pos[1] + action[1], self.drone_pos[2] + action[2]]
+            self.drone.set_position(self.drone_pos)
         self.weight.apply_drag()
         # Step the physics simulation
         p.stepSimulation()
