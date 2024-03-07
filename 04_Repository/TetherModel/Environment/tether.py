@@ -77,20 +77,20 @@ class Tether:
                                 child_body_id=weight.weight_id,
                                 parent_frame_pos=tether_attachment_point,
                                 child_frame_pos=weight_attachment_point)
-    
+
     def create_rotational_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
         p.createConstraint(parentBodyUniqueId=parent_body_id,
-                        parentLinkIndex=-1,
-                        childBodyUniqueId=child_body_id,
-                        childLinkIndex=-1,
-                        jointType=p.JOINT_POINT2POINT,
-                        jointAxis=[0, 0, 0],
-                        parentFramePosition=parent_frame_pos,
-                        childFramePosition=child_frame_pos,
-                        parentFrameOrientation=[0, 0, 0, 1],
-                        childFrameOrientation=[0, 0, 0, 1])
+                           parentLinkIndex=-1,
+                           childBodyUniqueId=child_body_id,
+                           childLinkIndex=-1,
+                           jointType=p.JOINT_POINT2POINT,
+                           jointAxis=[0, 0, 0],
+                           parentFramePosition=parent_frame_pos,
+                           childFramePosition=child_frame_pos,
+                           parentFrameOrientation=[0, 0, 0, 1],
+                           childFrameOrientation=[0, 0, 0, 1])
 
     def create_fixed_joint(self, parent_body_id, child_body_id, parent_frame_pos, child_frame_pos):
         # Use a fixed point between the drone and the tether

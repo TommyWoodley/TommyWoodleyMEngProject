@@ -35,7 +35,7 @@ class Weight:
 
         if speed == 0:
             return
-        
+
         drag_force_magnitude = 0.5 * fluid_density * speed**2 * self.DRAG_COEF * self.cross_area
         drag_force_direction = [-velocity[0]/speed, -velocity[1]/speed, -velocity[2]/speed]
 

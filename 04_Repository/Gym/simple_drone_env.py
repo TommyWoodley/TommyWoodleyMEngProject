@@ -56,4 +56,3 @@ class SimpleDroneEnv(gym.Env):
 
     def close(self):
         pass
-    

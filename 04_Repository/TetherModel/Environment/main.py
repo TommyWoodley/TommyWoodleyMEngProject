@@ -16,4 +16,3 @@ if __name__ == "__main__":
     xs = data_loaded[:-1, 0]  # All rows except the last, first column
     zs = data_loaded[:-1, 1]  # All rows except the last, second column
     main(xs, zs)
-    
