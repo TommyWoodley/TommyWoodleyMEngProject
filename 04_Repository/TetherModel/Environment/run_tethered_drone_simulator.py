@@ -11,7 +11,6 @@ class TetheredDroneSimulatorRunner:
         self.iteration = 0
 
     def run(self):
-        time.sleep(5)
         already_moved = False
         while True:
             it = min(self.iteration, (len(self.xs) - 1))
@@ -29,5 +28,4 @@ class TetheredDroneSimulatorRunner:
             else:
                 self.simulator.step()
             self.prev_pos = drone_pos
-            time.sleep(1./240.)
             print("x: ", x, " z: ", z)
