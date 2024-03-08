@@ -102,3 +102,4 @@ build/
 04_Repository/.venv
 *.pyc
 
+*.mypy

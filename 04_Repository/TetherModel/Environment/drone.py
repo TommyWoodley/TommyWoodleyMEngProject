@@ -1,14 +1,15 @@
 import pybullet as p
+from typing import List
 
 
 class Drone:
     # Half width, Half height, Half length
-    WIDTH = 0.1
-    LENGTH = 0.1
-    HEIGHT = 0.05
-    MASS = 1.0
+    WIDTH: float = 0.1
+    LENGTH: float = 0.1
+    HEIGHT: float = 0.05
+    MASS: float = 1.0
 
-    def __init__(self, start_pos):
+    def __init__(self, start_pos: List[float]) -> None:
         self.startPos = start_pos
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
         self.halfExtents = [self.WIDTH, self.LENGTH, self.HEIGHT]  # half width, length, and height of the drone box
@@ -19,7 +20,7 @@ class Drone:
         mass = self.MASS
         self.model = p.createMultiBody(mass, collisionShapeId, visualShapeId, self.startPos, self.startOrientation)
 
-    def movement(self):
+    def movement(self) -> None:
         # Set horizontal velocity for the drone
         horizontal_velocity_x = 1.0  # velocity along the x-axis
         horizontal_velocity_y = 0.0  # velocity along the y-axis
@@ -31,7 +32,7 @@ class Drone:
             angularVelocity=[0, 0, 0]
         )
 
-    def apply_controls(self, upward_force):
+    def apply_controls(self, upward_force: List[float]) -> None:
         upward_force = [0, 0, upward_force]
 
         # Apply the given force upwards to the drone - world coordinate frame
@@ -42,17 +43,17 @@ class Drone:
                              posObj=[0, 0, 0],
                              flags=p.LINK_FRAME)
 
-    def get_world_centre_bottom(self):
+    def get_world_centre_bottom(self) -> List[float]:
         # current position of the drone
         position, orientation = p.getBasePositionAndOrientation(self.model)
 
         # bottom centre of the drone is the centre along com minus the half height
         return [position[0], position[1], position[2] - self.HEIGHT]
 
-    def get_body_centre_bottom(self):
+    def get_body_centre_bottom(self) -> List[float]:
         return [0, 0, - self.HEIGHT]
 
-    def set_position(self, position):
+    def set_position(self, position: List[float]) -> None:
         # No change in orientation, so retrieve the current orientation
         _, current_orientation = p.getBasePositionAndOrientation(self.model)
 
