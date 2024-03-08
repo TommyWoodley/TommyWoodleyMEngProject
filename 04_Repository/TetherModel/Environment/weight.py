@@ -11,7 +11,7 @@ class Weight:
     _body_centre_top = np.array([0, 0, RADIUS], dtype=np.float32)
 
     def __init__(self, top_position: np.ndarray) -> None:
-        assert isinstance(top_position, np.ndarray), f"top_position must be an instance of np.ndarray"
+        assert isinstance(top_position, np.ndarray), "top_position must be an instance of np.ndarray"
 
         top_x, top_y, top_z = top_position
         self.base_position = [top_x, top_y, top_z - self.RADIUS]

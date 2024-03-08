@@ -6,7 +6,7 @@ import numpy as np
 class Tether:
     RADIUS = 0.005
     MASS = 0.1
-    
+
     def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
         assert isinstance(length, float), "length must be an instance of float"
         assert isinstance(top_position, np.ndarray), "top_position must be an instance of np.ndarray"
@@ -96,7 +96,7 @@ class Tether:
                                 child_frame_pos: np.ndarray) -> None:
         assert isinstance(parent_body_id, int), "parent_body_id must be an instance of int"
         assert isinstance(child_body_id, int), "child_body_id must be an instance of int"
-        assert isinstance(parent_frame_pos, np.ndarray), f"parent_frame_pos must be an instance of np.ndarray"
+        assert isinstance(parent_frame_pos, np.ndarray), "parent_frame_pos must be an instance of np.ndarray"
         assert isinstance(child_frame_pos, np.ndarray), "child_frame_pos must be an instance of np.ndarray"
 
         # Use a fixed point between the drone and the tether
