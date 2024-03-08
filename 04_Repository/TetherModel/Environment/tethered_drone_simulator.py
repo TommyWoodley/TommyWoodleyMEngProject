@@ -1,5 +1,4 @@
 import pybullet as p
-from typing import List
 import numpy as np
 from TetherModel.Environment.drone import Drone
 from TetherModel.Environment.tether import Tether
@@ -26,7 +25,7 @@ class TetheredDroneSimulator:
         self.environment.add_tree_branch([0, 0, 2.7])
 
     def step(self, action: np.ndarray = None) -> None:
-        assert isinstance(action, (np.ndarray, type(None))), f"action must be an instance of np.ndarray, found:{type(action)}"
+        assert isinstance(action, (np.ndarray, type(None))), f"action must be an instance of np.ndarray"
 
         # Update drone position
         if action is not None:

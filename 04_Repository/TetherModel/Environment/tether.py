@@ -7,7 +7,6 @@ class Tether:
     RADIUS = 0.005
     MASS = 0.1
     
-
     def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
         assert isinstance(length, float), "length must be an instance of float"
         assert isinstance(top_position, np.ndarray), "top_position must be an instance of np.ndarray"
@@ -21,7 +20,7 @@ class Tether:
         self.top_position = top_position
         self.segment_mass = self.MASS  # Distribute the mass across the segments
         self.segments = []
-        
+
         self._parent_frame_pos = np.array([0, 0, -0.5 * self.segment_length], dtype=np.float32)
         self._child_frame_pos = np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
         self._body_centre_top = np.array([0, 0, 0.5 * self.length], dtype=np.float32)
@@ -97,7 +96,7 @@ class Tether:
                                 child_frame_pos: np.ndarray) -> None:
         assert isinstance(parent_body_id, int), "parent_body_id must be an instance of int"
         assert isinstance(child_body_id, int), "child_body_id must be an instance of int"
-        assert isinstance(parent_frame_pos, np.ndarray), f"parent_frame_pos must be an instance of np.ndarray, found:{type(parent_frame_pos)}"
+        assert isinstance(parent_frame_pos, np.ndarray), f"parent_frame_pos must be an instance of np.ndarray"
         assert isinstance(child_frame_pos, np.ndarray), "child_frame_pos must be an instance of np.ndarray"
 
         # Use a fixed point between the drone and the tether
@@ -114,11 +113,11 @@ class Tether:
                            childFrameOrientation=[0, 0, 0, 1])
 
     def create_fixed_joint(self, parent_body_id: int, child_body_id: int, parent_frame_pos: List[float],
-                                child_frame_pos: List[float]) -> None:
+                           child_frame_pos: List[float]) -> None:
         assert isinstance(parent_body_id, int), "parent_body_id must be an instance of int"
         assert isinstance(child_body_id, int), "child_body_id must be an instance of int"
-        assert isinstance(parent_frame_pos, (List, np.ndarray)), f"parent_frame_pos must be an instance of np.ndarray or List, found:{type(parent_frame_pos)}"
-        assert isinstance(child_frame_pos, (List, np.ndarray)), "child_frame_pos must be an instance of np.ndarray or List"
+        assert isinstance(parent_frame_pos, (List, np.ndarray)), "wrong type"
+        assert isinstance(child_frame_pos, (List, np.ndarray)), "child_frame_pos must be an instance of np.ndarray"
 
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints

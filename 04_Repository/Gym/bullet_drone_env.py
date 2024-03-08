@@ -52,7 +52,7 @@ class BulletDroneEnv(gym.Env):
         state = np.zeros(2, dtype=np.float32)
         state[0] = r_state[0]
         state[1] = r_state[2]
-        
+
         self.num_steps += 1
 
         reward, terminated, truncated = self.reward_fun(state)
@@ -73,4 +73,3 @@ class BulletDroneEnv(gym.Env):
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
         return - distance, bool(distance < 0.1), bool(self.num_steps > 1000)
-
