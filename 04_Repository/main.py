@@ -1,6 +1,7 @@
 # %%
 from Gym.simple_drone_env import SimpleDroneEnv
 from Gym.bullet_drone_env import BulletDroneEnv
+from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from stable_baselines3 import SAC
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.noise import NormalActionNoise
@@ -69,9 +70,15 @@ for step in range(n_steps):
         break
 
 # %%
-# Check simple model conforms to gym env
+# Check BulletDroneEnv() conforms to gym.Env
 
 env = BulletDroneEnv()
+check_env(env, warn=True)
+env.close()
+
+# %%
+# Check BulletDroneEnv in 2d wrapper confors to gym.Env
+env = TwoDimWrapper(BulletDroneEnv())
 check_env(env, warn=True)
 env.close()
 
