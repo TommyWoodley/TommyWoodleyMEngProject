@@ -1,5 +1,4 @@
 from tethered_drone_simulator import TetheredDroneSimulator
-import time
 
 
 class TetheredDroneSimulatorRunner:

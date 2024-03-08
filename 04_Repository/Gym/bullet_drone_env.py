@@ -27,10 +27,9 @@ class BulletDroneEnv(gym.Env):
         Important: the observation must be a numpy array
         :return: (np.array)
         """
-            
+
         super().reset(seed=seed, options=options)
         self.simulator.reset(self.reset_pos)
-        initial_observation = self.simulator.drone_pos
         state = np.array([0.0, 1.0])
         self.num_steps = 0
         return np.array(state, dtype=np.float32), {}
