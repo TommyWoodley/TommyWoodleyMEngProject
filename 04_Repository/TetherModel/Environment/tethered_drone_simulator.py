@@ -25,8 +25,8 @@ class TetheredDroneSimulator:
     def step(self, action=None):
         # Update drone position
         if action is not None:
-            self.drone_pos = [self.drone_pos[0] + action[0], 
-                              self.drone_pos[1] + action[1], 
+            self.drone_pos = [self.drone_pos[0] + action[0],
+                              self.drone_pos[1] + action[1],
                               self.drone_pos[2] + action[2]]
             self.drone.set_position(self.drone_pos)
         self.weight.apply_drag()
