@@ -1,10 +1,10 @@
 import pybullet as p
 import time
 
-from drone import Drone
-from tether import Tether
-from weight import Weight
-from environment import Environment
+from TetherModel.Environment.drone import Drone
+from TetherModel.Environment.tether import Tether
+from TetherModel.Environment.weight import Weight
+from TetherModel.Environment.environment import Environment
 
 
 class TetheredDroneSimulator:
@@ -31,3 +31,19 @@ class TetheredDroneSimulator:
         self.weight.apply_drag()
         # Step the physics simulation
         p.stepSimulation()
+    
+    def reset(self, pos):
+        p.resetSimulation()
+        self.drone_pos = pos
+        self.drone = Drone(pos)
+        tether_top_position = self.drone.get_world_centre_bottom()
+        self.tether = Tether(length=1.0, top_position=tether_top_position, physics_client=self.physicsClient)
+        self.tether.attach_to_drone(drone=self.drone)
+        tether_bottom_position = self.tether.get_world_centre_bottom()
+        self.weight = Weight(top_position=tether_bottom_position)
+        self.tether.attach_weight(weight=self.weight)
+        self.environment = Environment()
+        self.environment.add_tree_branch([0, 0, 2.7])
+    
+    def close(self):
+        p.disconnect(self.physicsClient)
