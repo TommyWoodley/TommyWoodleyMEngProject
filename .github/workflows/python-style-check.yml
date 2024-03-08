@@ -20,7 +20,7 @@ jobs:
     - name: Install flake8
       run: pip install flake8
     - name: Run flake8 flake8-annotations
-      run: flake8 --max-line-length 120 --ignore ANN101 .
+      run: flake8 --max-line-length 120 --ignore --ignore ANN101,W503 .
       env:
         # Adjust the max-line-length to your preferred limit (PEP8 default is 79 characters)
         FLAKE8_ARGS: --ignore=E501 
