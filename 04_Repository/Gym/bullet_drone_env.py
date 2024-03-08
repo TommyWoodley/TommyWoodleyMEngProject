@@ -18,9 +18,7 @@ class BulletDroneEnv(gym.Env):
 
     def __init__(self, render_mode: str = "console") -> None:
         super(BulletDroneEnv, self).__init__()
-        pos = np.zeros(3, dtype=np.float32)
-        pos[0] = self.reset_pos[0]
-        pos[2] = self.reset_pos[1]
+        pos = self._convert_2d_to_3d(self.reset_pos)
         self.simulator = TetheredDroneSimulator(drone_pos=pos)
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001]), high=np.array([0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
@@ -34,24 +32,18 @@ class BulletDroneEnv(gym.Env):
         """
 
         super().reset(seed=seed, options=options)
-        pos = np.zeros(3, dtype=np.float32)
-        pos[0] = self.reset_pos[0]
-        pos[2] = self.reset_pos[1]
+        pos = self._convert_2d_to_3d(self.reset_pos)
         self.simulator.reset(pos)
         state = self.reset_pos
         self.num_steps = 0
         return state, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        new_action = np.zeros(3, dtype=np.float32)
-        new_action[0] = action[0]
-        new_action[2] = action[1]
+        new_action = self._convert_2d_to_3d(action)
 
         self.simulator.step(new_action)
         r_state = self.simulator.drone_pos
-        state = np.zeros(2, dtype=np.float32)
-        state[0] = r_state[0]
-        state[1] = r_state[2]
+        state = self._convert_3d_to_2d(r_state)
 
         self.num_steps += 1
 
@@ -73,3 +65,14 @@ class BulletDroneEnv(gym.Env):
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
         return - distance, bool(distance < 0.1), bool(self.num_steps > 1000)
+
+    def _convert_2d_to_3d(self, arr: np.ndarray) -> np.ndarray:
+        new_arr = np.zeros(3, dtype=np.float32)
+        new_arr[0] = arr[0]
+        new_arr[2] = arr[1]
+        return new_arr
+
+    def _convert_3d_to_2d(self, arr: np.ndarray) -> np.ndarray:
+        new_arr = np.zeros(2, dtype=np.float32)
+        new_arr[0] = arr[0]
+        new_arr[1] = arr[2]
