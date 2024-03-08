@@ -18,8 +18,7 @@ class BulletDroneEnv(gym.Env):
 
     def __init__(self, render_mode: str = "console") -> None:
         super(BulletDroneEnv, self).__init__()
-        pos = self._convert_2d_to_3d(self.reset_pos)
-        self.simulator = TetheredDroneSimulator(drone_pos=pos)
+        self.simulator = TetheredDroneSimulator(drone_pos=self._convert_2d_to_3d(self.reset_pos))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001]), high=np.array([0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.render_mode = render_mode
@@ -32,16 +31,13 @@ class BulletDroneEnv(gym.Env):
         """
 
         super().reset(seed=seed, options=options)
-        pos = self._convert_2d_to_3d(self.reset_pos)
-        self.simulator.reset(pos)
+        self.simulator.reset(self._convert_2d_to_3d(self.reset_pos))
         state = self.reset_pos
         self.num_steps = 0
         return state, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        new_action = self._convert_2d_to_3d(action)
-
-        self.simulator.step(new_action)
+        self.simulator.step(self._convert_2d_to_3d(action))
         r_state = self.simulator.drone_pos
         state = self._convert_3d_to_2d(r_state)
 
