@@ -1,5 +1,5 @@
 import pybullet as p
-
+from typing import List
 from TetherModel.Environment.drone import Drone
 from TetherModel.Environment.tether import Tether
 from TetherModel.Environment.weight import Weight
@@ -7,7 +7,7 @@ from TetherModel.Environment.environment import Environment
 
 
 class TetheredDroneSimulator:
-    def __init__(self, drone_pos):
+    def __init__(self, drone_pos: List[float]) -> None:
         self.drone_pos = drone_pos
         self.physicsClient = p.connect(p.GUI)
         p.setPhysicsEngineParameter(numSolverIterations=500)
@@ -22,7 +22,7 @@ class TetheredDroneSimulator:
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
 
-    def step(self, action=None):
+    def step(self, action: List[float] = None) -> None:
         # Update drone position
         if action is not None:
             self.drone_pos = [self.drone_pos[0] + action[0],
@@ -33,7 +33,7 @@ class TetheredDroneSimulator:
         # Step the physics simulation
         p.stepSimulation()
 
-    def reset(self, pos):
+    def reset(self, pos: List[float]) -> None:
         p.resetSimulation()
         self.drone_pos = pos
         self.drone = Drone(pos)
@@ -46,5 +46,5 @@ class TetheredDroneSimulator:
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
 
-    def close(self):
+    def close(self) -> None:
         p.disconnect(self.physicsClient)
