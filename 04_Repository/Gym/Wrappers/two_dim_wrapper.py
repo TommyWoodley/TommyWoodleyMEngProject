@@ -3,6 +3,7 @@ from gymnasium import spaces
 from typing import Dict, Any, Tuple
 import numpy as np
 
+
 class TwoDimWrapper(gym.Wrapper):
     def __init__(self, env, x_range: Tuple[int, int] = (-10, 10), z_range: Tuple[int, int] = (-10, 10),
                  render_mode: str = "console") -> None:
@@ -14,7 +15,7 @@ class TwoDimWrapper(gym.Wrapper):
         state, reward, terminated, truncated, info = self.env.step(self._convert_2d_to_3d(action))
         new_state = self._convert_3d_to_2d(state)
         return new_state, reward, terminated, truncated, info
-    
+
     def reset(self, seed: int = None, options: Dict[Any, Any] = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         state, info = self.env.reset(seed, options)
         new_state = self._convert_3d_to_2d(state)
