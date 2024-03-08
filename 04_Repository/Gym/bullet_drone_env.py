@@ -23,7 +23,7 @@ class BulletDroneEnv(gym.Env):
         self.render_mode = render_mode
         self.num_steps = 0
 
-    def reset(self, seed: int = None, options: Dict[str, Any] = None) -> None:
+    def reset(self, seed: int = None, options: Dict[str, Any] = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         """
         Important: the observation must be a numpy array
         :return: (np.array)
