@@ -1,12 +1,18 @@
 import pybullet as p
-from typing import List
+from typing import List, Any
+import numpy as np
 
 
 class Tether:
     RADIUS = 0.005
     MASS = 0.1
 
-    def __init__(self, length: float, top_position: List[float], physics_client: int, num_segments: int = 20) -> None:
+    def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
+        assert isinstance(length, float), "length must be an instance of float"
+        assert isinstance(top_position, np.ndarray), "top_position must be an instance of np.ndarray"
+        assert isinstance(physics_client, int), "physics_client must be an instance of int"
+        assert isinstance(num_segments, int), "num_segments must be an instance of int"
+
         self.physics_client = physics_client
         self.length = length
         self.num_segments = num_segments
@@ -48,39 +54,45 @@ class Tether:
                 self.create_rotational_joint(
                     parent_body_id=self.segments[i - 1],
                     child_body_id=segment_id,
-                    parent_frame_pos=[0, 0, -0.5 * self.segment_length],
-                    child_frame_pos=[0, 0, 0.5 * self.segment_length]
+                    parent_frame_pos=np.array([0, 0, -0.5 * self.segment_length], dtype=np.float32),
+                    child_frame_pos=np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
                 )
 
-    def get_world_centre_bottom(self) -> None:
+    def get_world_centre_bottom(self) -> np.array:
         top_x, top_y, top_z = self.top_position
-        return [top_x, top_y, top_z - self.length]
+        return np.array([top_x, top_y, top_z - self.length], dtype=np.float32)
 
-    def get_body_centre_top(self) -> None:
-        return [0, 0, 0.5 * self.length]
+    def get_body_centre_top(self) -> np.array:
+        return np.array([0, 0, 0.5 * self.length], dtype=np.float32)
 
-    def get_body_centre_bottom(self) -> None:
-        return [0, 0, -0.5 * self.length]
+    def get_body_centre_bottom(self) -> np.array:
+        return np.array([0, 0, -0.5 * self.length], dtype=np.float32)
 
-    def attach_to_drone(self, drone: int) -> None:
+    def attach_to_drone(self, drone: Any) -> None:
         drone_pos = drone.get_body_centre_bottom()
-        tether_attachment_point = [0, 0, 0.5 * self.segment_length]
+        tether_attachment_point = np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
         self.create_rotational_joint(parent_body_id=drone.model,
                                      child_body_id=self.segments[0],  # Top segment
                                      parent_frame_pos=drone_pos,
                                      child_frame_pos=tether_attachment_point)
 
-    def attach_weight(self, weight: float) -> None:
+    def attach_weight(self, weight: Any) -> None:
+
         # Attach the weight to the bottom segment
-        tether_attachment_point = [0, 0, -0.5 * self.segment_length]
+        tether_attachment_point = np.array([0, 0, -0.5 * self.segment_length], np.float32)
         weight_attachment_point = weight.get_body_centre_top()
         self.create_fixed_joint(parent_body_id=self.segments[-1],  # Bottom segment
                                 child_body_id=weight.weight_id,
                                 parent_frame_pos=tether_attachment_point,
                                 child_frame_pos=weight_attachment_point)
 
-    def create_rotational_joint(self, parent_body_id: int, child_body_id: int, parent_frame_pos: List[float],
-                                child_frame_pos: List[float]) -> None:
+    def create_rotational_joint(self, parent_body_id: int, child_body_id: int, parent_frame_pos: np.ndarray,
+                                child_frame_pos: np.ndarray) -> None:
+        assert isinstance(parent_body_id, int), "parent_body_id must be an instance of int"
+        assert isinstance(child_body_id, int), "child_body_id must be an instance of int"
+        assert isinstance(parent_frame_pos, np.ndarray), f"parent_frame_pos must be an instance of np.ndarray, found:{type(parent_frame_pos)}"
+        assert isinstance(child_frame_pos, np.ndarray), "child_frame_pos must be an instance of np.ndarray"
+
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
         p.createConstraint(parentBodyUniqueId=parent_body_id,
@@ -95,7 +107,12 @@ class Tether:
                            childFrameOrientation=[0, 0, 0, 1])
 
     def create_fixed_joint(self, parent_body_id: int, child_body_id: int, parent_frame_pos: List[float],
-                           child_frame_pos: List[float]) -> None:
+                                child_frame_pos: List[float]) -> None:
+        assert isinstance(parent_body_id, int), "parent_body_id must be an instance of int"
+        assert isinstance(child_body_id, int), "child_body_id must be an instance of int"
+        assert isinstance(parent_frame_pos, (List, np.ndarray)), f"parent_frame_pos must be an instance of np.ndarray or List, found:{type(parent_frame_pos)}"
+        assert isinstance(child_frame_pos, (List, np.ndarray)), "child_frame_pos must be an instance of np.ndarray or List"
+
         # Use a fixed point between the drone and the tether
         # TODO: Use a more realistic version of the joints
         p.createConstraint(parentBodyUniqueId=parent_body_id,

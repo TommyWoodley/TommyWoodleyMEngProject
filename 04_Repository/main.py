@@ -73,6 +73,7 @@ for step in range(n_steps):
 
 env = BulletDroneEnv()
 check_env(env, warn=True)
+env.close()
 
 # %%
 

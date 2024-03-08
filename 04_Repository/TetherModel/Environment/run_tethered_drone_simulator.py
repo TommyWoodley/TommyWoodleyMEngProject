@@ -1,10 +1,11 @@
 from tethered_drone_simulator import TetheredDroneSimulator
 from typing import List
+import numpy as np
 
 
 class TetheredDroneSimulatorRunner:
     def __init__(self, xs: List[float], zs: List[float]) -> None:
-        self.prev_pos = [xs[0], 0, zs[0] + 3]
+        self.prev_pos = np.array([xs[0], 0, zs[0] + 3], dtype=np.float32)
         self.simulator = TetheredDroneSimulator(self.prev_pos)
         self.xs = xs
         self.zs = zs
@@ -16,14 +17,14 @@ class TetheredDroneSimulatorRunner:
             it = min(self.iteration, (len(self.xs) - 1))
             x = self.xs[it]
             z = self.zs[it] + 3
-            drone_pos = [x, 0, z]
-            self.iteration += 500
+            drone_pos = np.array([x, 0, z], dtype=np.float32)
+            self.iteration += 395
 
-            action = [drone_pos[0] - self.prev_pos[0], drone_pos[1] - self.prev_pos[1], drone_pos[2] - self.prev_pos[2]]
+            action = drone_pos - self.prev_pos
             if self.iteration < len(self.xs) * 2:
                 self.simulator.step(action)
             elif not already_moved:
-                self.simulator.step([-0.2, 0, 0])
+                self.simulator.step(np.array([-0.2, 0, 0], dtype=np.float32))
                 already_moved = True
             else:
                 self.simulator.step()

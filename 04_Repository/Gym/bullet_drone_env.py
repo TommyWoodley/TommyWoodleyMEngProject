@@ -13,12 +13,15 @@ class BulletDroneEnv(gym.Env):
     """
 
     metadata = {"render_modes": ["console"]}
-    reset_pos = [2, 0, 3]
+    reset_pos = np.array([2, 3], dtype=np.float32)
     goal_state = np.array([0.0, 3.0])  # Goal state
 
     def __init__(self, render_mode: str = "console") -> None:
         super(BulletDroneEnv, self).__init__()
-        self.simulator = TetheredDroneSimulator(drone_pos=self.reset_pos)
+        pos = np.zeros(3, dtype=np.float32)
+        pos[0] = self.reset_pos[0]
+        pos[2] = self.reset_pos[1]
+        self.simulator = TetheredDroneSimulator(drone_pos=pos)
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001]), high=np.array([0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.render_mode = render_mode
@@ -31,23 +34,29 @@ class BulletDroneEnv(gym.Env):
         """
 
         super().reset(seed=seed, options=options)
-        self.simulator.reset(self.reset_pos)
-        state = np.array([0.0, 1.0])
+        pos = np.zeros(3, dtype=np.float32)
+        pos[0] = self.reset_pos[0]
+        pos[2] = self.reset_pos[1]
+        self.simulator.reset(pos)
+        state = self.reset_pos
         self.num_steps = 0
-        return np.array(state, dtype=np.float32), {}
+        return state, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        action_list = [action[0], 0.0, action[1]]
-        self.simulator.step(action_list)
-        state_list = self.simulator.drone_pos
-        state = np.array([state_list[0], state_list[2]], dtype=np.float32)
+        new_action = np.zeros(3, dtype=np.float32)
+        new_action[0] = action[0]
+        new_action[2] = action[1]
+
+        self.simulator.step(new_action)
+        r_state = self.simulator.drone_pos
+        state = np.zeros(2, dtype=np.float32)
+        state[0] = r_state[0]
+        state[1] = r_state[2]
+        
         self.num_steps += 1
 
-        distance_to_goal = np.linalg.norm(state - self.goal_state)
-        reward = -distance_to_goal
-        terminated = distance_to_goal < 0.1  # Example threshold
-        truncated = self.num_steps > 1000
-        info = {"distance_to_goal": distance_to_goal}
+        reward, terminated, truncated = self.reward_fun(state)
+        info = {"distance_to_goal": -reward}
 
         return state, reward, terminated, truncated, info
 
@@ -60,10 +69,8 @@ class BulletDroneEnv(gym.Env):
         if hasattr(self, 'simulator'):
             self.simulator.close()
 
-    def reward_fun(self, state: np.ndarray) -> float:
+    def reward_fun(self, state: np.ndarray) -> Tuple[float, bool, bool]:
         # Implement how reward is calculated based on the state
-        return 0.0
+        distance = np.linalg.norm(state - self.goal_state)
+        return - distance, bool(distance < 0.1), bool(self.num_steps > 1000)
 
-    def check_if_done(self, state: np.ndarray) -> bool:
-        # Implement to check if the episode is done based on the state
-        return False

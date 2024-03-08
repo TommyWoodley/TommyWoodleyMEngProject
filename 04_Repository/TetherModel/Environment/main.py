@@ -1,6 +1,7 @@
 from run_tethered_drone_simulator import TetheredDroneSimulatorRunner
 from typing import List
 import numpy as np
+import sys
 
 
 def main(xs: List[float], zs: List[float]) -> None:
@@ -9,6 +10,7 @@ def main(xs: List[float], zs: List[float]) -> None:
 
 
 if __name__ == "__main__":
+    sys.path.append('/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/')
     data_loaded = np.loadtxt("/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository"
                              + "/Data/PreviousWorkTrajectories/Original/trajectory_data.txt", delimiter=',')
 

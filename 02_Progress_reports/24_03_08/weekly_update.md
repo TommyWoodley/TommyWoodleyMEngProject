@@ -23,7 +23,7 @@ Focussed around the learning from previous demos of the approaching stage.
   - Need to decide what is an appropriate max action for the drone: 0.001m at 240Hz = 0.24m/s
   - Also considering position based instead of action based.
   - Speed
-    - Numpy: Inefficient list operations in pybullet simulation (36%)
+    - ~~Numpy: Inefficient list operations in pybullet simulation (36%)~~
     - Headless: Currently only implemented a "human" env, want a way in the wrapper to not show the GUI. (52%)
     - Imperial DoC - GPUs: Currently just running on my own laptop.
     - Parallelisation: Stable Baselines provides relatviely straightforward methods to use multiple enviornments at the same time - in parallel.

@@ -12,6 +12,11 @@ class Environment:
 
     def add_tree_branch(self, position: List[float], length: float = 1.0, radius: float = 0.02,
                         orientation: List[float] = [np.pi / 2, 0.1, 0]) -> None:
+        assert isinstance(position, List), "position must be an instance of List"
+        assert isinstance(length, float), "child_body_id must be an instance of float"
+        assert isinstance(radius, float), f"radius must be an instance of float, found:{type(radius)}"
+        assert isinstance(orientation, List), "orientation must be an instance of List"
+
         orientation_quat = p.getQuaternionFromEuler(orientation)
         visual_shape_id = p.createVisualShape(shapeType=p.GEOM_CYLINDER, radius=radius,
                                               length=length, rgbaColor=[0.6, 0.32, 0.17, 1])

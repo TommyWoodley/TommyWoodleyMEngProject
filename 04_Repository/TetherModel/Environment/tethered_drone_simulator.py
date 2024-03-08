@@ -1,5 +1,6 @@
 import pybullet as p
 from typing import List
+import numpy as np
 from TetherModel.Environment.drone import Drone
 from TetherModel.Environment.tether import Tether
 from TetherModel.Environment.weight import Weight
@@ -7,7 +8,9 @@ from TetherModel.Environment.environment import Environment
 
 
 class TetheredDroneSimulator:
-    def __init__(self, drone_pos: List[float]) -> None:
+    def __init__(self, drone_pos: np.ndarray) -> None:
+        assert isinstance(drone_pos, np.ndarray), "drone_pos must be an instance of np.ndarray"
+
         self.drone_pos = drone_pos
         self.physicsClient = p.connect(p.GUI)
         p.setPhysicsEngineParameter(numSolverIterations=500)
@@ -22,18 +25,21 @@ class TetheredDroneSimulator:
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
 
-    def step(self, action: List[float] = None) -> None:
+    def step(self, action: np.ndarray = None) -> None:
+        assert isinstance(action, (np.ndarray, type(None))), f"action must be an instance of np.ndarray, found:{type(action)}"
+
         # Update drone position
         if action is not None:
-            self.drone_pos = [self.drone_pos[0] + action[0],
-                              self.drone_pos[1] + action[1],
-                              self.drone_pos[2] + action[2]]
+            self.drone_pos += action
+            print(self.drone_pos)
             self.drone.set_position(self.drone_pos)
         self.weight.apply_drag()
         # Step the physics simulation
         p.stepSimulation()
 
-    def reset(self, pos: List[float]) -> None:
+    def reset(self, pos: np.ndarray) -> None:
+        assert isinstance(pos, np.ndarray), "pos must be an instance of np.ndarray"
+
         p.resetSimulation()
         self.drone_pos = pos
         self.drone = Drone(pos)
