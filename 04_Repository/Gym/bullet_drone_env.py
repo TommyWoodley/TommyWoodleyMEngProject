@@ -2,6 +2,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from typing import Dict, Any, Tuple
+
 from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimulator
 
 
@@ -22,6 +23,7 @@ class BulletDroneEnv(gym.Env):
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.render_mode = render_mode
         self.num_steps = 0
+
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None) -> None:
         """
