@@ -6,6 +6,7 @@ import numpy as np
 class Tether:
     RADIUS = 0.005
     MASS = 0.1
+    
 
     def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
         assert isinstance(length, float), "length must be an instance of float"
@@ -20,6 +21,13 @@ class Tether:
         self.top_position = top_position
         self.segment_mass = self.MASS  # Distribute the mass across the segments
         self.segments = []
+        
+        self._parent_frame_pos = np.array([0, 0, -0.5 * self.segment_length], dtype=np.float32)
+        self._child_frame_pos = np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
+        self._body_centre_top = np.array([0, 0, 0.5 * self.length], dtype=np.float32)
+        self._body_centre_bottom = np.array([0, 0, -0.5 * self.length], dtype=np.float32)
+        self._object_len = np.array([0, 0, self.length], dtype=np.float32)
+
         self.create_tether()
 
     def create_tether(self) -> None:
@@ -54,23 +62,22 @@ class Tether:
                 self.create_rotational_joint(
                     parent_body_id=self.segments[i - 1],
                     child_body_id=segment_id,
-                    parent_frame_pos=np.array([0, 0, -0.5 * self.segment_length], dtype=np.float32),
-                    child_frame_pos=np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
+                    parent_frame_pos=self._parent_frame_pos,
+                    child_frame_pos=self._child_frame_pos
                 )
 
-    def get_world_centre_bottom(self) -> np.array:
-        top_x, top_y, top_z = self.top_position
-        return np.array([top_x, top_y, top_z - self.length], dtype=np.float32)
+    def get_world_centre_bottom(self) -> np.ndarray:
+        return self.top_position - self._object_len
 
-    def get_body_centre_top(self) -> np.array:
-        return np.array([0, 0, 0.5 * self.length], dtype=np.float32)
+    def get_body_centre_top(self) -> np.ndarray:
+        return self._body_centre_top
 
-    def get_body_centre_bottom(self) -> np.array:
-        return np.array([0, 0, -0.5 * self.length], dtype=np.float32)
+    def get_body_centre_bottom(self) -> np.ndarray:
+        return self._body_centre_bottom
 
     def attach_to_drone(self, drone: Any) -> None:
         drone_pos = drone.get_body_centre_bottom()
-        tether_attachment_point = np.array([0, 0, 0.5 * self.segment_length], dtype=np.float32)
+        tether_attachment_point = self._child_frame_pos
         self.create_rotational_joint(parent_body_id=drone.model,
                                      child_body_id=self.segments[0],  # Top segment
                                      parent_frame_pos=drone_pos,
@@ -79,7 +86,7 @@ class Tether:
     def attach_weight(self, weight: Any) -> None:
 
         # Attach the weight to the bottom segment
-        tether_attachment_point = np.array([0, 0, -0.5 * self.segment_length], np.float32)
+        tether_attachment_point = self._parent_frame_pos
         weight_attachment_point = weight.get_body_centre_top()
         self.create_fixed_joint(parent_body_id=self.segments[-1],  # Bottom segment
                                 child_body_id=weight.weight_id,

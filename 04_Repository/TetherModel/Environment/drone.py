@@ -8,6 +8,7 @@ class Drone:
     LENGTH: float = 0.1
     HEIGHT: float = 0.05
     MASS: float = 1.0
+    _body_centre_bottom = np.array([0, 0, - HEIGHT], dtype=np.float32)
 
     def __init__(self, start_pos: np.ndarray) -> None:
         self.startPos = start_pos
@@ -51,7 +52,7 @@ class Drone:
         return np.array([position[0], position[1], position[2] - self.HEIGHT], dtype=np.float32)
 
     def get_body_centre_bottom(self) -> np.ndarray:
-        return np.array([0, 0, - self.HEIGHT], dtype=np.float32)
+        return self._body_centre_bottom
 
     def set_position(self, position: np.ndarray) -> None:
         # No change in orientation, so retrieve the current orientation

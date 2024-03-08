@@ -8,6 +8,8 @@ class Weight:
     RADIUS: float = 0.05
     DRAG_COEF: float = 0.472
 
+    _body_centre_top = np.array([0, 0, RADIUS], dtype=np.float32)
+
     def __init__(self, top_position: np.ndarray) -> None:
         assert isinstance(top_position, np.ndarray), f"top_position must be an instance of np.ndarray, found:{type(top_position)}"
 
@@ -31,7 +33,7 @@ class Weight:
         return position
 
     def get_body_centre_top(self) -> np.ndarray:
-        return np.array([0, 0, self.RADIUS], dtype=np.float32)
+        return self._body_centre_top
 
     def apply_drag(self, fluid_density: float = 1.225) -> None:
         velocity, _ = p.getBaseVelocity(self.weight_id)
