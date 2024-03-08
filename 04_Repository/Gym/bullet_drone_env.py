@@ -38,8 +38,7 @@ class BulletDroneEnv(gym.Env):
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
         self.simulator.step(self._convert_2d_to_3d(action))
-        r_state = self.simulator.drone_pos
-        state = self._convert_3d_to_2d(r_state)
+        state = self._convert_3d_to_2d(self.simulator.drone_pos)
 
         self.num_steps += 1
 
