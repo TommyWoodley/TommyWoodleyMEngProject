@@ -1,9 +1,9 @@
 from run_tethered_drone_simulator import TetheredDroneSimulatorRunner
-
+from typing import List
 import numpy as np
 
 
-def main(xs, zs):
+def main(xs: List[float], zs: List[float]) -> None:
     simulator = TetheredDroneSimulatorRunner(xs, zs)
     simulator.run()
 

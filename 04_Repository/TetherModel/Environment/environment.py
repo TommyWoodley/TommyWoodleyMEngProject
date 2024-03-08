@@ -1,15 +1,17 @@
 import pybullet as p
 import pybullet_data
 import numpy as np
+from typing import List
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self) -> None:
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.ground = p.loadURDF("plane.urdf")
         # TODO: Add the perching branch
 
-    def add_tree_branch(self, position, length=1.0, radius=0.02, orientation=[np.pi / 2, 0.1, 0]):
+    def add_tree_branch(self, position: List[float], length: float = 1.0, radius: float = 0.02,
+                        orientation: List[float] = [np.pi / 2, 0.1, 0]) -> None:
         orientation_quat = p.getQuaternionFromEuler(orientation)
         visual_shape_id = p.createVisualShape(shapeType=p.GEOM_CYLINDER, radius=radius,
                                               length=length, rgbaColor=[0.6, 0.32, 0.17, 1])

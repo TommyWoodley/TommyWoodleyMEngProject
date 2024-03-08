@@ -1,15 +1,16 @@
 from tethered_drone_simulator import TetheredDroneSimulator
+from typing import List
 
 
 class TetheredDroneSimulatorRunner:
-    def __init__(self, xs, zs):
+    def __init__(self, xs: List[float], zs: List[float]) -> None:
         self.prev_pos = [xs[0], 0, zs[0] + 3]
         self.simulator = TetheredDroneSimulator(self.prev_pos)
         self.xs = xs
         self.zs = zs
         self.iteration = 0
 
-    def run(self):
+    def run(self) -> None:
         already_moved = False
         while True:
             it = min(self.iteration, (len(self.xs) - 1))
