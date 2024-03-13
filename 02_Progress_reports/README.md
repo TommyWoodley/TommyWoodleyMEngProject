@@ -39,3 +39,11 @@ Term 2 - Feburary 2024
 - 21st Feburary 2024
   - [Markdown](./24_02_21/weekly_update.md)
   - [Slides](./24_02_21/weekly_update.pdf)
+
+Term 2 - March 2024
+- 6th March 2024
+  - [Markdown](./24_03_06/weekly_update.md)
+  - [Slides](./24_03_06/weekly_update.pdf)
+- 13th March 2024
+  - [Markdown](./24_03_13/weekly_update.md)
+  - [Slides](./24_03_13/weekly_update.pdf)
