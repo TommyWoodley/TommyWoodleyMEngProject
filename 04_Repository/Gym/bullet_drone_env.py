@@ -16,12 +16,12 @@ class BulletDroneEnv(gym.Env):
     """
 
     metadata = {"render_modes": ["console", "human"]}
-    reset_pos = np.array([2, 0, 3], dtype=np.float32)
+    reset_pos = [2, 0, 3]
     goal_state = np.array([0.0, 0.0, 3.0])  # Goal state
 
     def __init__(self, render_mode: str = "human") -> None:
         super(BulletDroneEnv, self).__init__()
-        self.simulator = TetheredDroneSimulator(drone_pos=self.reset_pos, gui_mode=(render_mode == "human"))
+        self.simulator = TetheredDroneSimulator(drone_pos=np.array(self.reset_pos, dtype=np.float32), gui_mode=(render_mode == "human"))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001, -0.001]),
                                        high=np.array([0.001, 0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
@@ -31,7 +31,8 @@ class BulletDroneEnv(gym.Env):
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         super().reset(seed=seed, options=options)
-        self.simulator.reset(self.reset_pos)
+        print("resetPos: ", self.reset_pos)
+        self.simulator.reset(np.array(self.reset_pos, dtype=np.float32))
         self.num_steps = 0
         return self.reset_pos, {}
 
