@@ -1,5 +1,4 @@
 # %%
-from Gym.simple_drone_env import SimpleDroneEnv
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
