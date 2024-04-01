@@ -15,7 +15,7 @@ env.close()
 
 # %%
 
-env = PositionWrapper(TwoDimWrapper(BulletDroneEnv()))
+env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console")))
 n_actions = env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.0001 * np.ones(n_actions))
 

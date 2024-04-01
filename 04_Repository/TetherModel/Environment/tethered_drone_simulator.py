@@ -7,11 +7,14 @@ from TetherModel.Environment.environment import Environment
 
 
 class TetheredDroneSimulator:
-    def __init__(self, drone_pos: np.ndarray) -> None:
+    def __init__(self, drone_pos: np.ndarray, gui_mode=True) -> None:
         assert isinstance(drone_pos, np.ndarray), "drone_pos must be an instance of np.ndarray"
 
         self.drone_pos = drone_pos
-        self.physicsClient = p.connect(p.GUI)
+        if gui_mode:
+            self.physicsClient = p.connect(p.GUI)
+        else:
+            self.physicsClient = p.connect(p.DIRECT)
         p.setPhysicsEngineParameter(numSolverIterations=500)
         p.setGravity(0, 0, -10)
         self.drone = Drone(self.drone_pos)
@@ -30,7 +33,6 @@ class TetheredDroneSimulator:
         # Update drone position
         if action is not None:
             self.drone_pos += action
-            print(self.drone_pos)
             self.drone.set_position(self.drone_pos)
         self.weight.apply_drag()
         # Step the physics simulation
