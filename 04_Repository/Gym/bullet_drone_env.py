@@ -22,7 +22,8 @@ class BulletDroneEnv(gym.Env):
 
     def __init__(self, render_mode: str = "human") -> None:
         super(BulletDroneEnv, self).__init__()
-        self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42), gui_mode=(render_mode == "human"))
+        self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42), 
+                                                gui_mode=(render_mode == "human"))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001, -0.001]),
                                        high=np.array([0.001, 0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
@@ -66,7 +67,7 @@ class BulletDroneEnv(gym.Env):
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
         return - distance, bool(distance < 0.1), False
-    
+
     def _generate_reset_position(self, seed):
         """
         Uses a ring method around the target to generate a reset position.
