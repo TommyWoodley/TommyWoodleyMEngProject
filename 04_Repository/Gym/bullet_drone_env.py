@@ -8,8 +8,11 @@ from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimula
 
 class BulletDroneEnv(gym.Env):
     """
-    Custom Environment that follows gym interface.
-    This is a simple env where the agent must learn to go always left.
+    Custom PyBullet Drone Environment that follows gym interface.
+    Render Modes
+      - Console: Uses PyBullet Direct - supports multiple environments in parallel.
+      - Human: Uses PyBullet GUI - note that this has limitations - GUI console cannot be quit
+        additionally only environment can be built at a time.
     """
 
     metadata = {"render_modes": ["console", "human"]}
@@ -18,7 +21,7 @@ class BulletDroneEnv(gym.Env):
 
     def __init__(self, render_mode: str = "human") -> None:
         super(BulletDroneEnv, self).__init__()
-        self.simulator = TetheredDroneSimulator(drone_pos=self.reset_pos, gui_mode=(render_mode is "human"))
+        self.simulator = TetheredDroneSimulator(drone_pos=self.reset_pos, gui_mode=(render_mode == "human"))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001, -0.001]),
                                        high=np.array([0.001, 0.001, 0.001]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
