@@ -30,7 +30,7 @@ class PositionWrapper(gym.Wrapper):
         self.render()
         self.current_state = state
         return state, info
-    
+
     def render(self):
         print(f'Agent position: {self.current_state}')
 
