@@ -18,6 +18,7 @@ class BulletDroneEnv(gym.Env):
     metadata = {"render_modes": ["console", "human"]}
     reset_pos = [2, 0, 3]
     goal_state = np.array([0.0, 0.0, 3.0])  # Goal state
+    reset_pos_distance = 3.0
 
     def __init__(self, render_mode: str = "human") -> None:
         super(BulletDroneEnv, self).__init__()
@@ -31,9 +32,10 @@ class BulletDroneEnv(gym.Env):
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         super().reset(seed=seed, options=options)
-        self.simulator.reset(self._generate_reset_position(seed))
+        reset_pos = self._generate_reset_position(seed)
+        self.simulator.reset(reset_pos)
         self.num_steps = 0
-        return self.reset_pos, {}
+        return reset_pos, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
         self.simulator.step(action)
@@ -66,4 +68,16 @@ class BulletDroneEnv(gym.Env):
         return - distance, bool(distance < 0.1), False
     
     def _generate_reset_position(self, seed):
-        return np.array(self.reset_pos, dtype=np.float32)
+        """
+        Uses a ring method around the target to generate a reset position.
+        """
+        if seed is not None:
+            np.random.seed(seed)
+        angle = np.random.uniform(0, 2 * np.pi)
+
+        x_offset = self.reset_pos_distance * np.cos(angle)
+        y_offset = self.reset_pos_distance * np.sin(angle)
+
+        reset_pos = self.goal_state + np.array([x_offset, 0, y_offset], dtype=np.float32)
+
+        return reset_pos
