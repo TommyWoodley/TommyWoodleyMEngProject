@@ -22,7 +22,7 @@ class BulletDroneEnv(gym.Env):
 
     def __init__(self, render_mode: str = "human") -> None:
         super(BulletDroneEnv, self).__init__()
-        self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42), 
+        self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42),
                                                 gui_mode=(render_mode == "human"))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001, -0.001]),
                                        high=np.array([0.001, 0.001, 0.001]), dtype=np.float32)
