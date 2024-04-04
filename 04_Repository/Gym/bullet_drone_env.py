@@ -81,4 +81,4 @@ class BulletDroneEnv(gym.Env):
 
         reset_pos = self.goal_state + np.array([x_offset, 0, y_offset], dtype=np.float32)
 
-        return reset_pos
+        return reset_pos.astype(np.float32)
