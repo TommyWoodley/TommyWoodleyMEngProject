@@ -11,17 +11,17 @@ class PositionWrapper(gym.Wrapper):
         super().__init__(env)
 
         # Position Based Action Space
-        self.action_space = spaces.Box(low=np.array([-5, 0]), high=np.array([5, 5]), dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-0.5, -0.5]), high=np.array([0.5, 0.5]), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.current_state = None
         env.unwrapped.should_render = False
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        print("Action: ", action)
-        state, reward, terminated, truncated, info = self._take_single_step(action)
+        waypoint = self.current_state + action
 
-        while not PositionWrapper._is_close_enough(self.current_state, action):
-            state, reward, terminated, truncated, info = self._take_single_step(action)
+        state, reward, terminated, truncated, info = self._take_single_step(waypoint)
+        while not PositionWrapper._is_close_enough(self.current_state, waypoint):
+            state, reward, terminated, truncated, info = self._take_single_step(waypoint)
 
         return state, reward, terminated, truncated, info
 

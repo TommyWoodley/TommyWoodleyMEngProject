@@ -5,7 +5,7 @@ import numpy as np
 
 class Tether:
     RADIUS = 0.005
-    MASS = 0.1
+    MASS = 0.01
 
     def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
         assert isinstance(length, float), "length must be an instance of float"
