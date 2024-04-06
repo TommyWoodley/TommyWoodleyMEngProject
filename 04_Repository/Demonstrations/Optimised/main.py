@@ -1,10 +1,8 @@
 from generate_demo import calculate_optimal_demo
 from optimised_demo import OptimisedDemo
-import json
-import numpy as np
 
-starting_conditions = { "x": 0.0, "y": 1.0 }
-ending_conditions = { "x": 0.0, "y": 3.0 }
+starting_conditions = {"x": 0.0, "y": 1.0}
+ending_conditions = {"x": 0.0, "y": 3.0}
 duration = 2.5
 
 trajectoy = calculate_optimal_demo(starting_conditions, ending_conditions, duration)

@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 class OptimisedDemo:
     def __init__(self, file_path=None, metadata=None, trajectory=None):
@@ -23,7 +24,7 @@ class OptimisedDemo:
         data['trajectory'] = data['trajectory'].tolist()
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
-  
+
     def save_to_file(self, file_path):
         data = {
             'metadata': self.metadata,
