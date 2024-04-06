@@ -1,6 +1,7 @@
 import json
 import numpy as np
 
+
 class OptimisedDemo:
     def __init__(self, file_path=None, metadata=None, trajectory=None):
         if file_path:
