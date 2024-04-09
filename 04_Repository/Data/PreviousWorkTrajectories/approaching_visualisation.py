@@ -4,7 +4,7 @@ import json
 json_files = ['0.0', '45.0', '90.0', '135.0', '180.0', '225.0', '270.0', '315.0', '360.0']
 
 # Create a plot
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 10))
 
 # Colors for each line
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  # Add more colors if you have more files
