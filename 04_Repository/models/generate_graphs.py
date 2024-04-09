@@ -41,7 +41,7 @@ def plot_reward_graph(data, output_filename, window_size=10):
     plt.plot(rewards.index, running_avg, color='red', linestyle='-', linewidth=2, label='Running Average')
     plt.fill_between(rewards.index, running_avg + running_std, running_avg - running_std, color='gray', alpha=0.3, label='Variance')
     plt.title('Running Rewards and Variance Over Training')
-    plt.xlabel('Timesteps')
+    plt.xlabel('Episodes')
     plt.ylabel('Reward Value')
     plt.grid(True)
     plt.legend()
