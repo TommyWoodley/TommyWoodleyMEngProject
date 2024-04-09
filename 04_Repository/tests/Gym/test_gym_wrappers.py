@@ -32,7 +32,7 @@ def test_position_wrapped_two_dim_bullet_env():
 
 def test_environment_truncation(env):
     truncated = False
-    
+
     for _ in range(10):
         assert not truncated, "The environment truncated too early."
 
