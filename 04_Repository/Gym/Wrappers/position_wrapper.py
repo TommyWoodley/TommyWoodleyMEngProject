@@ -15,8 +15,10 @@ class PositionWrapper(gym.Wrapper):
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.current_state = None
         env.unwrapped.should_render = False
+        self.num_steps = 0
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
+        self.num_steps += 1
         waypoint = self.current_state + action
 
         state, reward, terminated, truncated, info = self._take_single_step(waypoint)
@@ -29,6 +31,7 @@ class PositionWrapper(gym.Wrapper):
         state, info = self.env.reset(seed, options)
         self.render()
         self.current_state = state
+        self.num_steps = 0
         return state, info
 
     def render(self):
@@ -47,4 +50,4 @@ class PositionWrapper(gym.Wrapper):
 
         self.current_state = state
 
-        return state, reward, terminated, truncated, info
+        return state, reward, terminated, self.num_steps > 10, info

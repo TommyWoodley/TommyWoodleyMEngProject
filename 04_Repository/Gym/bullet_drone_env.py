@@ -66,7 +66,7 @@ class BulletDroneEnv(gym.Env):
     def reward_fun(self, state: np.ndarray) -> Tuple[float, bool, bool]:
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
-        return - distance, bool(distance < 0.1), False
+        return - distance, bool(distance < 0.5), False
 
     def _generate_reset_position(self, seed):
         """
