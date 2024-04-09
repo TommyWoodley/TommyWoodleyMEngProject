@@ -57,7 +57,7 @@ for state, action, reward, next_state in state_action_reward:
     })
 
 # Write the serializable list to a JSON file
-with open(f"rl_demo_approaching_angle_{angle}.json", 'w') as file:
+with open(f"rl_demos/rl_demo_approaching_angle_{angle}.json", 'w') as file:
     json.dump(state_action_reward_serializable, file, indent=4)
 
 print(f"Data saved to rl_demo_approaching_angle_{angle}.json")
