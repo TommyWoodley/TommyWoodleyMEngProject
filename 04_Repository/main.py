@@ -4,29 +4,31 @@ from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from stable_baselines3 import SAC
 from stable_baselines3.common.monitor import Monitor
-import numpy as np
 import argparse
 import datetime
 import os
 
+
 def main(algorithm, num_steps, filename):
     print(f"Algorithm: {algorithm}")
     print(f"Number of Steps: {num_steps}")
-    if filename != None:
+    save_data = filename is not None
+    if save_data:
         dir_name = get_dir_name(filename)
     print(f"File Name: {dir_name}")
 
     os.mkdir(f"models/{dir_name}")
     env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console")))
-    if filename != None:
+    if save_data:
         env = Monitor(env, f"models/{dir_name}/logs")
     if algorithm == "SAC":
         model = train_sac(env, num_steps)
     else:
         print("ERROR: Not yet implemented")
-    if filename != None:
+    if save_data:
         model.save(f"models/{dir_name}/model")
     env.close()
+
 
 def train_sac(env, num_steps):
     model = SAC(
@@ -37,7 +39,7 @@ def train_sac(env, num_steps):
         batch_size=32,
         policy_kwargs=dict(net_arch=[64, 64]),
     ).learn(num_steps, log_interval=10)
-    
+
     return model
 
 
@@ -62,4 +64,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main(args.algorithm, args.num_steps, args.filename)
-
