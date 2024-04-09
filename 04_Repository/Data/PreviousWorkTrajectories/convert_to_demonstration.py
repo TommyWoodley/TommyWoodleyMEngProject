@@ -3,6 +3,9 @@ import numpy as np
 import json
 
 
+angle = "0.0"
+
+
 def calc_reward(state):
     target_position = np.array([0, 3])
     distance = np.linalg.norm(np.array(state) - target_position)
@@ -10,7 +13,7 @@ def calc_reward(state):
 
 
 # Load the CSV file
-df = pd.read_csv('Original/trajectory_data.csv')
+df = pd.read_csv(f"Original/trajectory_data_angle_{angle}.csv")
 df['delta_x'] = df['cycleX'].diff().fillna(0)
 df['delta_z'] = df['cycleZ'].diff().fillna(0)
 df['distance'] = np.sqrt(df['delta_x']**2 + df['delta_z']**2)
@@ -54,7 +57,7 @@ for state, action, reward, next_state in state_action_reward:
     })
 
 # Write the serializable list to a JSON file
-with open('state_action_reward.json', 'w') as file:
+with open(f"rl_demo_approaching_angle_{angle}.json", 'w') as file:
     json.dump(state_action_reward_serializable, file, indent=4)
 
-print("Data saved to 'state_action_reward.json'.")
+print(f"Data saved to rl_demo_approaching_angle_{angle}.json")
