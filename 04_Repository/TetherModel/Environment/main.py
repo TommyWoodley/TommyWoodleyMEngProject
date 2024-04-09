@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from run_tethered_drone_simulator import TetheredDroneSimulatorRunner
 from typing import List
 import numpy as np
