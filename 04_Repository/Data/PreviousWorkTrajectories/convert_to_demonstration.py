@@ -2,10 +2,12 @@ import pandas as pd
 import numpy as np
 import json
 
+
 def calc_reward(state):
     target_position = np.array([0, 3])
     distance = np.linalg.norm(np.array(state) - target_position)
     return -distance
+
 
 # Load the CSV file
 df = pd.read_csv('Original/trajectory_data.csv')
@@ -56,4 +58,3 @@ with open('state_action_reward.json', 'w') as file:
     json.dump(state_action_reward_serializable, file, indent=4)
 
 print("Data saved to 'state_action_reward.json'.")
-
