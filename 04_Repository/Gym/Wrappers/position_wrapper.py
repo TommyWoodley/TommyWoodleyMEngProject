@@ -6,18 +6,20 @@ import numpy as np
 
 class PositionWrapper(gym.Wrapper):
     MAGNITUDE = 0.001
+    MAX_STEP = 0.5
 
     def __init__(self, env) -> None:
         super().__init__(env)
 
         # Position Based Action Space
-        self.action_space = spaces.Box(low=np.array([-0.5, -0.5]), high=np.array([0.5, 0.5]), dtype=np.float32)
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,), dtype=np.float32)
         self.current_state = None
         env.unwrapped.should_render = False
         self.num_steps = 0
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
+        action = action * self.MAX_STEP
         self.num_steps += 1
         waypoint = self.current_state + action
 
@@ -50,4 +52,4 @@ class PositionWrapper(gym.Wrapper):
 
         self.current_state = state
 
-        return state, reward, terminated, self.num_steps > 10, info
+        return state, reward, terminated, self.num_steps >= 10, info
