@@ -1,4 +1,3 @@
-import numpy as np
 import sys
 import os
 import matplotlib.pyplot as plt
@@ -8,8 +7,10 @@ from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from stable_baselines3 import SAC
 
+# Model to load
 dir = "approach-sac_2024_04_10_11_39"
-model = SAC.load(f"{dir}/model.zip") # Model to load
+
+model = SAC.load(f"{dir}/model.zip")
 env = PositionWrapper(TwoDimWrapper(BulletDroneEnv()))
 model.set_env(env)
 
