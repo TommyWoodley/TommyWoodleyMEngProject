@@ -22,7 +22,7 @@ for i, angle in enumerate(json_files):
     for entry in data:
         x_values.append(entry["state"][0])
         y_values.append(entry["state"][1])
-    
+
     x_values.append(data[-1]["next_state"][0])
     y_values.append(data[-1]["next_state"][1])
 
