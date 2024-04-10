@@ -2,9 +2,11 @@ name: Python Style Check
 
 on:
   push:
+    branches: [ main ]
     paths:
       - '**.py'
   pull_request:
+    branches: [ main ]
     paths:
       - '**.py'
 
