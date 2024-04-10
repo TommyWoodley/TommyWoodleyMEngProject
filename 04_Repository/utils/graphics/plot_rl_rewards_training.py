@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def plot_rl_reward_graph(rewards, output_filename=None, window_size=10, title='Running Rewards and Variance Over Training',
-                      show_plot=True):
+
+def plot_rl_reward_graph(rewards, output_filename=None, window_size=10,
+                         title='Running Rewards and Variance Over Training', show_plot=True):
     """
     Plot a graph of rewards with running average and variance.
 
@@ -28,9 +29,11 @@ def plot_rl_reward_graph(rewards, output_filename=None, window_size=10, title='R
         raise ValueError("title must be a string.")
     if not isinstance(show_plot, bool):
         raise ValueError("show_plot must be a boolean.")
-    
-    _plot_reward_graph(rewards, output_filename=output_filename, window_size=window_size, title=title, show_plot=show_plot)
-    
+
+    _plot_reward_graph(rewards, output_filename=output_filename, window_size=window_size, title=title,
+                       show_plot=show_plot)
+
+
 def _plot_reward_graph(rewards, output_filename, window_size, title, show_plot):
 
     running_avg = rewards.rolling(window=window_size, min_periods=1).mean()

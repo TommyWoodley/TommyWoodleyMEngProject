@@ -23,7 +23,6 @@ def read_csv_file(filename):
 
         rewards = data['r']
         plot_rl_reward_graph(rewards, output_filename=output_filename)
-        
     except FileNotFoundError:
         print("Error: File not found. Please check the filename and try again.")
     except pd.errors.EmptyDataError:
@@ -32,6 +31,7 @@ def read_csv_file(filename):
         print("Error: File could not be parsed. Check if the file is a valid CSV.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     # Check if the filename is given as a command-line argument
