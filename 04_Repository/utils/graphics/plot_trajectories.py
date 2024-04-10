@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 
+
 def plot_trajectories(trajectories, output_filename=None, window_size=10,
-                         title='Sample Trajectories', show_plot=True):
+                      title='Sample Trajectories', show_plot=True):
     for trajectory in trajectories:
         x_values = [state[0] for state in trajectory]
         y_values = [state[1] for state in trajectory]
-        plt.plot(x_values, y_values, marker='o', linestyle='-', label=f'label', color='blue')
+        plt.plot(x_values, y_values, marker='o', linestyle='-', label='label', color='blue')
 
     # Add labels and title
     plt.xlabel('X position')
