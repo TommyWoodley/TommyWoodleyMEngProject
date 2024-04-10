@@ -31,9 +31,12 @@ class BulletDroneEnv(gym.Env):
         self.num_steps = 0
         self.should_render = True
 
-    def reset(self, seed: int = None, options: Dict[str, Any] = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
+    def reset(self, seed: int = None, options: Dict[str, Any] = None, degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         super().reset(seed=seed, options=options)
-        reset_pos = self._generate_reset_position(seed)
+        if degrees is not None:
+            reset_pos = self._generate_reset_position_from_degrees(degrees)
+        else:
+            reset_pos = self._generate_reset_position(seed)
         self.simulator.reset(reset_pos)
         self.num_steps = 0
         return reset_pos, {}
@@ -70,15 +73,21 @@ class BulletDroneEnv(gym.Env):
 
     def _generate_reset_position(self, seed):
         """
-        Uses a ring method around the target to generate a reset position.
+        Uses a ring method around the target to generate a reset position from seed
         """
         if seed is not None:
             np.random.seed(seed)
         angle = np.random.uniform(0, 2 * np.pi)
 
-        x_offset = self.reset_pos_distance * np.cos(angle)
-        y_offset = self.reset_pos_distance * np.sin(angle)
+        return self._generate_reset_position_from_radians(angle)
+
+    def _generate_reset_position_from_degrees(self, degrees):
+        return self._generate_reset_position_from_radians(np.radians(degrees))
+
+    def _generate_reset_position_from_radians(self, radians):
+
+        x_offset = self.reset_pos_distance * np.cos(radians)
+        y_offset = self.reset_pos_distance * np.sin(radians)
 
         reset_pos = self.goal_state + np.array([x_offset, 0, y_offset], dtype=np.float32)
-
         return reset_pos.astype(np.float32)
