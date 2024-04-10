@@ -36,7 +36,7 @@ def read_csv_file(filename):
 if __name__ == "__main__":
     # Check if the filename is given as a command-line argument
     if len(sys.argv) != 2:
-        print("Usage: python script_name.py <filename>")
+        print("Usage: python generate_reward_graph_from_logs.py <filename>")
     else:
         filename = sys.argv[1]
         read_csv_file(filename)

@@ -57,7 +57,7 @@ def sample_trajectories(dir):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python sample_trajectories.py <model dir>")
+        print("Usage: python sample_trajectories_from_model.py <model dir>")
     else:
         dir = sys.argv[1]
         sample_trajectories(dir)
