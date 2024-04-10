@@ -1,13 +1,13 @@
 import sys
 import os
 import gymnasium as gym
-import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from stable_baselines3 import SAC
 from utils.graphics.plot_trajectories import plot_trajectories
+
 
 class SampleTrajEnv(gym.Wrapper):
     def __init__(self, env, plotting_degrees):
@@ -26,12 +26,13 @@ class SampleTrajEnv(gym.Wrapper):
             self.fake_reset_done = True
             return self.env.reset(degrees=self.plotting_degrees[self.iterator], **kwargs)
 
+
 def sample_trajectories(dir):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]
 
     model = SAC.load(f"{dir}/model.zip")
     env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))),
-                        plotting_degrees = plotting_degrees)
+                        plotting_degrees=plotting_degrees)
     model.set_env(env)
 
     num_trajectories = len(plotting_degrees)

@@ -7,6 +7,7 @@ from utils.graphics.plot_trajectories import plot_trajectories
 
 json_files = ['0.0', '45.0', '90.0', '135.0', '180.0', '225.0', '270.0', '315.0', '360.0']
 
+
 def extract_and_plot(dir):
     trajectories = []
     for i, angle in enumerate(json_files):
@@ -27,6 +28,7 @@ def extract_and_plot(dir):
         trajectories.append(states)
 
     plot_trajectories(trajectories)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

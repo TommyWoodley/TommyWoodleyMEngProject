@@ -31,7 +31,8 @@ class BulletDroneEnv(gym.Env):
         self.num_steps = 0
         self.should_render = True
 
-    def reset(self, seed: int = None, options: Dict[str, Any] = None, degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
+    def reset(self, seed: int = None, options: Dict[str, Any] = None,
+              degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         super().reset(seed=seed, options=options)
         if degrees is not None:
             reset_pos = self._generate_reset_position_from_degrees(degrees)
