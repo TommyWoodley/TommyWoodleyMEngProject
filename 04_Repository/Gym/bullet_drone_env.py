@@ -17,7 +17,7 @@ class BulletDroneEnv(gym.Env):
 
     metadata = {"render_modes": ["console", "human"]}
     reset_pos = [2, 0, 3]
-    goal_state = np.array([0.0, 0.0, 3.0])  # Goal state
+    goal_state = np.array([0.0, 0.0, 3.2])  # Goal state
     reset_pos_distance = 2.0
 
     def __init__(self, render_mode: str = "human") -> None:
