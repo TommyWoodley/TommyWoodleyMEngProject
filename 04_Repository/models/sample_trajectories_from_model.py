@@ -53,7 +53,7 @@ def sample_trajectories(dir):
         trajectory_states.append(trajectory)
     env.close()
 
-    plot_trajectories(trajectory_states)
+    plot_trajectories(trajectory_states, output_filename=f"{dir}/sample_trajectories.png")
 
 
 if __name__ == "__main__":
