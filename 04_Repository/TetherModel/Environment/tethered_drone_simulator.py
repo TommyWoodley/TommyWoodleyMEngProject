@@ -39,7 +39,6 @@ class TetheredDroneSimulator:
         if action is not None:
             self.drone_pos += action
             self.drone.set_position(self.drone_pos)
-        self.weight.apply_drag()
         # Step the physics simulation
         p.stepSimulation()
 
