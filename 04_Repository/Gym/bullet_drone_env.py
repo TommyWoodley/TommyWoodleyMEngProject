@@ -17,8 +17,7 @@ class BulletDroneEnv(gym.Env):
 
     metadata = {"render_modes": ["console", "human"]}
     reset_pos = [2, 0, 3]
-    goal_state = np.array([0.0, 0.0, 3.2])  # Drone 
-    
+    centre_pos = np.array([0.0, 0.0, 3.0])  # Goal state
     reset_pos_distance = 2.0
 
     def __init__(self, render_mode: str = "human") -> None:
@@ -110,7 +109,7 @@ class BulletDroneEnv(gym.Env):
         x_offset = self.reset_pos_distance * np.cos(radians)
         y_offset = self.reset_pos_distance * np.sin(radians)
 
-        reset_pos = self.goal_state + np.array([x_offset, 0, y_offset], dtype=np.float32)
+        reset_pos = self.centre_pos + np.array([x_offset, 0, y_offset], dtype=np.float32)
         return reset_pos.astype(np.float32)
 
     # Visualisation funtion
