@@ -78,9 +78,9 @@ class Tether:
         drone_pos = drone.get_body_centre_bottom()
         tether_attachment_point = self._child_frame_pos
         self.create_fixed_joint(parent_body_id=drone.model,
-                                     child_body_id=self.segments[0],  # Top segment
-                                     parent_frame_pos=drone_pos,
-                                     child_frame_pos=tether_attachment_point)
+                                child_body_id=self.segments[0],  # Top segment
+                                parent_frame_pos=drone_pos,
+                                child_frame_pos=tether_attachment_point)
 
     def attach_weight(self, weight: Any) -> None:
 
