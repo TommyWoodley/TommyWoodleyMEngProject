@@ -27,7 +27,7 @@ class TetheredDroneSimulator:
         self.weight = Weight(top_position=tether_bottom_position)
         self.tether.attach_weight(weight=self.weight)
         self.environment = Environment()
-        self.environment.add_tree_branch([0, 0, 2.7])
+        self.branch = self.environment.add_tree_branch([0, 0, 2.7])
 
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
@@ -40,7 +40,18 @@ class TetheredDroneSimulator:
             self.drone_pos += action
             self.drone.set_position(self.drone_pos)
         # Step the physics simulation
+        has_collided = self.check_collisions()
+        dist_tether_branch = self._distance(self.tether.get_mid_point(), self.environment.get_tree_branch_midpoint())
+        dist_drone_branch = self._distance(self.drone.get_world_centre_centre(), self.environment.get_tree_branch_midpoint())
         p.stepSimulation()
+        return has_collided, dist_tether_branch, dist_drone_branch
+
+    def check_collisions(self):
+        for part_id in self.tether.get_segments():
+            contacts = p.getContactPoints(bodyA=self.branch, bodyB=part_id)
+            if contacts:
+                return True
+        return False
 
     def reset(self, pos: np.ndarray) -> None:
         assert isinstance(pos, np.ndarray), "pos must be an instance of np.ndarray"
@@ -59,3 +70,6 @@ class TetheredDroneSimulator:
 
     def close(self) -> None:
         p.disconnect(self.physicsClient)
+
+    def _distance(self, point1, point2):
+        return np.linalg.norm(np.array(point1) - np.array(point2))

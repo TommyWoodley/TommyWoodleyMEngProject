@@ -44,13 +44,13 @@ class BulletDroneEnv(gym.Env):
         return reset_pos, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        self.simulator.step(action)
+        has_collided, dist_tether_branch, dist_drone_branch = self.simulator.step(action)
         self.render()
         state = self.simulator.drone_pos
 
         self.num_steps += 1
 
-        reward, terminated, truncated = self.reward_fun(state)
+        reward, terminated, truncated = self.reward_fun(has_collided, dist_tether_branch, dist_drone_branch)
         info = {"distance_to_goal": -reward}
 
         return state, reward, terminated, truncated, info
@@ -68,22 +68,24 @@ class BulletDroneEnv(gym.Env):
         if hasattr(self, 'simulator'):
             self.simulator.close()
 
-    def reward_fun(self, state: np.ndarray) -> Tuple[float, bool, bool]:
-        # Implement how reward is calculated based on the state
-        distance = np.linalg.norm(state - self.goal_state)
-        reward = - distance + self.calculate_drone_hit_branch_reward(state=state)
-        return reward, bool(distance < 0.3), False
+    def reward_fun(self, has_collided, dist_tether_branch, dist_drone_branch) -> Tuple[float, bool, bool]:
+        reward = self._calc_physical_reward(dist_tether_branch, dist_drone_branch) + 5.0 if has_collided else 0.0
+        
+        return reward, has_collided, False
     
-    def calculate_drone_hit_branch_reward(self, state: np.ndarray) -> float:
+    def _calc_physical_reward(self, dist_tether_branch, dist_drone_branch):
+        reward = -dist_tether_branch + self._calc_drone_branch_reward(dist_drone_branch)
+        return reward
+    
+    def _calc_drone_branch_reward(self, dist_drone_branch: np.ndarray) -> float:
         """
         Calculate reward for drone hitting the branch: Ring based
         - Inner: -10, Outer: 0, Between: 0:-5
         """
-        dist_to_branch = np.linalg.norm(state - self.branch_position)
-        if dist_to_branch < 0.1:  # A collision
+        if dist_drone_branch < 0.1:  # A collision
             return -5.0
-        elif dist_to_branch < 0.2: # Quite close
-            return BulletDroneEnv.interpolate_distance(dist_to_branch, 0.1, -5, min_value=0.3)
+        elif dist_drone_branch < 0.2: # Quite close
+            return BulletDroneEnv.interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.3)
         else:
             return 0
     

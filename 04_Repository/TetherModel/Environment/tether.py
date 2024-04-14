@@ -29,6 +29,9 @@ class Tether:
 
         self.create_tether()
 
+        mid_index = len(self.segments) // 2
+        self.mid_indices = [mid_index - 1, mid_index]
+
     def create_tether(self) -> None:
         # Create each segment
         for i in range(self.num_segments):
@@ -64,6 +67,17 @@ class Tether:
                     parent_frame_pos=self._parent_frame_pos,
                     child_frame_pos=self._child_frame_pos
                 )
+
+    def get_segments(self):
+        return self.segments
+
+    def get_mid_point(self):
+        positions = [p.getBasePositionAndOrientation(obj_id)[0] for obj_id in (self.segments[i] for i in self.mid_indices)]
+
+        # Calculate the midpoint
+        midpoint = [(pos1 + pos2) / 2 for pos1, pos2 in zip(positions[0], positions[1])]
+        return midpoint
+
 
     def get_world_centre_bottom(self) -> np.ndarray:
         return self.top_position - self._object_len
