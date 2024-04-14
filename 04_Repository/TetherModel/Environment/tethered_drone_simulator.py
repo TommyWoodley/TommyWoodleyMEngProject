@@ -1,5 +1,6 @@
 import pybullet as p
 import numpy as np
+import time
 from TetherModel.Environment.drone import Drone
 from TetherModel.Environment.tether import Tether
 from TetherModel.Environment.weight import Weight
@@ -9,6 +10,7 @@ from TetherModel.Environment.environment import Environment
 class TetheredDroneSimulator:
     def __init__(self, drone_pos: np.ndarray, gui_mode=True) -> None:
         assert isinstance(drone_pos, np.ndarray), "drone_pos must be an instance of np.ndarray"
+        self.gui_mode = gui_mode
 
         self.drone_pos = drone_pos
         if gui_mode:
@@ -29,6 +31,9 @@ class TetheredDroneSimulator:
 
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
+
+        if self.gui_mode:
+            time.sleep(0.001)
 
         # Update drone position
         if action is not None:

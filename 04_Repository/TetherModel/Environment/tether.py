@@ -5,7 +5,7 @@ import numpy as np
 
 class Tether:
     RADIUS = 0.005
-    MASS = 0.01
+    MASS = 0.05
 
     def __init__(self, length: float, top_position: np.ndarray, physics_client: int, num_segments: int = 20) -> None:
         assert isinstance(length, float), "length must be an instance of float"
@@ -77,7 +77,7 @@ class Tether:
     def attach_to_drone(self, drone: Any) -> None:
         drone_pos = drone.get_body_centre_bottom()
         tether_attachment_point = self._child_frame_pos
-        self.create_rotational_joint(parent_body_id=drone.model,
+        self.create_fixed_joint(parent_body_id=drone.model,
                                      child_body_id=self.segments[0],  # Top segment
                                      parent_frame_pos=drone_pos,
                                      child_frame_pos=tether_attachment_point)

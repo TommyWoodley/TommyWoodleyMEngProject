@@ -46,4 +46,4 @@ class Weight:
         drag_force_direction = [-velocity[0] / speed, -velocity[1] / speed, -velocity[2] / speed]
 
         drag_force = [drag_force_direction[i] * drag_force_magnitude for i in range(3)]
-        p.applyExternalForce(self.weight_id, -1, drag_force, [0, 0, 0], p.WORLD_FRAME)
+        # p.applyExternalForce(self.weight_id, -1, drag_force, [0, 0, 0], p.WORLD_FRAME)
