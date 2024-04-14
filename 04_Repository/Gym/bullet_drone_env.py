@@ -18,7 +18,7 @@ class BulletDroneEnv(gym.Env):
     metadata = {"render_modes": ["console", "human"]}
     reset_pos = [2, 0, 3]
     goal_state = np.array([0.0, 0.0, 3.2])  # Drone 
-    branch_position = np.array([0.0, 0.0, 2.7]) # Branch position
+    
     reset_pos_distance = 2.0
 
     def __init__(self, render_mode: str = "human") -> None:
@@ -69,12 +69,12 @@ class BulletDroneEnv(gym.Env):
             self.simulator.close()
 
     def reward_fun(self, has_collided, dist_tether_branch, dist_drone_branch) -> Tuple[float, bool, bool]:
-        reward = self._calc_physical_reward(dist_tether_branch, dist_drone_branch) + 5.0 if has_collided else 0.0
+        reward = self._calc_physical_reward(dist_tether_branch, dist_drone_branch) + (1.0 if has_collided else 0.0)
         
         return reward, has_collided, False
     
     def _calc_physical_reward(self, dist_tether_branch, dist_drone_branch):
-        reward = -dist_tether_branch + self._calc_drone_branch_reward(dist_drone_branch)
+        reward = - dist_tether_branch + self._calc_drone_branch_reward(dist_drone_branch)
         return reward
     
     def _calc_drone_branch_reward(self, dist_drone_branch: np.ndarray) -> float:
@@ -85,7 +85,7 @@ class BulletDroneEnv(gym.Env):
         if dist_drone_branch < 0.1:  # A collision
             return -5.0
         elif dist_drone_branch < 0.2: # Quite close
-            return BulletDroneEnv.interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.3)
+            return BulletDroneEnv.interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.2)
         else:
             return 0
     
@@ -115,5 +115,11 @@ class BulletDroneEnv(gym.Env):
 
     # Visualisation funtion
     def calc_reward(self, state):
-        reward, _, _ = self.reward_fun(state)
+        branch_pos = np.array([0.0, 0.0, 2.7]) # Branch position
+        tether_pos = state - np.array([0, 0, 0.5])
+        dist_tether_branch = np.linalg.norm(tether_pos - branch_pos)
+        dist_drone_branch = np.linalg.norm(state - branch_pos)
+        has_collided = bool(dist_tether_branch < 0.1)
+
+        reward, _, _ = self.reward_fun(has_collided, dist_tether_branch, dist_drone_branch)
         return reward
