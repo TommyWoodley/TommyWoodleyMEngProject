@@ -4,6 +4,7 @@ from gymnasium import spaces
 from typing import Dict, Any, Tuple
 
 from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimulator
+from Gym.Rewards.Approaching import CircularApproachingReward
 
 
 class BulletDroneEnv(gym.Env):
@@ -30,6 +31,7 @@ class BulletDroneEnv(gym.Env):
         self.render_mode = render_mode
         self.num_steps = 0
         self.should_render = True
+        self.reward = CircularApproachingReward()
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None,
               degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
@@ -49,7 +51,7 @@ class BulletDroneEnv(gym.Env):
 
         self.num_steps += 1
 
-        reward, terminated, truncated = self.reward_fun(has_collided, dist_tether_branch, dist_drone_branch)
+        reward, terminated, truncated = self.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch)
         info = {"distance_to_goal": -reward}
 
         return state, reward, terminated, truncated, info
@@ -67,8 +69,8 @@ class BulletDroneEnv(gym.Env):
         if hasattr(self, 'simulator'):
             self.simulator.close()
 
-    def reward_fun(self, has_collided, dist_tether_branch, dist_drone_branch) -> Tuple[float, bool, bool]:
-        reward = self._calc_physical_reward(dist_tether_branch, dist_drone_branch) + (1.0 if has_collided else 0.0)
+    def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch) -> Tuple[float, bool, bool]:
+        reward = min(self.reward.calc_reward(state), self._calc_physical_reward(dist_tether_branch, dist_drone_branch) + (1.0 if has_collided else 0.0))
         
         return reward, has_collided, False
     
@@ -120,5 +122,5 @@ class BulletDroneEnv(gym.Env):
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.reward_fun(has_collided, dist_tether_branch, dist_drone_branch)
+        reward, _, _ = self.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch)
         return reward
