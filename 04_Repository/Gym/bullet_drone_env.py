@@ -72,7 +72,7 @@ class BulletDroneEnv(gym.Env):
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
         reward = - distance + self.calculate_drone_hit_branch_reward(state=state)
-        return reward, bool(distance < 0.1), False
+        return reward, bool(distance < 0.3), False
     
     def calculate_drone_hit_branch_reward(self, state: np.ndarray) -> float:
         """
@@ -82,7 +82,7 @@ class BulletDroneEnv(gym.Env):
         dist_to_branch = np.linalg.norm(state - self.branch_position)
         if dist_to_branch < 0.1:  # A collision
             return -5.0
-        elif dist_to_branch < 0.3: # Quite close
+        elif dist_to_branch < 0.2: # Quite close
             return BulletDroneEnv.interpolate_distance(dist_to_branch, 0.1, -5, min_value=0.3)
         else:
             return 0
