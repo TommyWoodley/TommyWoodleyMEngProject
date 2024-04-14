@@ -57,6 +57,7 @@ class TetheredDroneSimulator:
         assert isinstance(pos, np.ndarray), "pos must be an instance of np.ndarray"
 
         p.resetSimulation()
+        p.setGravity(0, 0, -10)
         self.drone_pos = pos
         self.drone = Drone(pos)
         tether_top_position = self.drone.get_world_centre_bottom()
