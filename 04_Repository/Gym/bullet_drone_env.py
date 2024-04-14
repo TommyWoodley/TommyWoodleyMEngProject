@@ -17,7 +17,8 @@ class BulletDroneEnv(gym.Env):
 
     metadata = {"render_modes": ["console", "human"]}
     reset_pos = [2, 0, 3]
-    goal_state = np.array([0.0, 0.0, 3.2])  # Goal state
+    goal_state = np.array([0.0, 0.0, 3.2])  # Drone 
+    branch_position = np.array([0.0, 0.0, 2.7]) # Branch position
     reset_pos_distance = 2.0
 
     def __init__(self, render_mode: str = "human") -> None:
@@ -70,7 +71,24 @@ class BulletDroneEnv(gym.Env):
     def reward_fun(self, state: np.ndarray) -> Tuple[float, bool, bool]:
         # Implement how reward is calculated based on the state
         distance = np.linalg.norm(state - self.goal_state)
-        return - distance, bool(distance < 0.1), False
+        reward = - distance + self.calculate_drone_hit_branch_reward(state=state)
+        return reward, bool(distance < 0.1), False
+    
+    def calculate_drone_hit_branch_reward(self, state: np.ndarray) -> float:
+        """
+        Calculate reward for drone hitting the branch: Ring based
+        - Inner: -10, Outer: 0, Between: 0:-5
+        """
+        dist_to_branch = np.linalg.norm(state - self.branch_position)
+        if dist_to_branch < 0.1:  # A collision
+            return -5.0
+        elif dist_to_branch < 0.3: # Quite close
+            return BulletDroneEnv.interpolate_distance(dist_to_branch, 0.1, -5, min_value=0.3)
+        else:
+            return 0
+    
+    def interpolate_distance(distance, max_value, max_reward, min_value=0, min_reward=0):
+        return min_reward + ((max_reward - min_reward) * (distance - min_value)) / (max_value - min_value)
 
     def _generate_reset_position(self, seed):
         """
@@ -92,3 +110,8 @@ class BulletDroneEnv(gym.Env):
 
         reset_pos = self.goal_state + np.array([x_offset, 0, y_offset], dtype=np.float32)
         return reset_pos.astype(np.float32)
+
+    # Visualisation funtion
+    def calc_reward(self, state):
+        reward, _, _ = self.reward_fun(state)
+        return reward
