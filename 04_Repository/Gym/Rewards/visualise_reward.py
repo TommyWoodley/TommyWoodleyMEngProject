@@ -1,5 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Gym.bullet_drone_env import BulletDroneEnv
-from Gym.Rewards.Approaching import CircularApproachingReward
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -31,5 +33,5 @@ plt.ylabel('Z coordinate')
 plt.scatter(branch_x, branch_z, color='red', label='Branch', s=20)  # 's' adjusts the size of the point
 plt.legend()
 
-plt.savefig("Visuals/rewards/sector_based_collision_aviodance.png")
+# plt.savefig("Visuals/rewards/sector_based_collision_aviodance.png")
 plt.show()
