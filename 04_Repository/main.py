@@ -74,29 +74,40 @@ def train_sacfd(env, num_steps):
         seed=0,
         batch_size=32,
         policy_kwargs=dict(net_arch=[64, 64]),
+        learning_starts=0,
     )
+    from stable_baselines3.common.logger import configure
+    tmp_path = "/tmp/sb3_log/"
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+    model.set_logger(new_logger)
 
-    data = get_buffer_data()
+    
+    data = get_buffer_data(env)
+    model.learning_rate = 0.003
     print("Buffer Size: ", model.replay_buffer.size())
 
     for obs, next_obs, action, reward, done, info in data:
         model.replay_buffer.add(obs, next_obs, action, reward, done, info)
     print("Buffer Size: ", model.replay_buffer.size())
+    model.train(5000, 32)
+    model.learning_rate = 0.0003
+    print_green("Pretraining Complete!")
     model.learn(num_steps, log_interval=10, progress_bar=True)
 
     return model
 
-def get_buffer_data():
+def get_buffer_data(env):
     dir = "Data/PreviousWorkTrajectories/rl_demos"
-    return load_all_data(dir)
+    return load_all_data(env, dir)
 
-def load_all_data(directory):
+def load_all_data(env, directory):
     pattern = f"{directory}/rl_demo_approaching_angle_*.json"
     files = glob.glob(pattern)
     all_data = []
     for file in files:
         json_data = load_json(file)
-        transformed_data = convert_data(json_data)
+        transformed_data = convert_data(env, json_data)
         all_data.extend(transformed_data)
     return all_data
 
@@ -114,13 +125,16 @@ def load_json(file_path):
         data = json.load(file)
     return data
 
-def convert_data(json_data):
+def convert_data(env, json_data):
     dataset = []
     for item in json_data:
         obs = np.array(item['state'])
-        next_obs = np.array(item['next_state'])
+        _next_obs = item['next_state']
+        x, z = _next_obs
+        next_obs = np.array(_next_obs)
+        
         action = np.array(item['action'])
-        reward = np.array(item['reward'])
+        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
