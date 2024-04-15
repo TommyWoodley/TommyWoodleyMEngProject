@@ -38,7 +38,7 @@ def train_sac(env, num_steps):
         seed=0,
         batch_size=32,
         policy_kwargs=dict(net_arch=[64, 64]),
-    ).learn(num_steps, log_interval=10)
+    ).learn(num_steps, log_interval=10, progress_bar=True)
 
     return model
 
