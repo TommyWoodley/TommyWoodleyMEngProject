@@ -52,7 +52,7 @@ class CircularApproachingReward():
                 angle_degrees >= 0 and angle_degrees <= end_angle)
         else:
             within = (start_angle <= angle_degrees <= end_angle)
-        
+
         return within, 1 - (distance / radius)
 
     def _calc_physical_reward(self, dist_tether_branch, dist_drone_branch):
