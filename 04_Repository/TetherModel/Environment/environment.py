@@ -28,6 +28,6 @@ class Environment:
                                            baseOrientation=orientation_quat)
         self.branch_pos = position
         return tree_branch_id
-    
+
     def get_tree_branch_midpoint(self):
         return self.branch_pos

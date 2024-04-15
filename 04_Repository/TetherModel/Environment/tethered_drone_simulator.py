@@ -42,7 +42,8 @@ class TetheredDroneSimulator:
         # Step the physics simulation
         has_collided = self.check_collisions()
         dist_tether_branch = self._distance(self.tether.get_mid_point(), self.environment.get_tree_branch_midpoint())
-        dist_drone_branch = self._distance(self.drone.get_world_centre_centre(), self.environment.get_tree_branch_midpoint())
+        dist_drone_branch = self._distance(self.drone.get_world_centre_centre(),
+                                           self.environment.get_tree_branch_midpoint())
         p.stepSimulation()
         return has_collided, dist_tether_branch, dist_drone_branch
 

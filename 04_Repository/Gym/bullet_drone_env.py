@@ -51,7 +51,8 @@ class BulletDroneEnv(gym.Env):
 
         self.num_steps += 1
 
-        reward, terminated, truncated = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch)
+        reward, terminated, truncated = self.reward.reward_fun(state, has_collided, dist_tether_branch,
+                                                               dist_drone_branch)
         info = {"distance_to_goal": -reward}
 
         return state, reward, terminated, truncated, info
@@ -92,7 +93,7 @@ class BulletDroneEnv(gym.Env):
 
     # Visualisation funtion
     def calc_reward(self, state):
-        branch_pos = np.array([0.0, 0.0, 2.7]) # Branch position
+        branch_pos = np.array([0.0, 0.0, 2.7])  # Branch position
         tether_pos = state - np.array([0, 0, 0.5])
         dist_tether_branch = np.linalg.norm(tether_pos - branch_pos)
         dist_drone_branch = np.linalg.norm(state - branch_pos)

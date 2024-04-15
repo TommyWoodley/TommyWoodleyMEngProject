@@ -72,12 +72,12 @@ class Tether:
         return self.segments
 
     def get_mid_point(self):
-        positions = [p.getBasePositionAndOrientation(obj_id)[0] for obj_id in (self.segments[i] for i in self.mid_indices)]
+        positions = [p.getBasePositionAndOrientation(obj_id)[0] for obj_id in
+                     (self.segments[i] for i in self.mid_indices)]
 
         # Calculate the midpoint
         midpoint = [(pos1 + pos2) / 2 for pos1, pos2 in zip(positions[0], positions[1])]
         return midpoint
-
 
     def get_world_centre_bottom(self) -> np.ndarray:
         return self.top_position - self._object_len

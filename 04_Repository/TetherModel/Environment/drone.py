@@ -50,7 +50,7 @@ class Drone:
 
         # bottom centre of the drone is the centre along com minus the half height
         return np.array([position[0], position[1], position[2] - self.HEIGHT], dtype=np.float32)
-    
+
     def get_world_centre_centre(self) -> np.ndarray:
         # current position of the drone
         position, _ = p.getBasePositionAndOrientation(self.model)
