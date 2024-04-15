@@ -48,6 +48,8 @@ def sample_trajectories(dir):
             action, _ = model.predict(obs, deterministic=True)
             obs, _, done, _ = model.env.step(action)
             if done:
+                trajectory.append(trajectory[-1] + 0.5 * action[0])
+                print("Done")
                 break
             trajectory.append(obs[0])
         trajectory_states.append(trajectory)
