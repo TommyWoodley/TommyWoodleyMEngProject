@@ -1,13 +1,41 @@
 import math
+from typing import Tuple
+import numpy as np
+
+def interpolate_distance(distance, max_value, max_reward, min_value=0, min_reward=0):
+    return min_reward + ((max_reward - min_reward) * (distance - min_value)) / (max_value - min_value)
 
 class CircularApproachingReward():
-    def within_sector(self, center_x, center_y, radius, start_angle, end_angle, point_x, point_y):
-        # Calculate the distance from the point to the center of the circle
+    down_centre_x, down_centre_y, down_start, down_end = 0, 2.7, 225, 315
+    up_centre_x, up_centre_y, up_start, up_end = 0, 3.5, 45, 135
+    radius = 3
+    reward_penalty = 5
+
+    def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch) -> Tuple[float, bool, bool]:
+        reward = min(self._calculate_sector_reward(state),
+                     self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (1.0 if has_collided else 0.0)
+        return reward, has_collided, False
+
+    def _calculate_sector_reward(self, state):
+        x, _, z = state
+        is_within, norm_distance = self._within_sector(self.down_centre_x, self.down_centre_y, self.radius,
+                                                      self.down_start, self.down_end, x, z)
+        if is_within:
+            return - self.reward_penalty * norm_distance
+
+        is_within, norm_distance = self._within_sector(self.up_centre_x, self.up_centre_y, self.radius,
+                                                      self.up_start, self.up_end, x, z)
+        if is_within:
+            return - self.reward_penalty * norm_distance
+
+        return 0.0
+
+    def _within_sector(self, center_x, center_y, radius, start_angle, end_angle, point_x, point_y):
         distance = math.sqrt((point_x - center_x) ** 2 + (point_y - center_y) ** 2)
         
         # Check if the point is within the circle's radius
         if distance > radius:
-            return False, 0
+            return False, None
         
         # Calculate the angle from the center to the point in radians
         angle_radians = math.atan2(point_y - center_y, point_x - center_x)
@@ -17,30 +45,25 @@ class CircularApproachingReward():
         start_angle %= 360
         end_angle %= 360
         
-        # Normalize angles to ensure comparison logic works if sector crosses 360 degrees
         if start_angle > end_angle:
             within = (angle_degrees >= start_angle and angle_degrees <= 360) or (angle_degrees >= 0 and angle_degrees <= end_angle)
         else:
             within = (start_angle <= angle_degrees <= end_angle)
         
         return within, 1 - (distance / radius)
-    
-    def calc_reward(self, state):
-        center_x, center_y = 0, 2.7
-        radius = 3
-        start_angle, end_angle = 225, 315  # Define the arc from 30 degrees to 150 degrees
 
-        x, _, z = state
-        is_within, norm_distance = self.within_sector(center_x, center_y, radius, start_angle, end_angle, x, z)
-        if is_within:
-            return -5 * norm_distance
-        
-        center_x, center_y = 0, 3.5
-        radius = 3
-        start_angle, end_angle = 45, 135
-        is_within, norm_distance = self.within_sector(center_x, center_y, radius, start_angle, end_angle, x, z)
-        if is_within:
-            return -5 * norm_distance
-        
-        return 0
+    def _calc_physical_reward(self, dist_tether_branch, dist_drone_branch):
+        reward = - dist_tether_branch + self._calc_drone_branch_reward(dist_drone_branch)
+        return reward
 
+    def _calc_drone_branch_reward(self, dist_drone_branch: np.ndarray) -> float:
+        """
+        Calculate reward for drone hitting the branch: Ring based
+        - Inner: -10, Outer: 0, Between: 0:-5
+        """
+        if dist_drone_branch < 0.1:  # A collision
+            return -5.0
+        elif dist_drone_branch < 0.2: # Quite close
+            return interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.2)
+        else:
+            return 0
