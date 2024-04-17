@@ -21,8 +21,9 @@ def read_csv_file(filename):
         directory = os.path.dirname(filename)
         output_filename = os.path.join(directory, 'rewards_graph.png')
 
-        rewards = data['r']
-        plot_rl_reward_graph(rewards, output_filename=output_filename)
+        rewards = data['r'].iloc[0:300]
+        lengths = data['l'].iloc[0:300]
+        plot_rl_reward_graph(rewards, episode_lens=lengths, output_filename=output_filename)
     except FileNotFoundError:
         print("Error: File not found. Please check the filename and try again.")
     except pd.errors.EmptyDataError:

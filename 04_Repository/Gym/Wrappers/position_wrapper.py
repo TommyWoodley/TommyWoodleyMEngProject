@@ -52,4 +52,4 @@ class PositionWrapper(gym.Wrapper):
 
         self.current_state = state
 
-        return state, reward, terminated, self.num_steps >= 10, info
+        return state, reward, terminated, self.num_steps >= 40, info
