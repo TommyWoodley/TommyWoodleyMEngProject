@@ -33,7 +33,7 @@ def test_position_wrapped_two_dim_bullet_env():
 def test_environment_truncation(env):
     truncated = False
 
-    for _ in range(10):
+    for _ in range(40):
         assert not truncated, "The environment truncated too early."
 
         action = env.action_space.sample()  # Sample a random action
