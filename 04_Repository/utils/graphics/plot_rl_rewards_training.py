@@ -74,3 +74,5 @@ def _plot_reward_graph(rewards, episode_lens, output_filename, window_size, titl
     # Show the plot if requested
     if show_plot:
         plt.show()
+    else:
+        plt.clf()

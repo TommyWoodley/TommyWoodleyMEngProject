@@ -38,21 +38,7 @@ def main(algorithm, num_steps, filename):
         print_green("Model Saved")
     env.close()
 
-    {
-        "state": [
-            2.2702350087543315,
-            3.058575988926993
-        ],
-        "action": [
-            -0.24440059558633465,
-            0.05260709407333408
-        ],
-        "reward": -2.270990563928559,
-        "next_state": [
-            2.025834413167997,
-            3.111183083000327
-        ]
-    },
+    generate_graphs(directory=f"models/{dir_name}")
 
 def train_sac(env, num_steps):
     model = SAC(
@@ -110,6 +96,23 @@ def load_all_data(env, directory):
         transformed_data = convert_data(env, json_data)
         all_data.extend(transformed_data)
     return all_data
+
+def generate_graphs(directory):
+    from models.generate_reward_graph_from_logs import read_csv_file
+    from models.visualise_reward import plot_reward_visualisation
+    from models.sample_trajectories_from_model import sample_trajectories
+
+    # visualise reward function used
+    print_green("Generating Reward Visualisation")
+    plot_reward_visualisation(directory, show=False)
+
+    # visualise training rewards
+    print_green("Generating Reward Logs")
+    read_csv_file(f"{directory}/logs.monitor.csv", show=False)
+
+    # visualise sample trajectories
+    print_green("Generating Sample Trajectories")
+    sample_trajectories(directory, show=False)
 
 def get_dir_name(prefix):
     # Get the current date and time

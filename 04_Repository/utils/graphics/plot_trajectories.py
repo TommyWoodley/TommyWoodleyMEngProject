@@ -27,3 +27,5 @@ def plot_trajectories(trajectories, output_filename=None, window_size=10,
         plt.savefig(output_filename)
     if show_plot:
         plt.show()
+    else:
+        plt.clf()
