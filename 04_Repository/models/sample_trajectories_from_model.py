@@ -31,7 +31,7 @@ def sample_trajectories(dir):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]
 
     model = SAC.load(f"{dir}/model.zip")
-    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))),
+    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv())),
                         plotting_degrees=plotting_degrees)
     model.set_env(env)
 
