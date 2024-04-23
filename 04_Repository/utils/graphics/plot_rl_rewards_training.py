@@ -1,6 +1,66 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def plot_rl_comparison(rewards_1, rewards_2, output_filename=None, window_size=10,
+                         title='Comparison of Running Rewards Over Training', show_plot=True):
+    """
+    Plot a graph of rewards with running average and variance.
+
+    Parameters:
+        rewards_1 (pd.Series): A Pandas Series containing rewards.
+        rewards_2 (pd.Series): A Pandas Series containing rewards.
+        output_filename (str): The filename to save the plot. If None, plot will be displayed but not saved.
+        window_size (int): The window size for calculating running average and variance.
+        title (str): The title of the plot.
+        show_plot (bool): Whether to display the plot or not.
+
+    Returns:
+        None
+    """
+    # Input validation
+    if not isinstance(rewards_1, pd.Series):
+        raise ValueError("rewards_1 must be a Pandas Series.")
+    if not isinstance(rewards_2, pd.Series):
+        raise ValueError("rewards_2 must be a Pandas Series.")
+    if not isinstance(window_size, int):
+        raise ValueError("window_size must be an integer.")
+    if window_size < 1:
+        raise ValueError("window_size must be greater than or equal to 1.")
+    if not isinstance(title, str):
+        raise ValueError("title must be a string.")
+    if not isinstance(show_plot, bool):
+        raise ValueError("show_plot must be a boolean.")
+    _plot_reward_comparison(rewards_1, rewards_2, output_filename, window_size, title, show_plot)
+
+def _plot_reward_comparison(rewards_1, rewards_2, output_filename, window_size, title, show_plot):
+    # Calculate rolling statistics for rewards
+    running_rewards_1 = rewards_1.rolling(window=window_size, min_periods=1).mean()
+    running_rewards_2 = rewards_2.rolling(window=window_size, min_periods=1).mean()
+
+    # Create the plot with size and primary y-axis for rewards
+    fig, ax1 = plt.subplots(figsize=(12, 8))
+    ax1.plot(rewards_1.index, running_rewards_1, color='red', linestyle='-', linewidth=2, label='Ours')
+    ax1.plot(rewards_2.index, running_rewards_2, color='blue', linestyle='-', linewidth=2, label='SAC')
+    ax1.set_xlabel('Episodes')
+    ax1.set_ylabel('Reward Value', color='red')
+    ax1.tick_params(axis='y', labelcolor='red')
+    ax1.grid(True)
+
+    # Add titles and legends
+    plt.title(title)
+    lines, labels = ax1.get_legend_handles_labels()
+    ax1.legend(lines, labels, loc='upper left')
+
+    # Save the plot to a file if filename is provided
+    if output_filename:
+        plt.savefig(output_filename)
+    # Show the plot if requested
+    if show_plot:
+        plt.show()
+    else:
+        plt.clf()
+
+
 
 def plot_rl_reward_graph(rewards, episode_lens=None, output_filename=None, window_size=10,
                          title='Running Rewards and Variance Over Training', show_plot=True):
