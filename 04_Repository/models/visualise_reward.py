@@ -5,6 +5,7 @@ from Gym.bullet_drone_env import BulletDroneEnv
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def plot_reward_visualisation(directory, show=True):
     env = BulletDroneEnv(render_mode="console")
 
@@ -16,7 +17,8 @@ def plot_reward_visualisation(directory, show=True):
     x_grid, z_grid = np.meshgrid(x_values, z_values)
 
     # Compute the rewards for each position
-    rewards = np.array([[env.calc_reward([x, 0, z]) for x, z in zip(x_row, z_row)] for x_row, z_row in zip(x_grid, z_grid)])
+    rewards = np.array([[env.calc_reward([x, 0, z]) for x, z in zip(x_row, z_row)]
+                        for x_row, z_row in zip(x_grid, z_grid)])
 
     # Branch coordinates
     branch_x = 0  # Example x-coordinate
@@ -39,6 +41,7 @@ def plot_reward_visualisation(directory, show=True):
         plt.show()
     else:
         plt.clf()
+
 
 if __name__ == "__main__":
     # Check if the directory is given as a command-line argument

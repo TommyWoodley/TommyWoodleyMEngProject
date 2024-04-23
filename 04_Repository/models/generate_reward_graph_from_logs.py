@@ -46,4 +46,3 @@ if __name__ == "__main__":
         read_csv_file(filename, num_episodes=num_episodes, show=True)
     else:
         print("Usage: python generate_reward_graph_from_logs.py <filename> <num>")
-        

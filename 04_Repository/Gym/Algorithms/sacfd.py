@@ -2,10 +2,10 @@ from typing import Any, Dict, Tuple, Union
 from stable_baselines3 import SAC
 from stable_baselines3.common.buffers import ReplayBuffer
 from stable_baselines3.common.noise import ActionNoise
-from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
+from stable_baselines3.common.type_aliases import GymEnv, Schedule
 from stable_baselines3.sac.policies import SACPolicy
-from torch import device
 from torch._C import device
+
 
 class SACfD(SAC):
     def __init__(

@@ -55,7 +55,8 @@ def _plot_reward_graph(rewards, episode_lens, output_filename, window_size, titl
     if episode_lens is not None:
         ax2 = ax1.twinx()
         running_avg_episode_lens = episode_lens.rolling(window=100, min_periods=1).mean()
-        ax2.plot(running_avg_episode_lens.index, running_avg_episode_lens, color='blue', linestyle='-', linewidth=2, label='Episode Length Average')
+        ax2.plot(running_avg_episode_lens.index, running_avg_episode_lens, color='blue', linestyle='-',
+                 linewidth=2, label='Episode Length Average')
         ax2.set_ylabel('Episode Length', color='blue')
         ax2.tick_params(axis='y', labelcolor='blue')
 
