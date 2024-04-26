@@ -8,7 +8,6 @@ class Environment:
     def __init__(self) -> None:
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.ground = p.loadURDF("plane.urdf")
-        # TODO: Add the perching branch
 
     def add_tree_branch(self, position: List[float], length: float = 1.0, radius: float = 0.02,
                         orientation: List[float] = [np.pi / 2, 0.1, 0]) -> None:
