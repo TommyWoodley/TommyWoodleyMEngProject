@@ -45,14 +45,14 @@ class BulletDroneEnv(gym.Env):
         return reset_pos, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
-        has_collided, dist_tether_branch, dist_drone_branch = self.simulator.step(action)
+        has_collided, dist_tether_branch, dist_drone_branch, full = self.simulator.step(action)
         self.render()
         state = self.simulator.drone_pos
 
         self.num_steps += 1
 
         reward, terminated, truncated = self.reward.reward_fun(state, has_collided, dist_tether_branch,
-                                                               dist_drone_branch)
+                                                               dist_drone_branch, full)
         info = {"distance_to_goal": -reward}
 
         return state, reward, terminated, truncated, info
@@ -99,5 +99,5 @@ class BulletDroneEnv(gym.Env):
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch)
+        reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, 0)
         return reward
