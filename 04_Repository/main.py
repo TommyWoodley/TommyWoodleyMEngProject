@@ -11,7 +11,7 @@ import json
 import glob
 
 
-def main(algorithm, num_steps, filename):
+def main(algorithm, num_steps, filename, render_mode):
     print_green(f"Algorithm: {algorithm}")
     print_green(f"Number of Steps: {num_steps}")
     save_data = filename is not None
@@ -22,7 +22,7 @@ def main(algorithm, num_steps, filename):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console")))
+    env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode)))
     if save_data:
         env = Monitor(env, f"models/{dir_name}/logs")
     if algorithm == "SAC":
@@ -167,6 +167,9 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--filename", type=str,
                         default=None,
                         help="Optional: Specify the file name. Defaults to 'simple_YYYYMMDD_HHMM.py'")
+    parser.add_argument("-v", "--visualise", type=bool,
+                        default=False,
+                        help="Optional: Visualise the training - This is significantly slower.")
 
     args = parser.parse_args()
-    main(args.algorithm, args.num_steps, args.filename)
+    main(args.algorithm, args.num_steps, args.filename, "console" if not args.visualise else "human")
