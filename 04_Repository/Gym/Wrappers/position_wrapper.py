@@ -5,7 +5,7 @@ import numpy as np
 
 
 class PositionWrapper(gym.Wrapper):
-    MAGNITUDE = 0.001
+    MAGNITUDE = 0.005
     MAX_STEP = 0.5
 
     def __init__(self, env) -> None:
@@ -46,10 +46,13 @@ class PositionWrapper(gym.Wrapper):
     def _take_single_step(self, target: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
         # Calculate direction vector
         direction = target - self.current_state
-        action = np.clip(direction, -self.MAGNITUDE, self.MAGNITUDE)
+        dir_norm = np.linalg.norm(direction)
+        scale_factor = self.MAGNITUDE / dir_norm
+
+        action = direction * scale_factor
 
         state, reward, terminated, truncated, info = self.env.step(action)
 
         self.current_state = state
 
-        return state, reward, terminated, self.num_steps >= 40, info
+        return state, reward, terminated, truncated or self.num_steps >= 40, info

@@ -24,11 +24,12 @@ class SampleTrajEnv(gym.Wrapper):
         return obs
 
 
-def sample_trajectories(dir, show=True):
+def sample_trajectories(dir, show=True, human=False):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]
 
     model = SAC.load(f"{dir}/model.zip")
-    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))),
+    render_mode = "console" if not human else "human"
+    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode))),
                         plotting_degrees=plotting_degrees)
     model.set_env(env)
 
@@ -57,8 +58,11 @@ def sample_trajectories(dir, show=True):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python sample_trajectories_from_model.py <model dir>")
-    else:
+    if len(sys.argv) == 2:
         dir = sys.argv[1]
         sample_trajectories(dir, show=True)
+    elif len(sys.argv) == 3 and sys.argv[2] == "-h":
+        dir = sys.argv[1]
+        sample_trajectories(dir, show=True, human=True)
+    else:
+        print("Usage: python sample_trajectories_from_model.py <model dir>")
