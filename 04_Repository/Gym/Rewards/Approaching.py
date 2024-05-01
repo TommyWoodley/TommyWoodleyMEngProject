@@ -9,15 +9,19 @@ def interpolate_distance(distance, max_value, max_reward, min_value=0, min_rewar
 
 class CircularApproachingReward():
     down_centre_x, down_centre_y, down_start, down_end = 0, 2.7, 225, 315
-    up_centre_x, up_centre_y, up_start, up_end = 0, 3.5, 45, 135
+    up_centre_x, up_centre_y, up_start, up_end = 0, 4.5, 45, 135
     radius = 3
     reward_penalty = 5
+    has_already_collided = False
+    timer = 0
 
     def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch, full) -> Tuple[float, bool, bool]:
         reward = min(self._calculate_sector_reward(state),
                      self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (
-                         1.0 if has_collided else 0.0 + 10.0 * full)
-        return reward, full > 1, False
+                         1.0 if has_collided else 0.0) + (2 * full)
+        # print(f"Wraps: {full}")
+            
+        return reward, full > 2, False
 
     def _calculate_sector_reward(self, state):
         x, _, z = state

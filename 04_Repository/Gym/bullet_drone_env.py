@@ -34,9 +34,11 @@ class BulletDroneEnv(gym.Env):
         self.reward = CircularApproachingReward()
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None,
-              degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
+              degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         super().reset(seed=seed, options=options)
-        if degrees is not None:
+        if position is not None:
+            reset_pos = position
+        elif degrees is not None:
             reset_pos = self._generate_reset_position_from_degrees(degrees)
         else:
             reset_pos = self._generate_reset_position(seed)

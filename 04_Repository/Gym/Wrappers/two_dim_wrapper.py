@@ -17,8 +17,8 @@ class TwoDimWrapper(gym.Wrapper):
         return new_state, reward, terminated, truncated, info
 
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
-              degrees: int = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
-        state, info = self.env.reset(seed, options, degrees)
+              degrees: int = None, position = None) -> Tuple[np.ndarray, Dict[Any, Any]]:
+        state, info = self.env.reset(seed, options, degrees, position)
         new_state = self._convert_3d_to_2d(state)
         return new_state, info
 

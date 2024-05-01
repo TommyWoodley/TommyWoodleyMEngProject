@@ -26,7 +26,8 @@ class SampleTrajEnv(gym.Wrapper):
 
 def sample_trajectories(dir, show=True, human=False):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]
-
+    # plotting_degrees = [135, 180, 0]
+    
     model = SAC.load(f"{dir}/model.zip")
     render_mode = "console" if not human else "human"
     env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode))),
@@ -35,7 +36,7 @@ def sample_trajectories(dir, show=True, human=False):
 
     num_trajectories = len(plotting_degrees)
     print("Num Trajectories: ", num_trajectories)
-    trajectory_length = 10
+    trajectory_length = 40
     trajectory_states = []
     done = False
 
@@ -46,9 +47,11 @@ def sample_trajectories(dir, show=True, human=False):
         trajectory.append(obs[0])
         for _ in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
+            print(action)
             obs, _, done, _ = model.env.step(action)
             if done:
                 trajectory.append(trajectory[-1] + 0.5 * action[0])
+                print("Done")
                 break
             trajectory.append(obs[0])
         trajectory_states.append(trajectory)

@@ -21,7 +21,7 @@ class TetheredDroneSimulator:
         p.setGravity(0, 0, -10)
         self.drone = Drone(self.drone_pos)
         tether_top_position = self.drone.get_world_centre_bottom()
-        self.tether = Tether(length=1.0, top_position=tether_top_position, physics_client=self.physicsClient)
+        self.tether = Tether(length=1.5, top_position=tether_top_position, physics_client=self.physicsClient)
         self.tether.attach_to_drone(drone=self.drone)
         tether_bottom_position = self.tether.get_world_centre_bottom()
         self.weight = Weight(top_position=tether_bottom_position)
@@ -35,8 +35,8 @@ class TetheredDroneSimulator:
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
 
-        # if self.gui_mode:
-        #     time.sleep(0.001)
+        if self.gui_mode:
+            time.sleep(0.001)
 
         # Update drone position
         if action is not None:
@@ -45,14 +45,14 @@ class TetheredDroneSimulator:
         # Step the physics simulation
         has_collided = self.check_collisions()
         self.has_already_collided = self.has_already_collided or has_collided
-        full = 0
-        if self.has_already_collided:
-            full, partial = self.calculate_wrapping()
         dist_tether_branch = self._distance(self.tether.get_mid_point(), self.environment.get_tree_branch_midpoint())
         dist_drone_branch = self._distance(self.drone.get_world_centre_centre(),
                                            self.environment.get_tree_branch_midpoint())
         p.stepSimulation()
-        return has_collided, dist_tether_branch, dist_drone_branch, full
+        if has_collided:
+            return has_collided, dist_tether_branch, dist_drone_branch, (self.tether.compute_total_rotation())
+        else:
+            return has_collided, dist_tether_branch, dist_drone_branch, 0.0
 
     def check_collisions(self):
         for part_id in self.tether.get_segments():
@@ -79,34 +79,6 @@ class TetheredDroneSimulator:
         self.previous_angle = None
         self.cumulative_angle = 0
         self.has_already_collided = False
-    
-    def calculate_wrapping(self):
-        weight_pos = self.weight.get_position()
-        x, _, z = weight_pos
-        adjusted_x = x - 0
-        adjusted_z = z - 2.7
-        current_angle = np.arctan2(adjusted_z, adjusted_x)
-
-        if self.previous_angle is None:
-            self.previous_angle = current_angle
-            return 0, 0  # No wraps at the very beginning
-        
-        # Calculate the change in angle, considering boundary crossing
-        delta_angle = current_angle - self.previous_angle
-        if delta_angle > np.pi:
-            delta_angle -= 2 * np.pi
-        elif delta_angle < -np.pi:
-            delta_angle += 2 * np.pi
-
-        # Update cumulative angle
-        self.cumulative_angle += delta_angle
-        self.previous_angle = current_angle
-
-        # Calculate total wraps and the progress of the current wrap
-        total_wraps = abs(self.cumulative_angle / (2 * np.pi))
-        wrap_count = int(total_wraps)  # Complete wraps
-        partial_wrap = total_wraps - wrap_count  # Fraction of the current wrap
-        return wrap_count, partial_wrap
 
     def close(self) -> None:
         p.disconnect(self.physicsClient)

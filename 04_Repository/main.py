@@ -1,6 +1,7 @@
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
+from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from stable_baselines3.common.monitor import Monitor
 import argparse
@@ -9,6 +10,8 @@ import os
 import numpy as np
 import json
 import glob
+import matplotlib.pyplot as plt
+import torch
 
 
 def main(algorithm, num_steps, filename, render_mode):
@@ -54,7 +57,7 @@ def train_sac(env, num_steps):
 
 
 def train_sacfd(env, num_steps):
-    model = SAC(
+    model = SACfD(
         "MlpPolicy",
         env,
         verbose=1,
@@ -70,14 +73,17 @@ def train_sacfd(env, num_steps):
     model.set_logger(new_logger)
 
     data = get_buffer_data(env)
-    model.learning_rate = 0.003
+    model.learning_rate = 0.0003
     print("Buffer Size: ", model.replay_buffer.size())
 
     for obs, next_obs, action, reward, done, info in data:
         model.replay_buffer.add(obs, next_obs, action, reward, done, info)
     print("Buffer Size: ", model.replay_buffer.size())
-    model.train(5000, 32)
+    model.logger.set_level(10)
+    model.train_actor()
     model.learning_rate = 0.0003
+  
+    visualize_policy(model, data, action_scale=1.0)
     print_green("Pretraining Complete!")
     model.learn(num_steps, log_interval=10, progress_bar=True)
 
@@ -96,9 +102,27 @@ def load_all_data(env, directory):
     for file in files:
         json_data = load_json(file)
         transformed_data = convert_data(env, json_data)
+        # show_in_env(env, transformed_data)
         all_data.extend(transformed_data)
     return all_data
 
+
+def show_in_env(env, transformed_data):
+    start, _, _, _, _, _ = transformed_data[0]
+    x, z = start
+
+    state = env.reset(position=np.array([x, 0.0, z]))
+    done = False
+
+    # Run through each action in the provided list
+    for _, _, action, _, _, _ in transformed_data:
+        state, reward, done, _, _ = env.step(action)
+
+        if done:
+            print("Episode finished")
+            break
+    
+    print(state) 
 
 def generate_graphs(directory):
     from models.generate_reward_graph_from_logs import read_csv_file
@@ -142,11 +166,14 @@ def convert_data(env, json_data):
         x, z = _next_obs
         next_obs = np.array(_next_obs)
 
-        action = np.array(item['action'])
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))
+        action = np.array(item['action']) * 2.0
+        reward = np.array(env.unwrapped.calc_reward([x, 0, z])) + 10
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
+    for _ in range(1):
+        dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, done, info))
+    dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, np.array([True]), info))
     return dataset
 
 
@@ -156,6 +183,59 @@ def print_red(text):
 
 def print_green(text):
     print(f"\033[32m{text}\033[0m")
+
+
+def visualize_policy(model, buffer, action_scale=1.0):
+    # Prepare a 2D grid of states
+    x_vals = np.linspace(-3, 3, 20)
+    z_vals = np.linspace(0, 6, 20)
+    X, Z = np.meshgrid(x_vals, z_vals)
+
+    # Arrays to store policy outputs
+    U = np.zeros_like(X)
+    V = np.zeros_like(Z)
+
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            # Formulate the current state
+            state = np.array([X[i, j], Z[i, j]])
+
+            # Get the action from the actor network
+            action, _ = model.predict(state)
+
+            # Scale the action if necessary
+            print("Action:", action)
+            U[i, j] = action[0] * action_scale
+            V[i, j] = action[1] * action_scale
+    
+    # Separate coordinates and actions from the buffer
+    coords = np.array([pos for pos, _, _, _, _, _ in buffer])
+    actions = np.array([rew for _, _, rew, _, _, _ in buffer])
+
+    # Extract X and Z coordinates from the buffer
+    X_buf, Z_buf = coords[:, 0], coords[:, 1]
+
+    # Extract U and V action components from the buffer
+    U_buf, V_buf = actions[:, 0], actions[:, 1]
+
+    plt.scatter(X_buf, Z_buf, color='blue', label="Buffer Coordinates")
+
+    plt.figure(figsize=(12, 10))
+
+    # Plot the buffer's actions as a quiver plot
+    plt.quiver(X_buf, Z_buf, U_buf, V_buf, angles="xy", color='green', label="Buffer Actions")
+
+    # Plot the model's policy as a quiver plot
+    plt.quiver(X, Z, U, V, angles="xy", color='red', label="SAC Policy")
+
+    plt.title("Policy Visualization")
+    plt.xlabel("X axis")
+    plt.ylabel("Z axis")
+    plt.xlim([-3.2, 3.2])
+    plt.ylim([-0.2, 6.2])
+    plt.grid(True)
+
+    plt.show()
 
 
 if __name__ == "__main__":

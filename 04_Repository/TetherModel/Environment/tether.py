@@ -1,6 +1,7 @@
 import pybullet as p
 from typing import List, Any
 import numpy as np
+from math import degrees
 
 
 class Tether:
@@ -67,6 +68,34 @@ class Tether:
                     parent_frame_pos=self._parent_frame_pos,
                     child_frame_pos=self._child_frame_pos
                 )
+
+    def compute_total_rotation(self):
+        total_rotation = 0
+        
+        # Get the number of segments TODO: This is actually pitch
+        num_segments = len(self.segments)
+        
+        for i in range(1, num_segments):
+            # Get the orientations of the current and previous segments
+            _, prev_quaternion = p.getBasePositionAndOrientation(self.segments[i-1])
+            _, curr_quaternion = p.getBasePositionAndOrientation(self.segments[i])
+            
+            # Convert quaternions to Euler angles
+            prev_angles = p.getEulerFromQuaternion(prev_quaternion)
+            curr_angles = p.getEulerFromQuaternion(curr_quaternion)
+            
+            # Get the yaw (or Z-axis rotation) angle from Euler angles
+            prev_yaw = prev_angles[1] # Assuming Z-axis represents the yaw
+            curr_yaw = curr_angles[1]
+            
+            # Calculate the difference between yaws and adjust it to range [-180, 180]
+            yaw_diff = degrees(curr_yaw - prev_yaw)
+            yaw_diff = ((yaw_diff + 180) % 360) - 180
+            
+            # Add to total rotation
+            total_rotation += abs(yaw_diff)
+
+        return (total_rotation / 360.0) * 0.75
 
     def get_segments(self):
         return self.segments
