@@ -71,31 +71,26 @@ class Tether:
 
     def compute_total_rotation(self):
         total_rotation = 0
-        
-        # Get the number of segments TODO: This is actually pitch
-        num_segments = len(self.segments)
-        
-        for i in range(1, num_segments):
-            # Get the orientations of the current and previous segments
+
+        for i in range(1, self.num_segments):
+            # Quaternion of segments
             _, prev_quaternion = p.getBasePositionAndOrientation(self.segments[i-1])
             _, curr_quaternion = p.getBasePositionAndOrientation(self.segments[i])
-            
-            # Convert quaternions to Euler angles
             prev_angles = p.getEulerFromQuaternion(prev_quaternion)
             curr_angles = p.getEulerFromQuaternion(curr_quaternion)
-            
-            # Get the yaw (or Z-axis rotation) angle from Euler angles
-            prev_yaw = prev_angles[1] # Assuming Z-axis represents the yaw
-            curr_yaw = curr_angles[1]
-            
-            # Calculate the difference between yaws and adjust it to range [-180, 180]
-            yaw_diff = degrees(curr_yaw - prev_yaw)
-            yaw_diff = ((yaw_diff + 180) % 360) - 180
-            
-            # Add to total rotation
-            total_rotation += abs(yaw_diff)
 
-        return (total_rotation / 360.0) * 0.75
+            # Get the pitch angle from Euler angles
+            prev_pitch = prev_angles[1] # Assuming Z-axis represents the yaw
+            curr_pitch = curr_angles[1]
+
+            # Calculate the difference between yaws and adjust it to range [-180, 180]
+            pitch_diff = degrees(curr_pitch - prev_pitch)
+            pitch_diff = ((pitch_diff + 180) % 360) - 180
+            # TODO: Can this be done in a better way without needing to use absolute
+
+            total_rotation += abs(pitch_diff)
+
+        return (total_rotation / 360.0) * 0.75  # Correction to get number of turns.
 
     def get_segments(self):
         return self.segments
