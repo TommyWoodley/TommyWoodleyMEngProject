@@ -71,7 +71,6 @@ class SACfD(SAC):
             device,
             _init_setup_model)
 
-
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
         self.policy.set_training_mode(True)
@@ -170,8 +169,7 @@ class SACfD(SAC):
         self.logger.record("train/critic_loss", np.mean(critic_losses))
         if len(ent_coef_losses) > 0:
             self.logger.record("train/ent_coef_loss", np.mean(ent_coef_losses))
-  
-    
+
     def train_actor(self, batch_size=64, num_steps=1000):
         # Switch to train mode (this affects batch norm / dropout)
         self.policy.set_training_mode(True)
@@ -262,5 +260,3 @@ class SACfD(SAC):
                 polyak_update(self.critic.parameters(), self.critic_target.parameters(), self.tau)
                 # Copy running stats, see GH issue #996
                 polyak_update(self.batch_norm_stats, self.batch_norm_stats_target, 1.0)
-
-      

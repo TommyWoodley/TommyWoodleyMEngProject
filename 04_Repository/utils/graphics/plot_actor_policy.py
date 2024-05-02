@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def visualize_policy(model, buffer=None, action_scale=1.0):
     # Grid of states
     x_vals = np.linspace(-3, 3, 20)
@@ -20,7 +21,7 @@ def visualize_policy(model, buffer=None, action_scale=1.0):
             print("Action:", action)
             U[i, j] = action[0] * action_scale
             V[i, j] = action[1] * action_scale
-    
+
     if buffer is not None:
         # Separate coordinates and actions from the buffer
         coords = np.array([pos for pos, _, _, _, _, _ in buffer])

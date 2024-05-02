@@ -28,14 +28,14 @@ class PositionWrapper(gym.Wrapper):
         action = action / self.NUM_ACTIONS_PER_STEP
         total_reward = 0
         actual_steps_taken = 0
-        
+
         for i in range(self.NUM_ACTIONS_PER_STEP):
             state, reward, terminated, truncated, info = self._take_single_step(action)
             total_reward += reward
             actual_steps_taken += 1
             if terminated or truncated:
                 break
-        
+
         avg_reward = total_reward / actual_steps_taken
         return state, avg_reward - 1, terminated, truncated, info
 

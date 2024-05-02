@@ -123,8 +123,9 @@ def show_in_env(env, transformed_data):
         if done:
             print("Episode finished")
             break
-    
-    print(state) 
+
+    print(state)
+
 
 def generate_graphs(directory):
     from models.generate_reward_graph_from_logs import read_csv_file
@@ -170,11 +171,11 @@ def convert_data(env, json_data):
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 2.0
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z])) + 10 # TODO: Does this help or hurt?
+        reward = np.array(env.unwrapped.calc_reward([x, 0, z])) + 10  # TODO: Does this help or hurt?
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
-    for _ in range(1): # Adds an extra action on the end which helps with wrapping.
+    for _ in range(1):  # Adds an extra action on the end which helps with wrapping.
         dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, done, info))
     dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, np.array([True]), info))
     return dataset

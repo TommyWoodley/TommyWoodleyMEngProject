@@ -74,13 +74,13 @@ class Tether:
 
         for i in range(1, self.num_segments):
             # Quaternion of segments
-            _, prev_quaternion = p.getBasePositionAndOrientation(self.segments[i-1])
+            _, prev_quaternion = p.getBasePositionAndOrientation(self.segments[i - 1])
             _, curr_quaternion = p.getBasePositionAndOrientation(self.segments[i])
             prev_angles = p.getEulerFromQuaternion(prev_quaternion)
             curr_angles = p.getEulerFromQuaternion(curr_quaternion)
 
             # Get the pitch angle from Euler angles
-            prev_pitch = prev_angles[1] # Assuming Z-axis represents the yaw
+            prev_pitch = prev_angles[1]
             curr_pitch = curr_angles[1]
 
             # Calculate the difference between yaws and adjust it to range [-180, 180]

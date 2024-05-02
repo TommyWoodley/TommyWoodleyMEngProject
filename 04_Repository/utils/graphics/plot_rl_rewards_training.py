@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+
 def plot_rl_comparison(rewards_1, rewards_2, output_filename=None, window_size=10,
-                         title='Comparison of Running Rewards Over Training', show_plot=True):
+                       title='Comparison of Running Rewards Over Training', show_plot=True):
     """
     Plot a graph of rewards with running average and variance.
 
@@ -32,6 +33,7 @@ def plot_rl_comparison(rewards_1, rewards_2, output_filename=None, window_size=1
         raise ValueError("show_plot must be a boolean.")
     _plot_reward_comparison(rewards_1, rewards_2, output_filename, window_size, title, show_plot)
 
+
 def _plot_reward_comparison(rewards_1, rewards_2, output_filename, window_size, title, show_plot):
     # Calculate rolling statistics for rewards
     running_rewards_1 = rewards_1.rolling(window=window_size, min_periods=1).mean()
@@ -59,7 +61,6 @@ def _plot_reward_comparison(rewards_1, rewards_2, output_filename, window_size, 
         plt.show()
     else:
         plt.clf()
-
 
 
 def plot_rl_reward_graph(rewards, episode_lens=None, output_filename=None, window_size=10,

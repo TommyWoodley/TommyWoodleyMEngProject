@@ -13,7 +13,7 @@ def read_csv_file(filename_1, filename_2, num_episodes=None, show=True):
 
         rewards_1, lengths_1 = get_rewards_lengths_from_csv(filename_1, num_episodes)
         rewards_2, lengths_2 = get_rewards_lengths_from_csv(filename_2, num_episodes)
-  
+
         plot_rl_comparison(rewards_1, rewards_2, output_filename=output_filename, show_plot=show)
     except FileNotFoundError:
         print("Error: File not found. Please check the filename and try again.")
@@ -24,6 +24,7 @@ def read_csv_file(filename_1, filename_2, num_episodes=None, show=True):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 def get_rewards_lengths_from_csv(filename, num_episodes):
     data = pd.read_csv(filename, comment='#', header=0)
 
@@ -32,7 +33,7 @@ def get_rewards_lengths_from_csv(filename, num_episodes):
     if num_episodes is not None:
         rewards = rewards.iloc[0:num_episodes]
         lengths = lengths.iloc[0:num_episodes]
-    
+
     return rewards, lengths
 
 
