@@ -15,7 +15,7 @@ class CircularApproachingReward():
     has_already_collided = False
 
     def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch,
-                   num_wraps)-> Tuple[float, bool, bool]:
+                   num_wraps) -> Tuple[float, bool, bool]:
 
         reward = min(self._calculate_sector_reward(state),
                      self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (
