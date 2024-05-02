@@ -28,9 +28,6 @@ class TetheredDroneSimulator:
         self.tether.attach_weight(weight=self.weight)
         self.environment = Environment()
         self.branch = self.environment.add_tree_branch([0, 0, 2.7])
-        self.previous_angle = None
-        self.cumulative_angle = 0
-        self.has_already_collided = False
 
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
@@ -44,15 +41,14 @@ class TetheredDroneSimulator:
             self.drone.set_position(self.drone_pos)
         # Step the physics simulation
         has_collided = self.check_collisions()
-        self.has_already_collided = self.has_already_collided or has_collided
         dist_tether_branch = self._distance(self.tether.get_mid_point(), self.environment.get_tree_branch_midpoint())
         dist_drone_branch = self._distance(self.drone.get_world_centre_centre(),
                                            self.environment.get_tree_branch_midpoint())
         p.stepSimulation()
-        if has_collided:
-            return has_collided, dist_tether_branch, dist_drone_branch, (self.tether.compute_total_rotation())
-        else:
-            return has_collided, dist_tether_branch, dist_drone_branch, 0.0
+        # Don't count rotations if we're not in contact with the branch
+        num_rotations = self.tether.compute_total_rotation() if has_collided else 0.0
+
+        return has_collided, dist_tether_branch, dist_drone_branch, num_rotations
 
     def check_collisions(self):
         for part_id in self.tether.get_segments():
@@ -76,9 +72,6 @@ class TetheredDroneSimulator:
         self.tether.attach_weight(weight=self.weight)
         self.environment = Environment()
         self.environment.add_tree_branch([0, 0, 2.7])
-        self.previous_angle = None
-        self.cumulative_angle = 0
-        self.has_already_collided = False
 
     def close(self) -> None:
         p.disconnect(self.physicsClient)
