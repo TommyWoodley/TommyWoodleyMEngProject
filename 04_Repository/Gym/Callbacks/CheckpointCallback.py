@@ -68,9 +68,8 @@ class CheckpointCallback(BaseCallback):
             if self.verbose >= 2:
                 print(f"Saving model checkpoint to {model_path}")
 
-            if self.save_replay_buffer and hasattr(self.model, "replay_buffer") and (
-              self.model.replay_buffer is not None):
-
+            should_save_replay = self.save_replay_buffer and hasattr(self.model, "replay_buffer")
+            if should_save_replay and self.model.replay_buffer is not None:
                 # If model has a replay buffer, save it too
                 replay_buffer_path = self._checkpoint_path("replay_buffer_", extension="pkl")
                 self.model.save_replay_buffer(replay_buffer_path)  # type: ignore[attr-defined]
