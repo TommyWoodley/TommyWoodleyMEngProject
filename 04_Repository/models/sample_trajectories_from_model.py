@@ -5,9 +5,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
+from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
 from stable_baselines3 import SAC
 from utils.graphics.plot_trajectories import plot_trajectories
+import numpy as np
 
+global_info = {}
 
 class SampleTrajEnv(gym.Wrapper):
     def __init__(self, env, plotting_degrees):
@@ -18,9 +21,11 @@ class SampleTrajEnv(gym.Wrapper):
 
     def reset(self, **kwargs):
         self.fake_reset_done = False
-        obs = self.env.reset(degrees=self.plotting_degrees[self.iterator], **kwargs)
+        obs, info = self.env.reset(degrees=self.plotting_degrees[self.iterator], **kwargs)
+        global global_info
+        global_info = info
         self.iterator = (self.iterator + 1) % len(self.plotting_degrees)
-        return obs
+        return obs, info
 
 
 def sample_trajectories(dir, show=True, human=False):
@@ -34,7 +39,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
-    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode))),
+    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode)))),
                         plotting_degrees=plotting_degrees)
     model.set_env(env)
 
@@ -48,17 +53,21 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
     for _ in range(num_trajectories):
         if not done:
             obs = model.env.reset()
+            global global_info
         trajectory = []
-        trajectory.append(obs[0])
+        x, _, z = global_info["original_state"]
+        trajectory.append(np.array([x, z]))
         for _ in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
-            obs, _, done, _ = model.env.step(action)
+            obs, _, done, info = model.env.step(action)
             if done:
-                trajectory.append(trajectory[-1] + 0.5 * action[0])
+                # TODO: Fix this to add the final state into visual
                 if human:
                     print("Done")
                 break
-            trajectory.append(obs[0])
+            print(info)
+            x, _, z = info[0]["original_state"]
+            trajectory.append(np.array([x, z]))
         trajectory_states.append(trajectory)
     env.close()
 
