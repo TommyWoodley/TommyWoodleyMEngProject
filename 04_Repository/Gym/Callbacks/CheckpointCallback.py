@@ -69,7 +69,7 @@ class CheckpointCallback(BaseCallback):
                 print(f"Saving model checkpoint to {model_path}")
 
             if self.save_replay_buffer and hasattr(self.model, "replay_buffer") and (
-                self.model.replay_buffer is not None):
+              self.model.replay_buffer is not None):
 
                 # If model has a replay buffer, save it too
                 replay_buffer_path = self._checkpoint_path("replay_buffer_", extension="pkl")
@@ -83,7 +83,7 @@ class CheckpointCallback(BaseCallback):
                 self.model.get_vec_normalize_env().save(vec_normalize_path)  # type: ignore[union-attr]
                 if self.verbose >= 2:
                     print(f"Saving model VecNormalize to {vec_normalize_path}")
-            
+
             sample_trajectories_from_file(model_path,
                                           output_filename=self._checkpoint_path(extension="png"),
                                           show=False, human=False)
