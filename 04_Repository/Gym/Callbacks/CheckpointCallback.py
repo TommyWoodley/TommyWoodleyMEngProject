@@ -1,15 +1,9 @@
 import os
-import warnings
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 import sys
-import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from models.sample_trajectories_from_model import sample_trajectories_from_file
-
-import gymnasium as gym
-import numpy as np
 from stable_baselines3.common.callbacks import BaseCallback
+
 
 class CheckpointCallback(BaseCallback):
     """
@@ -64,7 +58,8 @@ class CheckpointCallback(BaseCallback):
         :param extension: Checkpoint file extension (zip for model, pkl for others)
         :return: Path to the checkpoint
         """
-        return os.path.join(self.save_path, f"{self.name_prefix}_{checkpoint_type}{self.num_timesteps}_steps.{extension}")
+        return os.path.join(self.save_path,
+                            f"{self.name_prefix}_{checkpoint_type}{self.num_timesteps}_steps.{extension}")
 
     def _on_step(self) -> bool:
         if self.n_calls % self.save_freq == 0:
@@ -73,7 +68,9 @@ class CheckpointCallback(BaseCallback):
             if self.verbose >= 2:
                 print(f"Saving model checkpoint to {model_path}")
 
-            if self.save_replay_buffer and hasattr(self.model, "replay_buffer") and self.model.replay_buffer is not None:
+            if self.save_replay_buffer and hasattr(self.model, "replay_buffer") and (
+                self.model.replay_buffer is not None):
+
                 # If model has a replay buffer, save it too
                 replay_buffer_path = self._checkpoint_path("replay_buffer_", extension="pkl")
                 self.model.save_replay_buffer(replay_buffer_path)  # type: ignore[attr-defined]
@@ -87,6 +84,8 @@ class CheckpointCallback(BaseCallback):
                 if self.verbose >= 2:
                     print(f"Saving model VecNormalize to {vec_normalize_path}")
             
-            sample_trajectories_from_file(model_path, output_filename=self._checkpoint_path(extension="png"), show=False, human=False)
+            sample_trajectories_from_file(model_path,
+                                          output_filename=self._checkpoint_path(extension="png"),
+                                          show=False, human=False)
 
         return True

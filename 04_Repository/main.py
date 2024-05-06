@@ -25,18 +25,17 @@ def main(algorithm, num_steps, filename, render_mode):
         print_green(f"File Name: {dir_name}")
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
-    
 
     env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode)))
     if save_data:
         env = CustomMonitor(env, f"models/{dir_name}/logs")
 
         checkpoint_callback = CheckpointCallback(
-          save_freq=500,
-          save_path=f"models/{dir_name}/training_logs/",
-          name_prefix="checkpoint",
-          save_replay_buffer=False,
-          save_vecnormalize=True,
+            save_freq=500,
+            save_path=f"models/{dir_name}/training_logs/",
+            name_prefix="checkpoint",
+            save_replay_buffer=False,
+            save_vecnormalize=True,
         )
 
     if algorithm == "SAC":

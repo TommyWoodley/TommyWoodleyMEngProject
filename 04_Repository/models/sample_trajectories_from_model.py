@@ -25,8 +25,9 @@ class SampleTrajEnv(gym.Wrapper):
 
 def sample_trajectories(dir, show=True, human=False):
     file_name = f"{dir}/model.zip"
-    output_filename=f"{dir}/sample_trajectories.png"
+    output_filename = f"{dir}/sample_trajectories.png"
     sample_trajectories_from_file(file_name, output_filename, show, human)
+
 
 def sample_trajectories_from_file(file, output_filename, show=True, human=False):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]

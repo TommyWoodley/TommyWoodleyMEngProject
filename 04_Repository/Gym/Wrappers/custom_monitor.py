@@ -1,12 +1,9 @@
-from typing import Tuple
 from gymnasium import Env
 from stable_baselines3.common.monitor import Monitor, ResultsWriter
 from gymnasium.core import ActType, ObsType
-from glob import glob
 from typing import Any, Dict, List, Optional, SupportsFloat, Tuple
 import time
 
-import numpy as np
 
 class CustomMonitor(Monitor):
     def __init__(
@@ -43,7 +40,6 @@ class CustomMonitor(Monitor):
         self.current_reset_info: Dict[str, Any] = {}
         self.crash_count = 0
 
-
     def step(self, action: ActType) -> Tuple[ObsType, SupportsFloat, bool, bool, Dict[str, Any]]:
         """
         Step the environment with the given action
@@ -59,14 +55,14 @@ class CustomMonitor(Monitor):
         if info["has_crashed"]:
             self.crash_count += 1
 
-
         # END -------
         self.rewards.append(float(reward))
         if terminated or truncated:
             self.needs_reset = True
             ep_rew = sum(self.rewards)
             ep_len = len(self.rewards)
-            ep_info = {"r": round(ep_rew, 6), "l": ep_len, "t": round(time.time() - self.t_start, 6), "c": self.crash_count}
+            ep_info = {"r": round(ep_rew, 6), "l": ep_len, "t": round(time.time() - self.t_start, 6),
+                       "c": self.crash_count}
             for key in self.info_keywords:
                 ep_info[key] = info[key]
             self.episode_returns.append(ep_rew)
@@ -78,7 +74,7 @@ class CustomMonitor(Monitor):
             info["episode"] = ep_info
         self.total_steps += 1
         return observation, reward, terminated, truncated, info
-    
+
     def reset(self, **kwargs) -> Tuple[Any | Dict[str, Any]]:
         self.crash_count = 0
         return super().reset(**kwargs)
