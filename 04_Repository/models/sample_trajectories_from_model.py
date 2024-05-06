@@ -18,23 +18,28 @@ class SampleTrajEnv(gym.Wrapper):
 
     def reset(self, **kwargs):
         self.fake_reset_done = False
-        print("Plotting degrees: ", self.plotting_degrees[self.iterator])
         obs = self.env.reset(degrees=self.plotting_degrees[self.iterator], **kwargs)
         self.iterator = (self.iterator + 1) % len(self.plotting_degrees)
         return obs
 
 
 def sample_trajectories(dir, show=True, human=False):
+    file_name = f"{dir}/model.zip"
+    output_filename=f"{dir}/sample_trajectories.png"
+    sample_trajectories_from_file(file_name, output_filename, show, human)
+
+def sample_trajectories_from_file(file, output_filename, show=True, human=False):
     plotting_degrees = [0, 45, 90, 135, 180, 225, 270, 315]
 
-    model = SAC.load(f"{dir}/model.zip")
+    model = SAC.load(file)
     render_mode = "console" if not human else "human"
     env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode))),
                         plotting_degrees=plotting_degrees)
     model.set_env(env)
 
     num_trajectories = len(plotting_degrees)
-    print("Num Trajectories: ", num_trajectories)
+    if human:
+        print("Num Trajectories: ", num_trajectories)
     trajectory_length = 60
     trajectory_states = []
     done = False
@@ -49,13 +54,14 @@ def sample_trajectories(dir, show=True, human=False):
             obs, _, done, _ = model.env.step(action)
             if done:
                 trajectory.append(trajectory[-1] + 0.5 * action[0])
-                print("Done")
+                if human:
+                    print("Done")
                 break
             trajectory.append(obs[0])
         trajectory_states.append(trajectory)
     env.close()
 
-    plot_trajectories(trajectory_states, output_filename=f"{dir}/sample_trajectories.png", show_plot=show)
+    plot_trajectories(trajectory_states, output_filename=output_filename, show_plot=show)
 
 
 if __name__ == "__main__":

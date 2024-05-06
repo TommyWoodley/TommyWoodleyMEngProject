@@ -4,6 +4,7 @@ from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
+from Gym.Callbacks.CheckpointCallback import CheckpointCallback
 import argparse
 import datetime
 import os
@@ -24,16 +25,26 @@ def main(algorithm, num_steps, filename, render_mode):
         print_green(f"File Name: {dir_name}")
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
+    
 
     env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode)))
     if save_data:
         env = CustomMonitor(env, f"models/{dir_name}/logs")
+
+        checkpoint_callback = CheckpointCallback(
+          save_freq=500,
+          save_path=f"models/{dir_name}/training_logs/",
+          name_prefix="checkpoint",
+          save_replay_buffer=False,
+          save_vecnormalize=True,
+        )
+
     if algorithm == "SAC":
-        model = train_sac(env, num_steps)
+        model = train_sac(env, num_steps, checkpoint_callback)
     elif algorithm == "SACfD":
-        model = train_sacfd(env, num_steps)
+        model = train_sacfd(env, num_steps, checkpoint_callback)
     else:
-        print_red("ERROR: Not yet implemented")
+        print_red("ERROR: Not yet implemented",)
     print_green("TRAINING COMPLETE!")
     if save_data:
         model.save(f"models/{dir_name}/model")
@@ -43,7 +54,7 @@ def main(algorithm, num_steps, filename, render_mode):
     generate_graphs(directory=f"models/{dir_name}")
 
 
-def train_sac(env, num_steps):
+def train_sac(env, num_steps, callback=None):
     model = SAC(
         "MlpPolicy",
         env,
@@ -51,12 +62,12 @@ def train_sac(env, num_steps):
         seed=0,
         batch_size=32,
         policy_kwargs=dict(net_arch=[64, 64]),
-    ).learn(num_steps, log_interval=10, progress_bar=True)
+    ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
     return model
 
 
-def train_sacfd(env, num_steps):
+def train_sacfd(env, num_steps, callback=None):
     from utils.graphics.plot_actor_policy import visualize_policy
 
     model = SACfD(
@@ -85,7 +96,7 @@ def train_sacfd(env, num_steps):
     visualize_policy(model, data, action_scale=1.0)
     print_green("Pretraining Complete!")
 
-    model.learn(num_steps, log_interval=10, progress_bar=True)
+    model.learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
     return model
 
