@@ -3,7 +3,7 @@ from gymnasium import Env
 from stable_baselines3.common.monitor import Monitor, ResultsWriter
 from gymnasium.core import ActType, ObsType
 from glob import glob
-from typing import Any, Dict, List, Optional, SupportsFloat, Tuple, Union
+from typing import Any, Dict, List, Optional, SupportsFloat, Tuple
 import time
 
 import numpy as np
@@ -15,7 +15,7 @@ class CustomMonitor(Monitor):
         filename: Optional[str] = None,
         allow_early_resets: bool = True,
         reset_keywords: Tuple[str, ...] = (),
-        info_keywords: Tuple[str, ...] = (),
+        info_keywords: Tuple[str, ...] = ("num_wraps",),
         override_existing: bool = True,
     ):
         super().__init__(env=env)
