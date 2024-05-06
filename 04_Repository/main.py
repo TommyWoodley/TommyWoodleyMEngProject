@@ -3,7 +3,7 @@ from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
-from stable_baselines3.common.monitor import Monitor
+from Gym.Wrappers.custom_monitor import CustomMonitor
 import argparse
 import datetime
 import os
@@ -27,7 +27,7 @@ def main(algorithm, num_steps, filename, render_mode):
 
     env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode)))
     if save_data:
-        env = Monitor(env, f"models/{dir_name}/logs")
+        env = CustomMonitor(env, f"models/{dir_name}/logs")
     if algorithm == "SAC":
         model = train_sac(env, num_steps)
     elif algorithm == "SACfD":

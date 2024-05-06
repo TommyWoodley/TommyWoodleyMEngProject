@@ -52,10 +52,9 @@ class BulletDroneEnv(gym.Env):
         state = self.simulator.drone_pos
 
         self.num_steps += 1
-
         reward, terminated, truncated = self.reward.reward_fun(state, has_collided, dist_tether_branch,
                                                                dist_drone_branch, num_wraps)
-        info = {"distance_to_goal": -reward}
+        info = {"distance_to_goal": -reward, "has_crashed": bool(dist_drone_branch < 0.1)}
 
         return state, reward, terminated, truncated, info
 
