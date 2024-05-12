@@ -35,7 +35,7 @@ def transform_demo(angle):
 
     # Calculate state, action rewards
     x_original, _ = waypoints[0]
-    mult = 1 if x_original > 1 else -1
+    mult = 1 if x_original >= 0 else -1
     print(f"Angle: {angle} is {mult}")
 
     state_action_reward = []
