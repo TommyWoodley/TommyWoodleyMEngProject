@@ -1,6 +1,7 @@
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
+from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
@@ -26,12 +27,12 @@ def main(algorithm, num_steps, filename, render_mode):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode=render_mode)))
+    env = PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))
     if save_data:
         env = CustomMonitor(env, f"models/{dir_name}/logs")
 
         checkpoint_callback = CheckpointCallback(
-            save_freq=500,
+            save_freq=1000,
             save_path=f"models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,

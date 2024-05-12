@@ -1,8 +1,6 @@
 import pybullet as p
 from typing import List, Any
 import numpy as np
-from math import degrees
-
 
 class Tether:
     RADIUS = 0.005
@@ -32,6 +30,10 @@ class Tether:
 
         mid_index = len(self.segments) // 2
         self.mid_indices = [mid_index - 1, mid_index]
+
+        self.prev_angle = None
+        self.cumulative_angle_change = 0.0
+        self.wraps = 0.0
 
     def create_tether(self) -> None:
         # Create each segment
@@ -70,27 +72,34 @@ class Tether:
                 )
 
     def compute_total_rotation(self):
-        total_rotation = 0
+        pos, _ = p.getBasePositionAndOrientation(self.segments[-1])
+        last_x = pos[0]
+        last_y = pos[2]
+        delta_x = last_x - 0
+        delta_y = 2.7 - last_y
+        
+        # Compute the angle using arctan2, which considers quadrant location
+        angle_radians = np.arctan2(delta_x, delta_y)  # swapped x and y to align with the vertical
+        angle_degrees = np.degrees(angle_radians)
 
-        for i in range(1, self.num_segments):
-            # Quaternion of segments
-            _, prev_quaternion = p.getBasePositionAndOrientation(self.segments[i - 1])
-            _, curr_quaternion = p.getBasePositionAndOrientation(self.segments[i])
-            prev_angles = p.getEulerFromQuaternion(prev_quaternion)
-            curr_angles = p.getEulerFromQuaternion(curr_quaternion)
+        if self.prev_angle is not None:
+            # Calculate angle change considering the wrap around at 180/-180
+            angle_change = angle_degrees - self.prev_angle
+            if angle_change > 180:
+                angle_change -= 360
+            elif angle_change < -180:
+                angle_change += 360
 
-            # Get the pitch angle from Euler angles
-            prev_pitch = prev_angles[1]
-            curr_pitch = curr_angles[1]
+            # Update cumulative angle change
+            self.cumulative_angle_change += angle_change
 
-            # Calculate the difference between yaws and adjust it to range [-180, 180]
-            pitch_diff = degrees(curr_pitch - prev_pitch)
-            pitch_diff = ((pitch_diff + 180) % 360) - 180
-            # TODO: Can this be done in a better way without needing to use absolute
+            # Update wraps as a float
+            self.wraps = self.cumulative_angle_change / 360.0
 
-            total_rotation += abs(pitch_diff)
+        # Update the previous angle for the next call
+        self.prev_angle = angle_degrees
 
-        return (total_rotation / 360.0) * 0.75  # Correction to get number of turns.
+        return abs(self.wraps)
 
     def get_segments(self):
         return self.segments

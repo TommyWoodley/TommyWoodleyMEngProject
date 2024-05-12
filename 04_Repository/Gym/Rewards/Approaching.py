@@ -20,7 +20,7 @@ class CircularApproachingReward():
         reward = min(self._calculate_sector_reward(state),
                      self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (
                          1.0 if has_collided else 0.0) + (2 * num_wraps)
-        return reward, num_wraps > 2, False
+        return reward - 10, num_wraps > 1.1, False
 
     def _calculate_sector_reward(self, state):
         x, _, z = state

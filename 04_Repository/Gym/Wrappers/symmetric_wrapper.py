@@ -36,8 +36,6 @@ class SymmetricWrapper(gym.Wrapper):
         else:
             x, y, z = state
             new_state = (-1 * x, y, z)
-        
-        # print(f"Old State: {state}, New State: {new_state}, Old Action {action}, New Action {new_action}")
 
         return new_state, reward, terminated, truncated, info
 
@@ -57,7 +55,5 @@ class SymmetricWrapper(gym.Wrapper):
         else:
             x, y, z = state
             new_state = (-1 * x, y, z)
-      
-        print(f"Old State: {state}, New State: {new_state}")
         return new_state, info
 

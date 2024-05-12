@@ -57,15 +57,15 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
         trajectory = []
         x, _, z = global_info["original_state"]
         trajectory.append(np.array([x, z]))
-        for _ in range(trajectory_length):
+        for i in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
             obs, _, done, info = model.env.step(action)
+            print(info)
             if done:
                 # TODO: Fix this to add the final state into visual
                 if human:
-                    print("Done")
+                    print(f"Done: {i}")
                 break
-            print(info)
             x, _, z = info[0]["original_state"]
             trajectory.append(np.array([x, z]))
         trajectory_states.append(trajectory)
@@ -77,9 +77,14 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         dir = sys.argv[1]
-        sample_trajectories(dir, show=True)
+        human = False
     elif len(sys.argv) == 3 and sys.argv[2] == "-h":
         dir = sys.argv[1]
-        sample_trajectories(dir, show=True, human=True)
+        human = True
     else:
         print("Usage: python sample_trajectories_from_model.py <model dir>")
+        exit()
+    if dir.endswith(".zip"):
+        sample_trajectories_from_file(dir, None, show=True, human=human)
+    else:
+        sample_trajectories(dir, show=True, human=human)
