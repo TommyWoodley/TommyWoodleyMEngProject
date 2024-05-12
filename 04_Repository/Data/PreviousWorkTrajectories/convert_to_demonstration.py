@@ -24,6 +24,7 @@ def transform_demo(angle):
     df['distance'] = np.sqrt(df['delta_x']**2 + df['delta_z']**2)
 
     waypoints = []
+    waypoints.append((df.iloc[0]['cycleX'], df.iloc[0]['cycleZ'] + 3))
     cumulative_distance = 0
     for index, row in df.iterrows():
         cumulative_distance += row['distance']
@@ -35,6 +36,7 @@ def transform_demo(angle):
     # Calculate state, action rewards
     x_original, _ = waypoints[0]
     mult = 1 if x_original > 1 else -1
+    print(f"Angle: {angle} is {mult}")
 
     state_action_reward = []
     for i in range(len(waypoints) - 1):

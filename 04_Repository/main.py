@@ -32,7 +32,7 @@ def main(algorithm, num_steps, filename, render_mode):
         env = CustomMonitor(env, f"models/{dir_name}/logs")
 
         checkpoint_callback = CheckpointCallback(
-            save_freq=1000,
+            save_freq=500,
             save_path=f"models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
@@ -182,7 +182,7 @@ def convert_data(env, json_data):
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 2.0
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z])) + 10  # TODO: Does this help or hurt?
+        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))  # TODO: Does this help or hurt?
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
