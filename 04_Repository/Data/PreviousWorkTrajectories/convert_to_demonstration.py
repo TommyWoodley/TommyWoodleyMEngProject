@@ -33,10 +33,15 @@ def transform_demo(angle):
     print("WAYPOINTS: ", waypoints)
 
     # Calculate state, action rewards
+    x_original, _ = waypoints[0]
+    mult = 1 if x_original > 1 else -1
+
     state_action_reward = []
     for i in range(len(waypoints) - 1):
-        current_state = waypoints[i]
-        next_state = waypoints[i + 1]
+        x, y = waypoints[i]
+        current_state = (x * mult, y)
+        x, y = waypoints[i + 1]
+        next_state = (x * mult, y)
 
         # Calculate action as difference between next and current state
         action = (next_state[0] - current_state[0], next_state[1] - current_state[1])
