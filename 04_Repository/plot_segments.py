@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def plot_segments_and_annotate_angle_from_origin(angles):
     # Convert angles from degrees to radians and adjust from vertical downward
     angles_rad = [np.radians(270 - angle) for angle in angles]
-    
+
     # Starting point
     x, y = 0, 0
     coords = [(x, y)]
@@ -14,7 +15,7 @@ def plot_segments_and_annotate_angle_from_origin(angles):
         x += np.cos(angle)
         y += np.sin(angle)
         coords.append((x, y))
-    
+
     # Unpack coordinates for plotting
     x_coords, y_coords = zip(*coords)
 
@@ -40,6 +41,10 @@ def plot_segments_and_annotate_angle_from_origin(angles):
     plt.axis('equal')
     plt.show()
 
+
 # Example usage
-angles = [-19.64533259171024, -14.235824697386347, -6.76369419197766, 17.698134125822524, -13.24460257389283, 18.83611798693631, 4.3883020337202066, 12.718831056215551, -8.986773899051958, -6.608834252050816, 1.9132409606008083, 4.061319912236776, 5.583761958370551, 22.29412324059759, 18.452554458754356, 20.879627198898575, 34.92916064021324, 38.23709090433427, 53.722529227499926]
+angles = [-19.64533259171024, -14.235824697386347, -6.76369419197766, 17.698134125822524, -13.24460257389283,
+          18.83611798693631, 4.3883020337202066, 12.718831056215551, -8.986773899051958, -6.608834252050816,
+          1.9132409606008083, 4.061319912236776, 5.583761958370551, 22.29412324059759, 18.452554458754356,
+          20.879627198898575, 34.92916064021324, 38.23709090433427, 53.722529227499926]
 plot_segments_and_annotate_angle_from_origin(angles)

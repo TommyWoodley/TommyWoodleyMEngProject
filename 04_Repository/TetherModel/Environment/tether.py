@@ -2,6 +2,7 @@ import pybullet as p
 from typing import List, Any
 import numpy as np
 
+
 class Tether:
     RADIUS = 0.005
     MASS = 0.05
@@ -77,7 +78,7 @@ class Tether:
         last_y = pos[2]
         delta_x = last_x - 0
         delta_y = 2.7 - last_y
-        
+
         # Compute the angle using arctan2, which considers quadrant location
         angle_radians = np.arctan2(delta_x, delta_y)  # swapped x and y to align with the vertical
         angle_degrees = np.degrees(angle_radians)

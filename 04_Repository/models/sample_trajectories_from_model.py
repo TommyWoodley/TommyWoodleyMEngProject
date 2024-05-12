@@ -12,6 +12,7 @@ import numpy as np
 
 global_info = {}
 
+
 class SampleTrajEnv(gym.Wrapper):
     def __init__(self, env, plotting_degrees):
         super().__init__(env)

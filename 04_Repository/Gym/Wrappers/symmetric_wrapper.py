@@ -49,11 +49,10 @@ class SymmetricWrapper(gym.Wrapper):
             self.positive = False
 
         info["original_state"] = state
-        
+
         if self.positive:
             new_state = state
         else:
             x, y, z = state
             new_state = (-1 * x, y, z)
         return new_state, info
-
