@@ -44,11 +44,12 @@ class TetheredDroneSimulator:
         dist_tether_branch = self._distance(self.tether.get_mid_point(), self.environment.get_tree_branch_midpoint())
         dist_drone_branch = self._distance(self.drone.get_world_centre_centre(),
                                            self.environment.get_tree_branch_midpoint())
+        dist_drone_ground = self.drone.get_height_above_ground()
         p.stepSimulation()
         # Don't count rotations if we're not in contact with the branch
         num_rotations = self.tether.compute_total_rotation() if has_collided else 0.0
 
-        return has_collided, dist_tether_branch, dist_drone_branch, num_rotations
+        return has_collided, dist_tether_branch, dist_drone_branch, dist_drone_ground, num_rotations
 
     def check_collisions(self):
         for part_id in self.tether.get_segments():

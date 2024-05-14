@@ -61,7 +61,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
         for i in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
             obs, _, done, info = model.env.step(action)
-            print(info)
+            # print(info)
             if done:
                 # TODO: Fix this to add the final state into visual
                 if human:
