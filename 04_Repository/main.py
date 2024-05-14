@@ -134,7 +134,7 @@ def get_buffer_data(env):
 
 
 def load_all_data(env, directory):
-    pattern = f"{directory}/rl_demo_approaching_angle_*.json" # I'm not using all the data here im pretty sure
+    pattern = f"{directory}/rl_demo_approaching_angle_*.json"
     files = glob.glob(pattern)
     all_data = []
     for file in files:
