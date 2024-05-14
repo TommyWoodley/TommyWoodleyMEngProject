@@ -60,12 +60,12 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
         trajectory.append(np.array([x, z]))
         for i in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
-            obs, _, done, info = model.env.step(action)
-            # print(info)
+            obs, reward, done, info = model.env.step(action)
+            # print(reward)
             if done:
                 # TODO: Fix this to add the final state into visual
-                if human:
-                    print(f"Done: {i}")
+                # if human:
+                print(f"Done: {i}")
                 break
             x, _, z = info[0]["original_state"]
             trajectory.append(np.array([x, z]))

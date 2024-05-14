@@ -56,10 +56,10 @@ class BulletDroneEnv(gym.Env):
                                                                dist_drone_branch, num_wraps)
         info = {"distance_to_goal": -reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
 
-        if dist_drone_ground < 0.1:
-            reward = -1000
-            terminated = True
-            truncated = False
+        # if dist_drone_ground < 0.1:
+        #     reward = -10
+        #     terminated = True
+        #     truncated = False
 
         return state, reward, terminated, truncated, info
 
@@ -73,6 +73,7 @@ class BulletDroneEnv(gym.Env):
             print(f'Agent position: {self.simulator.drone_pos}')
 
     def close(self) -> None:
+        self.reward.end()
         if hasattr(self, 'simulator'):
             self.simulator.close()
 

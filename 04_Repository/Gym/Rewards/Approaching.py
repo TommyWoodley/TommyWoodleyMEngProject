@@ -1,6 +1,7 @@
 import math
 from typing import Tuple
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def interpolate_distance(distance, max_value, max_reward, min_value=0, min_reward=0):
@@ -13,14 +14,26 @@ class CircularApproachingReward():
     radius = 3
     reward_penalty = 5
     has_already_collided = False
+    # saved_rewards = []
 
     def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch,
                    num_wraps) -> Tuple[float, bool, bool]:
 
         reward = min(self._calculate_sector_reward(state),
                      self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (
-                         1.0 if has_collided else 0.0) + (2 * num_wraps)
-        return reward - 10, num_wraps > 1.1, False
+                         1.0 if has_collided else 0.0) + (1.0 * max(num_wraps, 0.5))
+        reward = self.clip_norm(reward, -3.5, 1.5)
+        if reward > 0:
+            print("REWARD", reward)
+        if reward < -1:
+            print("REWARD", reward)
+        return reward - 1, num_wraps > 0.75, False
+    
+    def clip_norm(self, reward, min_val, max_val):
+        # self.saved_rewards.append(reward)
+
+        clipped_val = min(max_val, max(reward, min_val)) - max_val
+        return clipped_val / (max_val - min_val)
 
     def _calculate_sector_reward(self, state):
         x, _, z = state
@@ -74,3 +87,20 @@ class CircularApproachingReward():
             return interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.2)
         else:
             return 0
+    
+    def end(self):
+        # print("MAX Recieved: ", self.max_recieved)
+        # print("MIN Recieved: ", self.min_recieved)
+        pass
+
+        # rewards = self.saved_rewards
+
+        # print(f"Mean: {np.mean(rewards)}")
+        # print(f"Standard Deviation: {np.std(rewards)}")
+
+        # # Plot the distribution of rewards
+        # plt.hist(rewards, bins=30, edgecolor='black')
+        # plt.title('Distribution of Rewards')
+        # plt.xlabel('Reward Value')
+        # plt.ylabel('Frequency')
+        # plt.show()

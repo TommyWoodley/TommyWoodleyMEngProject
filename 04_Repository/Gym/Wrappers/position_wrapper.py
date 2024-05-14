@@ -6,7 +6,7 @@ import numpy as np
 
 class PositionWrapper(gym.Wrapper):
     MAGNITUDE = 0.005
-    MAX_STEP = 0.5
+    MAX_STEP = 0.25
     MAX = 6
     MIN = -3
     NUM_ACTIONS_PER_STEP = 25
@@ -31,13 +31,19 @@ class PositionWrapper(gym.Wrapper):
 
         for i in range(self.NUM_ACTIONS_PER_STEP):
             state, reward, terminated, truncated, info = self._take_single_step(action)
-            total_reward += reward
-            actual_steps_taken += 1
             if terminated or truncated:
                 break
+            total_reward += reward
+            actual_steps_taken += 1
+            
 
-        avg_reward = total_reward / actual_steps_taken
-        return state, avg_reward - 1, terminated, truncated, info
+        avg_reward = total_reward / actual_steps_taken if actual_steps_taken != 0 else 0
+
+        # if avg_reward > 0:
+        #     print("REWARD", reward)
+        # if avg_reward < -1:
+        #     print("REWARD", reward)
+        return state, avg_reward, terminated, truncated, info
 
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
               degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:

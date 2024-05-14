@@ -22,18 +22,18 @@ def main(algorithm, num_steps, filename, render_mode):
     save_data = filename is not None
     if save_data:
         dir_name = get_dir_name(filename)
-        os.mkdir(f"models/{dir_name}")
+        os.mkdir(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
         print_green(f"File Name: {dir_name}")
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
     env = PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))
     if save_data:
-        env = CustomMonitor(env, f"models/{dir_name}/logs")
+        env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
 
         checkpoint_callback = CheckpointCallback(
-            save_freq=500,
-            save_path=f"models/{dir_name}/training_logs/",
+            save_freq=1000,
+            save_path=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
             save_vecnormalize=True,
@@ -47,24 +47,48 @@ def main(algorithm, num_steps, filename, render_mode):
         print_red("ERROR: Not yet implemented",)
     print_green("TRAINING COMPLETE!")
     if save_data:
-        model.save(f"models/{dir_name}/model")
+        model.save(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/model")
         print_green("Model Saved")
     env.close()
 
-    generate_graphs(directory=f"models/{dir_name}")
+    generate_graphs(directory=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
 
 
 def train_sac(env, num_steps, callback=None):
+    data = get_buffer_data(env)
+    # show_in_env(env=env, transformed_data=data)
+
     model = SAC(
         "MlpPolicy",
         env,
         verbose=1,
         seed=0,
         batch_size=32,
+        learning_rate=linear_schedule(0.0003),
         policy_kwargs=dict(net_arch=[64, 64]),
     ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
     return model
+
+
+def linear_schedule(initial_value: float):
+    """
+    Linear learning rate schedule.
+
+    :param initial_value: Initial learning rate.
+    :return: schedule that computes
+      current learning rate depending on remaining progress
+    """
+    def func(progress_remaining: float) -> float:
+        """
+        Progress will decrease from 1 (beginning) to 0.
+
+        :param progress_remaining:
+        :return: current learning rate
+        """
+        return progress_remaining * initial_value
+
+    return func
 
 
 def train_sacfd(env, num_steps, callback=None):
@@ -78,6 +102,8 @@ def train_sacfd(env, num_steps, callback=None):
         batch_size=32,
         policy_kwargs=dict(net_arch=[64, 64]),
         learning_starts=0,
+        gamma=0.96,
+        learning_rate=linear_schedule(0.0003),
     )
     from stable_baselines3.common.logger import configure
     tmp_path = "/tmp/sb3_log/"
@@ -86,13 +112,14 @@ def train_sacfd(env, num_steps, callback=None):
     model.set_logger(new_logger)
 
     data = get_buffer_data(env)
+    # show_in_env(env=env, transformed_data=data)
     print("Buffer Size: ", model.replay_buffer.size())
 
     for obs, next_obs, action, reward, done, info in data:
         model.replay_buffer.add(obs, next_obs, action, reward, done, info)
     print("Buffer Size: ", model.replay_buffer.size())
 
-    model.train_actor()
+    # model.train_actor()
     visualize_policy(model, data, action_scale=1.0)
     print_green("Pretraining Complete!")
 
@@ -102,12 +129,12 @@ def train_sacfd(env, num_steps, callback=None):
 
 
 def get_buffer_data(env):
-    dir = "Data/PreviousWorkTrajectories/rl_demos"
+    dir = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
     return load_all_data(env, dir)
 
 
 def load_all_data(env, directory):
-    pattern = f"{directory}/rl_demo_approaching_angle_*.json"
+    pattern = f"{directory}/rl_demo_approaching_angle_*.json" # I'm not using all the data here im pretty sure
     files = glob.glob(pattern)
     all_data = []
     for file in files:
@@ -129,11 +156,20 @@ def show_in_env(env, transformed_data):
 
     # Run through each action in the provided list
     for _, _, action, _, _, _ in transformed_data:
-        state, reward, done, _, _ = env.step(action)
+        state, reward, done, truncated, _ = env.step(action)
 
-        if done:
+        if done or truncated:
             print("Episode finished")
             break
+        
+    while not done and not truncated:
+        _, _, done, truncated, _ = env.step(np.array([0.0, 0.0]))
+        if done:
+            print("Episode finished")
+        if truncated:
+            print("Episode Truncated")
+    
+    env.reset()
 
     print(state)
 
@@ -181,8 +217,8 @@ def convert_data(env, json_data):
         next_obs = np.array(_next_obs)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
-        action = np.array(item['action']) * 2.0
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))  # TODO: Does this help or hurt?
+        action = np.array(item['action']) * 4.0
+        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
