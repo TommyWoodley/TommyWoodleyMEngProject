@@ -20,9 +20,9 @@ def extract_and_plot(dir):
         states = []
 
         for entry in data:
-            states.append(np.array([entry["state"][0], entry["state"][1]]))
+            states.append(np.array([entry["state"][4], entry["state"][5]]))
 
-        states.append(np.array([entry["next_state"][0], entry["next_state"][1]]))
+        states.append(np.array([entry["next_state"][4], entry["next_state"][5]]))
 
         # Plot each file's data with a different color
         trajectories.append(states)
