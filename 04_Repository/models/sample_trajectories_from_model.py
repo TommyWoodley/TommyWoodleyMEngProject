@@ -6,6 +6,7 @@ from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
+from Gym.Wrappers.memory_wrapper import MemoryWrapper
 from stable_baselines3 import SAC
 from utils.graphics.plot_trajectories import plot_trajectories
 import numpy as np
@@ -40,7 +41,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
-    env = SampleTrajEnv(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode)))),
+    env = SampleTrajEnv(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))),
                         plotting_degrees=plotting_degrees)
     model.set_env(env)
 

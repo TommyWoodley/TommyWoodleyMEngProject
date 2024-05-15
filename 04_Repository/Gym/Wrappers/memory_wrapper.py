@@ -1,5 +1,6 @@
 import numpy as np
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 
 class MemoryWrapper(gym.Wrapper):
     def __init__(self, env):
@@ -10,18 +11,18 @@ class MemoryWrapper(gym.Wrapper):
                                             high=np.tile(env.observation_space.high, 3),
                                             dtype=env.observation_space.dtype)
 
-    def reset(self):
-        initial_obs = self.env.reset()
+    def reset(self, seed = None, options = None, degrees = None, position = None):
+        initial_obs, info = self.env.reset(seed, options, degrees, position)
         self.memory = [initial_obs for _ in range(3)]
-        return self._get_augmented_obs()
+        return self._get_augmented_obs(), info
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, done, truncated, info = self.env.step(action)
         # Update memory
         self.memory.append(obs)
         if len(self.memory) > 3:
             self.memory.pop(0)
-        return self._get_augmented_obs(), reward, done, info
+        return self._get_augmented_obs(), reward, done, truncated, info
 
     def _get_augmented_obs(self):
         # If there's less than 3 observations, repeat the oldest

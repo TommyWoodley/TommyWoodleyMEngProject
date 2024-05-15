@@ -2,6 +2,7 @@ from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
+from Gym.Wrappers.memory_wrapper import MemoryWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
@@ -27,7 +28,7 @@ def main(algorithm, num_steps, filename, render_mode):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))
+    env = MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode)))))
     if save_data:
         env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
 
@@ -120,7 +121,7 @@ def train_sacfd(env, num_steps, callback=None):
     print("Buffer Size: ", model.replay_buffer.size())
 
     # model.train_actor()
-    visualize_policy(model, data, action_scale=1.0)
+    # visualize_policy(model, data, action_scale=1.0)
     print_green("Pretraining Complete!")
 
     model.learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
@@ -213,7 +214,7 @@ def convert_data(env, json_data):
     for item in json_data:
         obs = np.array(item['state'])
         _next_obs = item['next_state']
-        x, z = _next_obs
+        _, _, _, _, x, z = _next_obs
         next_obs = np.array(_next_obs)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
