@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from utils.graphics.plot_trajectories import plot_trajectories
 
-json_files = ["0.0", "22.5", "45.0", "67.5", "90.0", "112.5", "135.0", "157.5", "180.0", "202.5", "225.0", "247.5", "270.0", "292.5", "315.0", "337.5", "360.0"]
+json_files = ["0.0", "22.5", "45.0", "67.5", "90.0", "112.5", "135.0", "157.5", "180.0", "202.5", "225.0", "247.5", "292.5", "315.0", "337.5", "360.0"]
 
 
 def extract_and_plot(dir):

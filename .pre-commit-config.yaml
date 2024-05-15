@@ -1,6 +1,0 @@
-repos:
--   repo: https://github.com/TommyWoodley/pre-commit-hooks
-    rev: 0a85b3541e2289b13de18ce593e328efe709963d
-    hooks:
-    -   id: generate-md-pdfs
-        args: ['--pattern', '02_Progress_reports/23_*/weekly_update.md', '--css', '/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/.templates/custom-dracula.css']
