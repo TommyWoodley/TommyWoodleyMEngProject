@@ -3,6 +3,7 @@ from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
 from Gym.Wrappers.memory_wrapper import MemoryWrapper
+from Gym.Wrappers.hovering_wrapper import HoveringWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
@@ -28,7 +29,7 @@ def main(algorithm, num_steps, filename, render_mode):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode)))))
+    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
     if save_data:
         env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
 
@@ -212,10 +213,10 @@ def load_json(file_path):
 def convert_data(env, json_data):
     dataset = []
     for item in json_data:
-        obs = np.array(item['state'])
+        obs = np.append(np.array(item['state']), 0)
         _next_obs = item['next_state']
         _, _, _, _, x, z = _next_obs
-        next_obs = np.array(_next_obs)
+        next_obs = np.append(np.array(_next_obs), 0)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 4.0
