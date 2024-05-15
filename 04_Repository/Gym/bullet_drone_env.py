@@ -83,7 +83,7 @@ class BulletDroneEnv(gym.Env):
         """
         if seed is not None:
             np.random.seed(seed)
-        angle = np.random.uniform(0, 2 * np.pi)
+        angle = np.random.uniform(- np.pi / 3, np.pi / 3)
 
         return self._generate_reset_position_from_radians(angle)
 
