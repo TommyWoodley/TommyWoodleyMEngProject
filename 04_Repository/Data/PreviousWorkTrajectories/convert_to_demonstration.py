@@ -39,17 +39,34 @@ def transform_demo(angle):
     print(f"Angle: {angle} is {mult}")
 
     state_action_reward = []
+    memory = [waypoints[0]] * 3  
     for i in range(len(waypoints) - 1):
         x, y = waypoints[i]
         current_state = (x * mult, y)
+
+        memory.append(current_state)
+        if len(memory) > 3:
+            memory.pop(0)
+        
+        augmented_current_state = tuple(item for state in memory for item in state)
+
         x, y = waypoints[i + 1]
         next_state = (x * mult, y)
+
+        # Add next state to the memory to calculate augmented next state
+        memory.append(next_state)
+        if len(memory) > 3:
+            augmented_next_state = tuple(item for state in memory[-3:] for item in state)
+        else:
+            augmented_next_state = tuple(item for state in memory for item in state)
+        memory.pop()  # Remove the next state from memory after using it for augmentation
+
 
         # Calculate action as difference between next and current state
         action = (next_state[0] - current_state[0], next_state[1] - current_state[1])
 
         reward = calc_reward(current_state)
-        state_action_reward.append((current_state, action, reward, next_state))
+        state_action_reward.append((augmented_current_state, action, reward, augmented_next_state))
 
     # Print the state, action, reward list
     print("STATE,ACTION,REWARDS: ")
