@@ -9,6 +9,7 @@ class CustomMonitor(Monitor):
     def __init__(
         self,
         env: Env,
+        env_id: int = None,
         filename: Optional[str] = None,
         allow_early_resets: bool = True,
         reset_keywords: Tuple[str, ...] = (),
@@ -19,7 +20,8 @@ class CustomMonitor(Monitor):
         self.t_start = time.time()
         self.results_writer = None
         if filename is not None:
-            env_id = env.spec.id if env.spec is not None else None
+            if env_id is not None:
+                filename = filename + _ + env_id
             self.results_writer = ResultsWriter(
                 filename,
                 header={"t_start": self.t_start, "env_id": str(env_id)},
@@ -61,7 +63,7 @@ class CustomMonitor(Monitor):
             self.needs_reset = True
             ep_rew = sum(self.rewards)
             ep_len = len(self.rewards)
-            ep_info = {"r": round(ep_rew, 6), "l": ep_len, "t": round(time.time() - self.t_start, 6),
+            ep_info = {"s": self.total_steps, "r": round(ep_rew, 6), "l": ep_len, "t": round(time.time() - self.t_start, 6),
                        "c": self.crash_count}
             for key in self.info_keywords:
                 ep_info[key] = info[key]

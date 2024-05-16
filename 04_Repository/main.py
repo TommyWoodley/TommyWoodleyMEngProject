@@ -64,6 +64,7 @@ def train_sac(env, num_steps, callback=None):
         batch_size=32,
         learning_rate=linear_schedule(0.0003),
         policy_kwargs=dict(net_arch=[64, 64]),
+        gradient_steps=-1
     ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
     return model
@@ -143,6 +144,7 @@ def train_sacfd(env, num_steps, callback=None):
         learning_starts=0,
         gamma=0.96,
         learning_rate=linear_schedule(0.0003),
+        gradient_steps=-1
     )
     from stable_baselines3.common.logger import configure
     tmp_path = "/tmp/sb3_log/"
