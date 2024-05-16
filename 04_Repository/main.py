@@ -1,9 +1,3 @@
-from Gym.bullet_drone_env import BulletDroneEnv
-from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
-from Gym.Wrappers.position_wrapper import PositionWrapper
-from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
-from Gym.Wrappers.memory_wrapper import MemoryWrapper
-from Gym.Wrappers.hovering_wrapper import HoveringWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
@@ -16,10 +10,11 @@ import json
 import glob
 
 
-def main(algorithm, num_steps, filename, render_mode):
+def main(algorithm, num_steps, filename, render_mode, num_threads):
     print_green(f"Algorithm: {algorithm}")
     print_green(f"Number of Steps: {num_steps}")
     print_green(f"Render Mode: {render_mode}")
+    print_green(f"Num Threads: {num_threads}")
 
     save_data = filename is not None
     if save_data:
@@ -29,7 +24,8 @@ def main(algorithm, num_steps, filename, render_mode):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
+    env = create_env(render_mode)
+    checkpoint_callback=None
     if save_data:
         env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
 
@@ -71,6 +67,45 @@ def train_sac(env, num_steps, callback=None):
     ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
     return model
+
+
+def create_env(render_mode):
+    # Custom Enviornment Wrappers
+    from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
+
+    num_cpu = 6
+    sub_process_env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
+    return sub_process_env
+
+def make_env(id):
+    """
+    Utility function for multiprocessed env.
+
+    :param env_id: the environment ID
+    :param num_env: the number of environments you wish to have in subprocesses
+    :param seed: the initial seed for RNG
+    :param rank: index of the subprocess
+    """
+    def _init():
+        print(f"Constructing Environment {id+1}")
+        env = _make_env(render_mode="console")
+        return env
+        
+    return _init
+
+def _make_env(render_mode):
+    from Gym.bullet_drone_env import BulletDroneEnv
+    from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
+    from Gym.Wrappers.position_wrapper import PositionWrapper
+    from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
+    from Gym.Wrappers.memory_wrapper import MemoryWrapper
+    from Gym.Wrappers.hovering_wrapper import HoveringWrapper
+
+    env = SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))
+    position_2d_env = PositionWrapper(TwoDimWrapper(env))
+    memory_wrapped_env = MemoryWrapper(position_2d_env)
+    hovering_wrapped_env = HoveringWrapper(memory_wrapped_env)
+    return hovering_wrapped_env
 
 
 def linear_schedule(initial_value: float):
@@ -211,6 +246,8 @@ def load_json(file_path):
 
 
 def convert_data(env, json_data):
+    from Gym.bullet_drone_env import BulletDroneEnv
+
     dataset = []
     for item in json_data:
         obs = np.append(np.array(item['state']), 0)
@@ -220,7 +257,7 @@ def convert_data(env, json_data):
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 4.0
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))
+        reward = np.array(BulletDroneEnv.calc_reward([x, 0, z]))
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
@@ -249,6 +286,14 @@ if __name__ == "__main__":
                         help="Optional: Specify the file name. Defaults to 'simple_YYYYMMDD_HHMM.py'")
     parser.add_argument("-v", "--visualise", action="store_true",
                         help="Optional: Visualise the training - This is significantly slower.")
+    parser.add_argument("--num_threads", type=int,
+                        default=1,
+                        help="Optional: Specify the number of threads used for training. Defaults to 1 thread.")
 
     args = parser.parse_args()
-    main(args.algorithm, args.num_steps, args.filename, "console" if not args.visualise else "human")
+
+    if args.visualise and args.num_threads > 1:
+        print_red("ERROR: Cannot run multiple simulations in parallel in visual mode. Either:\n\t1. Use a single thread\n\t2. Use non-visual mode.")
+        exit(1)
+
+    main(args.algorithm, args.num_steps, args.filename, "console" if not args.visualise else "human", args.num_threads)
