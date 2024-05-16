@@ -5,6 +5,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
+from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
+from Gym.Wrappers.memory_wrapper import MemoryWrapper
+from Gym.Wrappers.hovering_wrapper import HoveringWrapper
 from stable_baselines3.common.env_checker import check_env
 
 
@@ -28,6 +31,24 @@ def test_two_dim_bullet_env():
 
 def test_position_wrapped_two_dim_bullet_env():
     util_test_valid_env(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))))
+
+def test_symmetric_wrapped_env():
+    util_test_valid_env(SymmetricWrapper(BulletDroneEnv(render_mode="console")))
+
+def test_position_wrapped_two_dim_bullet_env():
+    util_test_valid_env(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))))
+
+def test_very_wrapped_env1():
+    util_test_valid_env(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode="console")))))
+
+def test_very_wrapped_env2():
+    util_test_valid_env(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode="console"))))))
+
+def test_very_wrapped_env3():
+    util_test_valid_env(HoveringWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode="console"))))))
+
+def test_very_wrapped_env4():
+    util_test_valid_env(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode="console")))))))
 
 
 def test_environment_truncation(env):

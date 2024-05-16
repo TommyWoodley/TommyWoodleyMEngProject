@@ -99,12 +99,14 @@ class BulletDroneEnv(gym.Env):
         return reset_pos.astype(np.float32)
 
     # Visualisation funtion
-    def calc_reward(self, state):
+    @staticmethod
+    def calc_reward(state):
+        _reward = CircularApproachingReward()
         branch_pos = np.array([0.0, 0.0, 2.7])  # Branch position
         tether_pos = state - np.array([0, 0, 0.5])
         dist_tether_branch = np.linalg.norm(tether_pos - branch_pos)
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps=0)
+        reward, _, _ = _reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps=0)
         return reward
