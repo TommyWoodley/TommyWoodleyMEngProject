@@ -15,8 +15,8 @@ class SymmetricWrapper(gym.Wrapper):
         super().__init__(env)
 
         # Position Based Action Space
-        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=self.MIN, high=self.MAX, shape=(2,), dtype=np.float32)
+        self.action_space = env.action_space
+        self.observation_space = env.observation_space
         self.positive = True
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
