@@ -24,7 +24,7 @@ def main(algorithm, num_steps, filename, render_mode, num_threads):
     else:
         print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = create_env(render_mode)
+    env = create_env(render_mode, num_threads)
     checkpoint_callback=None
     if save_data:
         env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
@@ -69,12 +69,14 @@ def train_sac(env, num_steps, callback=None):
     return model
 
 
-def create_env(render_mode):
+def create_env(render_mode, num_threads):
+    if render_mode == "human":
+        return _make_env(render_mode="human")
+    
     # Custom Enviornment Wrappers
     from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
 
-    num_cpu = 6
-    sub_process_env = SubprocVecEnv([make_env(i) for i in range(num_cpu)])
+    sub_process_env = SubprocVecEnv([make_env(i) for i in range(num_threads)])
     return sub_process_env
 
 def make_env(id):
