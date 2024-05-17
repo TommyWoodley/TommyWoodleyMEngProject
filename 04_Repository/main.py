@@ -37,8 +37,7 @@ def main(algorithm, num_steps, filename, render_mode):
 
         checkpoint_callback = CheckpointCallback(
             save_freq=5000,
-            save_path=
-            f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/training_logs/",
+            save_path=f"/models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
             save_vecnormalize=True,

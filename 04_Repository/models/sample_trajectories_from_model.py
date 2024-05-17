@@ -42,8 +42,8 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
-    env = SampleTrajEnv(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode)))))),
-                        plotting_degrees=plotting_degrees)
+    env = SampleTrajEnv(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(
+        BulletDroneEnv(render_mode=render_mode)))))), plotting_degrees=plotting_degrees)
     model.set_env(env)
 
     num_trajectories = len(plotting_degrees)
