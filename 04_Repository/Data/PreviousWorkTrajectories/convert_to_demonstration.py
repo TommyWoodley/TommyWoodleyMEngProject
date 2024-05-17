@@ -16,6 +16,7 @@ def calc_reward(state):
     x, z = state
     return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]))
 
+
 def transform_demo(angle):
     # Load the CSV file
     df = pd.read_csv(f"Original/trajectory_data_angle_{angle}.csv")
@@ -45,12 +46,12 @@ def transform_demo(angle):
         current_state = (x * mult, y)
 
         if i == 0:
-            memory = [current_state] * 3  
+            memory = [current_state] * 3
 
         memory.append(current_state)
         if len(memory) > 3:
             memory.pop(0)
-        
+
         augmented_current_state = tuple(item for state in memory for item in state)
 
         x, y = waypoints[i + 1]
@@ -64,7 +65,6 @@ def transform_demo(angle):
             augmented_next_state = tuple(item for state in memory for item in state)
         memory.pop()  # Remove the next state from memory after using it for augmentation
 
-
         # Calculate action as difference between next and current state
         action = (next_state[0] - current_state[0], next_state[1] - current_state[1])
 
@@ -75,7 +75,6 @@ def transform_demo(angle):
     print("STATE,ACTION,REWARDS: ")
     for strs in state_action_reward:
         print(strs)
-
 
     state_action_reward_serializable = []
 
@@ -93,6 +92,7 @@ def transform_demo(angle):
         json.dump(state_action_reward_serializable, file, indent=4)
 
     print(f"Data saved to rl_demo_approaching_angle_{angle}.json")
+
 
 angles = ["0.0", "22.5", "45.0", "67.5", "90.0", "112.5", "135.0", "157.5", "180.0", "202.5", "225.0", "247.5", "292.5", "315.0", "337.5", "360.0"]
 for angle in angles:
