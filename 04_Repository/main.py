@@ -276,7 +276,6 @@ if __name__ == "__main__":
     if algorithm != "SACfD" and demo_path is not None:
         print_red("WARNING: Demo path provided will NOT be used by this algorithm!")
 
-
     print_green(f"Algorithm: {algorithm}")
     print_green(f"Timesteps: {timesteps}")
     print_green(f"Render Mode: {render_mode}")
