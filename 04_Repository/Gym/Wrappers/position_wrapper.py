@@ -35,7 +35,6 @@ class PositionWrapper(gym.Wrapper):
                 break
             total_reward += reward
             actual_steps_taken += 1
-            
 
         avg_reward = total_reward / actual_steps_taken if actual_steps_taken != 0 else 0
 

@@ -58,12 +58,12 @@ class BulletDroneEnv(gym.Env):
                                                                dist_drone_branch, num_wraps)
         terminated = False
         if num_wraps > 0.8:
-            r2, terminated, _ =  self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch,
-                                                               dist_drone_branch, num_wraps)
+            r2, terminated, _ = self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch,
+                                                                 dist_drone_branch, num_wraps)
             aug_reward = r2 - 2
         else:
             aug_reward = reward - 1
-            
+
         info = {"distance_to_goal": -aug_reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
 
         # if dist_drone_ground < 0.1:
@@ -116,5 +116,6 @@ class BulletDroneEnv(gym.Env):
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps=0)
+        reward, _, _ = self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch,
+                                                        num_wraps=0)
         return reward - 1

@@ -2,6 +2,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
+
 class MemoryWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
@@ -11,7 +12,7 @@ class MemoryWrapper(gym.Wrapper):
                                             high=np.tile(env.observation_space.high, 3),
                                             dtype=env.observation_space.dtype)
 
-    def reset(self, seed = None, options = None, degrees = None, position = None):
+    def reset(self, seed=None, options=None, degrees=None, position=None):
         initial_obs, info = self.env.reset(seed, options, degrees, position)
         self.memory = [initial_obs for _ in range(3)]
         return self._get_augmented_obs(), info
