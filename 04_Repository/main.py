@@ -27,15 +27,18 @@ def main(algorithm, num_steps, filename, render_mode):
         os.mkdir(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
         print_green(f"File Name: {dir_name}")
     else:
-        print_red("WARNING: No output or logs will be generated, the model will not be saved, graphs will not be generated!")
+        print_red("WARNING: No output or logs will be generated, the model will not be saved!")
 
-    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
+    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
+        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
     if save_data:
-        env = CustomMonitor(env, f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
+        env = CustomMonitor(env,
+                            f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
 
         checkpoint_callback = CheckpointCallback(
             save_freq=5000,
-            save_path=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/training_logs/",
+            save_path=
+            f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
             save_vecnormalize=True,
@@ -60,9 +63,6 @@ def main(algorithm, num_steps, filename, render_mode):
 
 
 def train_sac(env, num_steps, callback=None):
-    data = get_buffer_data(env)
-    # show_in_env(env=env, transformed_data=data)
-
     model = SAC(
         "MlpPolicy",
         env,
@@ -96,7 +96,7 @@ def linear_schedule(initial_value: float):
 
 
 def train_sacfd(env, num_steps, callback=None):
-    from utils.graphics.plot_actor_policy import visualize_policy
+    # from utils.graphics.plot_actor_policy import visualize_policy
 
     model = SACfD(
         "MlpPolicy",
@@ -164,14 +164,14 @@ def show_in_env(env, transformed_data):
         if done or truncated:
             print("Episode finished")
             break
-        
+
     while not done and not truncated:
         _, _, done, truncated, _ = env.step(np.array([0.0, 0.0]))
         if done:
             print("Episode finished")
         if truncated:
             print("Episode Truncated")
-    
+
     env.reset()
 
     print(state)
