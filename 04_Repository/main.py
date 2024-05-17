@@ -9,11 +9,10 @@ from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
 from Gym.Callbacks.CheckpointCallback import CheckpointCallback
 from utils.util_graphics import print_green, print_red
-from utils.util_file import get_dir_name, load_json
+from utils.util_file import load_json, make_dir
+from utils.args_parsing import StoreDict
 import argparse
-import os
 import numpy as np
-import json
 import glob
 
 DEFAULT_DEMO_PATH="/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
@@ -126,7 +125,7 @@ def convert_data(env, json_data):
 # ---------------------------- ENVIRONMENT & AGENT ----------------------------
 
 def get_checkpointer(should_save, dir_name, checkpoint):
-    if should_save:
+    if should_save and checkpoint is not None:
         checkpoint_callback = CheckpointCallback(
                 save_freq=checkpoint,
                 save_path=f"/models/{dir_name}/training_logs/",
@@ -148,12 +147,15 @@ def get_env(dir_name, render_mode):
     return env
 
 
-def get_agent(algorithm, env, demo_path, show_demos_in_env):
+def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     _policy = "MlpPolicy"
     _seed = 0
-    _batch_size = 32
+    _batch_size = hyperparams.get("batch_size", 32)
     _policy_kwargs = dict(net_arch=[128, 128, 64])
-    _lr_schedular = linear_schedule(0.0002)
+    _lr_schedular = linear_schedule(hyperparams.get("lr", 0.0002))
+
+    print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}" + (
+                f"lr={_lr_schedular}"))
 
     if algorithm == "SAC":
         agent = SAC(
@@ -175,7 +177,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env):
             gamma=0.96,
             learning_rate=_lr_schedular
         )
-        pre_train(agent, env, demo_path)
+        pre_train(agent, env, demo_path, show_demos_in_env)
         
     else:
         print_red("ERROR: Not yet implemented",)
@@ -189,7 +191,6 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
     agent.set_logger(new_logger)
 
     data = get_buffer_data(env, demo_path, show_demos_in_env)
-    # show_in_env(env=env, transformed_data=data)
     print("Buffer Size: ", agent.replay_buffer.size())
 
     for obs, next_obs, action, reward, done, info in data:
@@ -201,14 +202,14 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 # ----------------------------------- MAIN ------------------------------------
 
 
-def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint):
+def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams):
     save_data = filename is not None
     dir_name = make_dir(filename)
 
-    env = get_env(save_data, dir_name, render_mode)
+    env = get_env(dir_name, render_mode)
     checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
 
-    agent = get_agent(algorithm, env, demo_path, should_show_demo)
+    agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
 
     agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
 
@@ -246,6 +247,9 @@ def parse_arguments():
 
     # Checkpoint episodes
     parser.add_argument('--checkpoint-episodes', type=int, default=DEFAULT_CHECKPOINT, help='Frequency of checkpoint episodes (default: 5000)')
+    parser.add_argument('--no-checkpoint', action='store_true', help='Perform NO checkpointing during training.')
+
+    parser.add_argument("-params", "--hyperparams", type=str, nargs="+", action=StoreDict, help="Overwrite hyperparameter (e.g. lr:0.01 batch_size:10)",)
 
     return parser.parse_args()
 
@@ -259,9 +263,11 @@ if __name__ == "__main__":
     demo_path = args.demo_path
     should_show_demo = args.show_demo
     checkpoint = args.checkpoint_episodes
+    if args.no_checkpoint:
+        checkpoint = None
 
     if algorithm != "SACfD" and demo_path is not None:
-        print_red("WARNING: Demo path provided will not be used by this algorithm!")
+        print_red("WARNING: Demo path provided will NOT be used by this algorithm!")
 
 
     print_green(f"Algorithm: {algorithm}")
@@ -276,4 +282,12 @@ if __name__ == "__main__":
         print_green(f"Demo Path: {demo_path}")
     print_green(f"Checkpointing: {checkpoint}")
 
-    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint)
+    accpetable_hp = ["lr", "batch_size"]
+    hyperparams = args.hyperparams if args.hyperparams is not None else dict()
+    for key, val in hyperparams.items():
+        if key in accpetable_hp:
+            print_green(f"\t{key}: {val}")
+        else:
+            print_red(f"\nUnknown Hyperparameter: {key}")
+
+    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams)
