@@ -9,7 +9,6 @@ from torch.nn import functional as F
 from torch._C import device
 import torch
 import torch as th
-import numpy as np
 
 
 class SACfD(SAC):

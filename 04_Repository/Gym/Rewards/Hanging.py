@@ -1,7 +1,9 @@
 import numpy as np
 
+
 def interpolate_distance(distance, max_value, max_reward, min_value=0, min_reward=0):
     return min_reward + ((max_reward - min_reward) * (distance - min_value)) / (max_value - min_value)
+
 
 def _distance(point1, point2):
     return np.linalg.norm(np.array(point1) - np.array(point2))

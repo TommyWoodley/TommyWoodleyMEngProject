@@ -1,7 +1,6 @@
 import math
 from typing import Tuple
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def interpolate_distance(distance, max_value, max_reward, min_value=0, min_reward=0):
@@ -23,7 +22,7 @@ class CircularApproachingReward():
                          1.0 if has_collided else 0.0) + (1.0 * max(num_wraps, 0.5))
         reward = self.clip_norm(reward, -3.5, 1.5)
         return reward - 1, num_wraps > 0.75, False
-    
+
     def clip_norm(self, reward, min_val, max_val):
         clipped_val = min(max_val, max(reward, min_val)) - max_val
         return clipped_val / (max_val - min_val)
@@ -80,6 +79,6 @@ class CircularApproachingReward():
             return interpolate_distance(dist_drone_branch, 0.1, -5, min_value=0.2)
         else:
             return 0
-    
+
     def end(self):
         pass
