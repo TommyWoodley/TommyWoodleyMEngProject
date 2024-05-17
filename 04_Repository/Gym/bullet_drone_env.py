@@ -5,6 +5,7 @@ from typing import Dict, Any, Tuple
 
 from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimulator
 from Gym.Rewards.Approaching import CircularApproachingReward
+from Gym.Rewards.Hanging import Hanging
 
 
 class BulletDroneEnv(gym.Env):
@@ -32,6 +33,7 @@ class BulletDroneEnv(gym.Env):
         self.num_steps = 0
         self.should_render = True
         self.reward = CircularApproachingReward()
+        self.secondary_reward = Hanging()
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None,
               degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:
@@ -54,14 +56,22 @@ class BulletDroneEnv(gym.Env):
         self.num_steps += 1
         reward, terminated, truncated = self.reward.reward_fun(state, has_collided, dist_tether_branch,
                                                                dist_drone_branch, num_wraps)
-        info = {"distance_to_goal": -reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
+        terminated = False
+        if num_wraps > 0.8:
+            r2, terminated, _ =  self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch,
+                                                               dist_drone_branch, num_wraps)
+            aug_reward = r2 - 2
+        else:
+            aug_reward = reward - 1
+            
+        info = {"distance_to_goal": -aug_reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
 
         # if dist_drone_ground < 0.1:
         #     reward = -10
         #     terminated = True
         #     truncated = False
 
-        return state, reward, terminated, truncated, info
+        return state, aug_reward, terminated, truncated, info
 
     def render(self) -> None:
         if self.should_render:
@@ -106,5 +116,5 @@ class BulletDroneEnv(gym.Env):
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps=0)
-        return reward
+        reward, _, _ = self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps=0)
+        return reward - 1

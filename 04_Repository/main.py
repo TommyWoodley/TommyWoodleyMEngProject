@@ -66,7 +66,7 @@ def train_sac(env, num_steps, callback=None):
         verbose=1,
         seed=0,
         batch_size=32,
-        learning_rate=linear_schedule(0.0003),
+        learning_rate=linear_schedule(0.0002),
         policy_kwargs=dict(net_arch=[64, 64]),
     ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
 
@@ -88,7 +88,7 @@ def linear_schedule(initial_value: float):
         :param progress_remaining:
         :return: current learning rate
         """
-        return progress_remaining * initial_value
+        return 0.00005 + progress_remaining * initial_value
 
     return func
 
@@ -102,10 +102,10 @@ def train_sacfd(env, num_steps, callback=None):
         verbose=1,
         seed=0,
         batch_size=32,
-        policy_kwargs=dict(net_arch=[64, 64]),
+        policy_kwargs=dict(net_arch=[128, 128, 64]),
         learning_starts=0,
         gamma=0.96,
-        learning_rate=linear_schedule(0.0003),
+        learning_rate=linear_schedule(0.0002),
     )
     from stable_baselines3.common.logger import configure
     tmp_path = "/tmp/sb3_log/"
@@ -212,11 +212,12 @@ def load_json(file_path):
 
 def convert_data(env, json_data):
     dataset = []
+    num = 0
     for item in json_data:
-        obs = np.append(np.array(item['state']), 0)
+        obs = np.append(np.array(item['state']), num / 100.0)
         _next_obs = item['next_state']
         _, _, _, _, x, z = _next_obs
-        next_obs = np.append(np.array(_next_obs), 0)
+        next_obs = np.append(np.array(_next_obs), (num + 1) / 100.0)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 4.0
@@ -224,6 +225,7 @@ def convert_data(env, json_data):
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))
+        num = num + 1
     for _ in range(1):  # Adds an extra action on the end which helps with wrapping.
         dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, done, info))
     dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, np.array([True]), info))
