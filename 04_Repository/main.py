@@ -27,7 +27,7 @@ def main(algorithm, num_steps, filename, render_mode):
         os.mkdir(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
         print_green(f"File Name: {dir_name}")
     else:
-        print_red("WARNING: No output or logs will be generated, the model will not be saved!")
+        print_red("WARNING: No output or logs will be generated, the model will not be saved, graphs will not be generated!")
 
     env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
     if save_data:
@@ -40,6 +40,8 @@ def main(algorithm, num_steps, filename, render_mode):
             save_replay_buffer=False,
             save_vecnormalize=True,
         )
+    else:
+        checkpoint_callback = None
 
     if algorithm == "SAC":
         model = train_sac(env, num_steps, checkpoint_callback)
@@ -53,7 +55,8 @@ def main(algorithm, num_steps, filename, render_mode):
         print_green("Model Saved")
     env.close()
 
-    generate_graphs(directory=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
+    if save_data:
+        generate_graphs(directory=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
 
 
 def train_sac(env, num_steps, callback=None):
@@ -63,7 +66,6 @@ def train_sac(env, num_steps, callback=None):
     model = SAC(
         "MlpPolicy",
         env,
-        verbose=1,
         seed=0,
         batch_size=32,
         learning_rate=linear_schedule(0.0002),
@@ -99,7 +101,6 @@ def train_sacfd(env, num_steps, callback=None):
     model = SACfD(
         "MlpPolicy",
         env,
-        verbose=1,
         seed=0,
         batch_size=32,
         policy_kwargs=dict(net_arch=[128, 128, 64]),
