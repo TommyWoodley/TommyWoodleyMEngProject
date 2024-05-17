@@ -18,28 +18,41 @@ import glob
 DEFAULT_DEMO_PATH="/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
 DEFAULT_CHECKPOINT=5000
 
+# ------------------------------ GENERAL UTILITY ------------------------------
 
-def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint):
-    save_data = filename is not None
-    dir_name = make_dir(filename)
+def print_red(text):
+    print(f"\033[31m{text}\033[0m")
 
-    env = get_env(save_data, dir_name, render_mode)
-    checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
 
-    agent = get_agent(algorithm, env, demo_path, should_show_demo)
+def print_green(text):
+    print(f"\033[32m{text}\033[0m")
 
-    agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
 
-    print_green("TRAINING COMPLETE!")
+def get_dir_name(prefix):
+    # Get the current date and time
+    current_datetime = datetime.datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
+    dir_name = f"{prefix}_{formatted_datetime}"
 
-    if save_data:
-        agent.save(f"/models/{dir_name}/model")
-        print_green("Model Saved")
-    env.close()
+    return dir_name
 
-    if save_data:
-        generate_graphs(directory=f"/models/{dir_name}")
 
+# Load the JSON data from a file
+def load_json(file_path):
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    return data
+
+
+def make_dir(filename):
+    if filename is None:
+        return None
+    dir_name = get_dir_name(filename)
+    os.mkdir(f"=/models/{dir_name}")
+    return dir_name
+
+
+# ---------------------------------- RL UTIL ----------------------------------
 
 def linear_schedule(initial_value: float):
     """
@@ -61,21 +74,25 @@ def linear_schedule(initial_value: float):
     return func
 
 
-def get_buffer_data(env, directory, show_demos_in_env):
-    pattern = f"{directory}/rl_demo_approaching_angle_*.json"
-    files = glob.glob(pattern)
-    all_data = []
-    for file in files:
-        json_data = load_json(file)
-        transformed_data = convert_data(env, json_data)
-        if show_demos_in_env:
-            show_in_env(env, transformed_data)
-        all_data.extend(transformed_data)
-    return all_data
+def generate_graphs(directory):
+    from models.generate_reward_graph_from_logs import read_csv_file
+    from models.visualise_reward import plot_reward_visualisation
+    from models.sample_trajectories_from_model import sample_trajectories
+
+    # visualise reward function used
+    print_green("Generating Reward Visualisation")
+    plot_reward_visualisation(directory, show=False)
+
+    # visualise training rewards
+    print_green("Generating Reward Logs")
+    read_csv_file(f"{directory}/logs.monitor.csv", show=False)
+
+    # visualise sample trajectories
+    print_green("Generating Sample Trajectories")
+    sample_trajectories(directory, show=False)
 
 
-# Shows the demonstration data in the enviornment - useful for verification purposes
-# TODO: Add a setting to enable this
+# Shows the demonstration data in the enviornment - useful for verification purpose
 def show_in_env(env, transformed_data):
     start, _, _, _, _, _ = transformed_data[0]
     x, z = start
@@ -103,38 +120,19 @@ def show_in_env(env, transformed_data):
     print(state)
 
 
-def generate_graphs(directory):
-    from models.generate_reward_graph_from_logs import read_csv_file
-    from models.visualise_reward import plot_reward_visualisation
-    from models.sample_trajectories_from_model import sample_trajectories
+# ----------------------------------- DATA ------------------------------------
 
-    # visualise reward function used
-    print_green("Generating Reward Visualisation")
-    plot_reward_visualisation(directory, show=False)
-
-    # visualise training rewards
-    print_green("Generating Reward Logs")
-    read_csv_file(f"{directory}/logs.monitor.csv", show=False)
-
-    # visualise sample trajectories
-    print_green("Generating Sample Trajectories")
-    sample_trajectories(directory, show=False)
-
-
-def get_dir_name(prefix):
-    # Get the current date and time
-    current_datetime = datetime.datetime.now()
-    formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
-    dir_name = f"{prefix}_{formatted_datetime}"
-
-    return dir_name
-
-
-# Load the JSON data from a file
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
+def get_buffer_data(env, directory, show_demos_in_env):
+    pattern = f"{directory}/rl_demo_approaching_angle_*.json"
+    files = glob.glob(pattern)
+    all_data = []
+    for file in files:
+        json_data = load_json(file)
+        transformed_data = convert_data(env, json_data)
+        if show_demos_in_env:
+            show_in_env(env, transformed_data)
+        all_data.extend(transformed_data)
+    return all_data
 
 
 def convert_data(env, json_data):
@@ -158,12 +156,7 @@ def convert_data(env, json_data):
     dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, np.array([True]), info))
     return dataset
 
-def make_dir(filename):
-    if filename is None:
-        return None
-    dir_name = get_dir_name(filename)
-    os.mkdir(f"=/models/{dir_name}")
-    return dir_name
+# ---------------------------- ENVIRONMENT & AGENT ----------------------------
 
 def get_checkpointer(should_save, dir_name, checkpoint):
     if should_save:
@@ -177,6 +170,7 @@ def get_checkpointer(should_save, dir_name, checkpoint):
         return checkpoint_callback
     return None
 
+
 def get_env(dir_name, render_mode):
     env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
         SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
@@ -185,6 +179,7 @@ def get_env(dir_name, render_mode):
         env = CustomMonitor(env, f"/models/{dir_name}/logs")
 
     return env
+
 
 def get_agent(algorithm, env, demo_path, show_demos_in_env):
     _policy = "MlpPolicy"
@@ -219,7 +214,6 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env):
         print_red("ERROR: Not yet implemented",)
     return agent
 
-
 def pre_train(agent, env, demo_path, show_demos_in_env):
     from stable_baselines3.common.logger import configure
     tmp_path = "/tmp/sb3_log/"
@@ -236,12 +230,31 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
     print("Buffer Size: ", agent.replay_buffer.size())
     print_green("Pretraining Complete!")
 
-def print_red(text):
-    print(f"\033[31m{text}\033[0m")
+
+# ----------------------------------- MAIN ------------------------------------
 
 
-def print_green(text):
-    print(f"\033[32m{text}\033[0m")
+def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint):
+    save_data = filename is not None
+    dir_name = make_dir(filename)
+
+    env = get_env(save_data, dir_name, render_mode)
+    checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
+
+    agent = get_agent(algorithm, env, demo_path, should_show_demo)
+
+    agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
+
+    print_green("TRAINING COMPLETE!")
+
+    if save_data:
+        agent.save(f"/models/{dir_name}/model")
+        print_green("Model Saved")
+    env.close()
+
+    if save_data:
+        generate_graphs(directory=f"/models/{dir_name}")
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Reinforcement Learning Training for Tethered Drone Perching")
