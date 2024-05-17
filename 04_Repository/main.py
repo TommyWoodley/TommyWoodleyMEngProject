@@ -8,8 +8,9 @@ from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC
 from Gym.Wrappers.custom_monitor import CustomMonitor
 from Gym.Callbacks.CheckpointCallback import CheckpointCallback
+from utils.util_graphics import print_green, print_red
+from utils.util_file import get_dir_name, load_json
 import argparse
-import datetime
 import os
 import numpy as np
 import json
@@ -17,40 +18,6 @@ import glob
 
 DEFAULT_DEMO_PATH="/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
 DEFAULT_CHECKPOINT=5000
-
-# ------------------------------ GENERAL UTILITY ------------------------------
-
-def print_red(text):
-    print(f"\033[31m{text}\033[0m")
-
-
-def print_green(text):
-    print(f"\033[32m{text}\033[0m")
-
-
-def get_dir_name(prefix):
-    # Get the current date and time
-    current_datetime = datetime.datetime.now()
-    formatted_datetime = current_datetime.strftime("%Y_%m_%d_%H_%M")
-    dir_name = f"{prefix}_{formatted_datetime}"
-
-    return dir_name
-
-
-# Load the JSON data from a file
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
-
-
-def make_dir(filename):
-    if filename is None:
-        return None
-    dir_name = get_dir_name(filename)
-    os.mkdir(f"=/models/{dir_name}")
-    return dir_name
-
 
 # ---------------------------------- RL UTIL ----------------------------------
 
