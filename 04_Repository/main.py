@@ -15,63 +15,30 @@ import numpy as np
 import json
 import glob
 
+DEFAULT_DEMO_PATH="/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
+DEFAULT_CHECKPOINT=5000
 
-def main(algorithm, num_steps, filename, render_mode):
-    print_green(f"Algorithm: {algorithm}")
-    print_green(f"Number of Steps: {num_steps}")
-    print_green(f"Render Mode: {render_mode}")
 
+def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint):
     save_data = filename is not None
-    if save_data:
-        dir_name = get_dir_name(filename)
-        os.mkdir(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
-        print_green(f"File Name: {dir_name}")
-    else:
-        print_red("WARNING: No output or logs will be generated, the model will not be saved!")
+    dir_name = make_dir(filename)
 
-    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
-        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
-    if save_data:
-        env = CustomMonitor(env,
-                            f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/logs")
+    env = get_env(save_data, dir_name, render_mode)
+    checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
 
-        checkpoint_callback = CheckpointCallback(
-            save_freq=5000,
-            save_path=f"/models/{dir_name}/training_logs/",
-            name_prefix="checkpoint",
-            save_replay_buffer=False,
-            save_vecnormalize=True,
-        )
-    else:
-        checkpoint_callback = None
+    agent = get_agent(algorithm, env, demo_path, should_show_demo)
 
-    if algorithm == "SAC":
-        model = train_sac(env, num_steps, checkpoint_callback)
-    elif algorithm == "SACfD":
-        model = train_sacfd(env, num_steps, checkpoint_callback)
-    else:
-        print_red("ERROR: Not yet implemented",)
+    agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
+
     print_green("TRAINING COMPLETE!")
+
     if save_data:
-        model.save(f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}/model")
+        agent.save(f"/models/{dir_name}/model")
         print_green("Model Saved")
     env.close()
 
     if save_data:
-        generate_graphs(directory=f"/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/models/{dir_name}")
-
-
-def train_sac(env, num_steps, callback=None):
-    model = SAC(
-        "MlpPolicy",
-        env,
-        seed=0,
-        batch_size=32,
-        learning_rate=linear_schedule(0.0002),
-        policy_kwargs=dict(net_arch=[64, 64]),
-    ).learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
-
-    return model
+        generate_graphs(directory=f"/models/{dir_name}")
 
 
 def linear_schedule(initial_value: float):
@@ -94,55 +61,15 @@ def linear_schedule(initial_value: float):
     return func
 
 
-def train_sacfd(env, num_steps, callback=None):
-    # from utils.graphics.plot_actor_policy import visualize_policy
-
-    model = SACfD(
-        "MlpPolicy",
-        env,
-        seed=0,
-        batch_size=32,
-        policy_kwargs=dict(net_arch=[128, 128, 64]),
-        learning_starts=0,
-        gamma=0.96,
-        learning_rate=linear_schedule(0.0002),
-    )
-    from stable_baselines3.common.logger import configure
-    tmp_path = "/tmp/sb3_log/"
-    # set up logger
-    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
-    model.set_logger(new_logger)
-
-    data = get_buffer_data(env)
-    # show_in_env(env=env, transformed_data=data)
-    print("Buffer Size: ", model.replay_buffer.size())
-
-    for obs, next_obs, action, reward, done, info in data:
-        model.replay_buffer.add(obs, next_obs, action, reward, done, info)
-    print("Buffer Size: ", model.replay_buffer.size())
-
-    # model.train_actor()
-    # visualize_policy(model, data, action_scale=1.0)
-    print_green("Pretraining Complete!")
-
-    model.learn(num_steps, log_interval=10, progress_bar=True, callback=callback)
-
-    return model
-
-
-def get_buffer_data(env):
-    dir = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
-    return load_all_data(env, dir)
-
-
-def load_all_data(env, directory):
+def get_buffer_data(env, directory, show_demos_in_env):
     pattern = f"{directory}/rl_demo_approaching_angle_*.json"
     files = glob.glob(pattern)
     all_data = []
     for file in files:
         json_data = load_json(file)
         transformed_data = convert_data(env, json_data)
-        # show_in_env(env, transformed_data)
+        if show_demos_in_env:
+            show_in_env(env, transformed_data)
         all_data.extend(transformed_data)
     return all_data
 
@@ -231,6 +158,83 @@ def convert_data(env, json_data):
     dataset.append((next_obs, next_obs, np.array([0.0, 0.0]), reward, np.array([True]), info))
     return dataset
 
+def make_dir(filename):
+    if filename is None:
+        return None
+    dir_name = get_dir_name(filename)
+    os.mkdir(f"=/models/{dir_name}")
+    return dir_name
+
+def get_checkpointer(should_save, dir_name, checkpoint):
+    if should_save:
+        checkpoint_callback = CheckpointCallback(
+                save_freq=checkpoint,
+                save_path=f"/models/{dir_name}/training_logs/",
+                name_prefix="checkpoint",
+                save_replay_buffer=False,
+                save_vecnormalize=True,
+            )
+        return checkpoint_callback
+    return None
+
+def get_env(dir_name, render_mode):
+    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
+        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
+
+    if dir_name is not None:
+        env = CustomMonitor(env, f"/models/{dir_name}/logs")
+
+    return env
+
+def get_agent(algorithm, env, demo_path, show_demos_in_env):
+    _policy = "MlpPolicy"
+    _seed = 0
+    _batch_size = 32
+    _policy_kwargs = dict(net_arch=[128, 128, 64])
+    _lr_schedular = linear_schedule(0.0002)
+
+    if algorithm == "SAC":
+        agent = SAC(
+            _policy,
+            env,
+            seed=_seed,
+            batch_size=_batch_size,
+            learning_rate=_lr_schedular,
+            policy_kwargs=_policy_kwargs,
+        )
+    elif algorithm == "SACfD":
+        agent = SACfD(
+            _policy,
+            env,
+            seed=_seed,
+            batch_size=_batch_size,
+            policy_kwargs=_policy_kwargs,
+            learning_starts=0,
+            gamma=0.96,
+            learning_rate=_lr_schedular
+        )
+        pre_train(agent, env, demo_path)
+        
+    else:
+        print_red("ERROR: Not yet implemented",)
+    return agent
+
+
+def pre_train(agent, env, demo_path, show_demos_in_env):
+    from stable_baselines3.common.logger import configure
+    tmp_path = "/tmp/sb3_log/"
+    # set up logger
+    new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+    agent.set_logger(new_logger)
+
+    data = get_buffer_data(env, demo_path, show_demos_in_env)
+    # show_in_env(env=env, transformed_data=data)
+    print("Buffer Size: ", agent.replay_buffer.size())
+
+    for obs, next_obs, action, reward, done, info in data:
+        agent.replay_buffer.add(obs, next_obs, action, reward, done, info)
+    print("Buffer Size: ", agent.replay_buffer.size())
+    print_green("Pretraining Complete!")
 
 def print_red(text):
     print(f"\033[31m{text}\033[0m")
@@ -239,18 +243,57 @@ def print_red(text):
 def print_green(text):
     print(f"\033[32m{text}\033[0m")
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Reinforcement Learning Training for Tethered Drone Perching")
+
+    # Number of timesteps
+    parser.add_argument('-t', '--timesteps', type=int, required=True, help='Number of timesteps for training (e.g., 40000)')
+
+    # Choice of algorithm
+    parser.add_argument('-algo', '--algorithm', type=str, choices=['SAC', 'SACfD'], required=True, help='Choice of algorithm: SAC or SACfD')
+
+    # Output filename for logs
+    parser.add_argument('-o', '--output-filename', type=str, default=None, help='Filename for storing logs')
+
+    # Graphical user interface
+    parser.add_argument('-gui', '--gui', action='store_true', help='Enable graphical user interface')
+
+    # Demonstration path
+    parser.add_argument('--demo-path', type=str, default=DEFAULT_DEMO_PATH, help='Path to demonstration files (default: /path/to/default/directory)')
+
+    # Show demonstrations in visual environment
+    parser.add_argument('--show-demo', action='store_true', help='Show demonstrations in visual environment')
+
+    # Checkpoint episodes
+    parser.add_argument('--checkpoint-episodes', type=int, default=DEFAULT_CHECKPOINT, help='Frequency of checkpoint episodes (default: 5000)')
+
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process input parameters.")
-    parser.add_argument("-a", "--algorithm", type=str, choices=['SAC', 'SACfD'], required=True,
-                        help="Choose the algorithm: 'SAC' or 'SACfD'")
-    parser.add_argument("-n", "--num_steps", type=int, required=True,
-                        help="Specify the number of steps e.g., 4000")
-    parser.add_argument("-f", "--filename", type=str,
-                        default=None,
-                        help="Optional: Specify the file name. Defaults to 'simple_YYYYMMDD_HHMM.py'")
-    parser.add_argument("-v", "--visualise", action="store_true",
-                        help="Optional: Visualise the training - This is significantly slower.")
+    args = parse_arguments()
+    algorithm = args.algorithm
+    timesteps = args.timesteps
+    filename = args.output_filename
+    render_mode = "human" if args.gui else "console"
+    demo_path = args.demo_path
+    should_show_demo = args.show_demo
+    checkpoint = args.checkpoint_episodes
 
-    args = parser.parse_args()
-    main(args.algorithm, args.num_steps, args.filename, "console" if not args.visualise else "human")
+    if algorithm != "SACfD" and demo_path is not None:
+        print_red("WARNING: Demo path provided will not be used by this algorithm!")
+
+
+    print_green(f"Algorithm: {algorithm}")
+    print_green(f"Timesteps: {timesteps}")
+    print_green(f"Render Mode: {render_mode}")
+    if filename is None:
+        print_red("WARNING: No output or logs will be generated, the model will not be saved!")
+    else:
+        print_green(f"File Name: {filename}")
+
+    if algorithm == "SACfD":
+        print_green(f"Demo Path: {demo_path}")
+    print_green(f"Checkpointing: {checkpoint}")
+
+    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint)
