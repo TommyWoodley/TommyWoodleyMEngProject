@@ -15,10 +15,11 @@ import argparse
 import numpy as np
 import glob
 
-DEFAULT_DEMO_PATH="/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
-DEFAULT_CHECKPOINT=5000
+DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
+DEFAULT_CHECKPOINT = 5000
 
 # ---------------------------------- RL UTIL ----------------------------------
+
 
 def linear_schedule(initial_value: float):
     """
@@ -85,8 +86,8 @@ def show_in_env(env, transformed_data):
 
     print(state)
 
-
 # ----------------------------------- DATA ------------------------------------
+
 
 def get_buffer_data(env, directory, show_demos_in_env):
     pattern = f"{directory}/rl_demo_approaching_angle_*.json"
@@ -124,15 +125,15 @@ def convert_data(env, json_data):
 
 # ---------------------------- ENVIRONMENT & AGENT ----------------------------
 
+
 def get_checkpointer(should_save, dir_name, checkpoint):
     if should_save and checkpoint is not None:
         checkpoint_callback = CheckpointCallback(
-                save_freq=checkpoint,
-                save_path=f"/models/{dir_name}/training_logs/",
-                name_prefix="checkpoint",
-                save_replay_buffer=False,
-                save_vecnormalize=True,
-            )
+            save_freq=checkpoint,
+            save_path=f"/models/{dir_name}/training_logs/",
+            name_prefix="checkpoint",
+            save_replay_buffer=False,
+            save_vecnormalize=True)
         return checkpoint_callback
     return None
 
@@ -178,10 +179,11 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             learning_rate=_lr_schedular
         )
         pre_train(agent, env, demo_path, show_demos_in_env)
-        
+
     else:
         print_red("ERROR: Not yet implemented",)
     return agent
+
 
 def pre_train(agent, env, demo_path, show_demos_in_env):
     from stable_baselines3.common.logger import configure
@@ -228,10 +230,12 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Reinforcement Learning Training for Tethered Drone Perching")
 
     # Number of timesteps
-    parser.add_argument('-t', '--timesteps', type=int, required=True, help='Number of timesteps for training (e.g., 40000)')
+    parser.add_argument('-t', '--timesteps', type=int, required=True,
+                        help='Number of timesteps for training (e.g., 40000)')
 
     # Choice of algorithm
-    parser.add_argument('-algo', '--algorithm', type=str, choices=['SAC', 'SACfD'], required=True, help='Choice of algorithm: SAC or SACfD')
+    parser.add_argument('-algo', '--algorithm', type=str, choices=['SAC', 'SACfD'], required=True,
+                        help='Choice of algorithm: SAC or SACfD')
 
     # Output filename for logs
     parser.add_argument('-o', '--output-filename', type=str, default=None, help='Filename for storing logs')
@@ -240,16 +244,19 @@ def parse_arguments():
     parser.add_argument('-gui', '--gui', action='store_true', help='Enable graphical user interface')
 
     # Demonstration path
-    parser.add_argument('--demo-path', type=str, default=DEFAULT_DEMO_PATH, help='Path to demonstration files (default: /path/to/default/directory)')
+    parser.add_argument('--demo-path', type=str, default=DEMO_PATH,
+                        help=f"Path to demonstration files (default: {DEMO_PATH}")
 
     # Show demonstrations in visual environment
     parser.add_argument('--show-demo', action='store_true', help='Show demonstrations in visual environment')
 
     # Checkpoint episodes
-    parser.add_argument('--checkpoint-episodes', type=int, default=DEFAULT_CHECKPOINT, help='Frequency of checkpoint episodes (default: 5000)')
+    parser.add_argument('--checkpoint-episodes', type=int, default=DEFAULT_CHECKPOINT,
+                        help='Frequency of checkpoint episodes (default: 5000)')
     parser.add_argument('--no-checkpoint', action='store_true', help='Perform NO checkpointing during training.')
 
-    parser.add_argument("-params", "--hyperparams", type=str, nargs="+", action=StoreDict, help="Overwrite hyperparameter (e.g. lr:0.01 batch_size:10)",)
+    parser.add_argument("-params", "--hyperparams", type=str, nargs="+", action=StoreDict,
+                        help="Overwrite hyperparameter (e.g. lr:0.01 batch_size:10)",)
 
     return parser.parse_args()
 

@@ -3,12 +3,15 @@ import json
 import os
 
 # -------------------------------- DIRECTORIES --------------------------------
+
+
 def make_dir(prefix):
     if prefix is None:
         return None
     dir_name = get_dir_name(prefix)
     os.mkdir(f"=/models/{dir_name}")
     return dir_name
+
 
 def get_dir_name(prefix):
     # Get the current date and time
@@ -27,4 +30,3 @@ def load_json(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
     return data
-
