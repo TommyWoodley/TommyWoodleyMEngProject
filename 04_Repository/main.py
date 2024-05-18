@@ -188,13 +188,24 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
 
 def get_existing_agent(existing_agent_path, env):
     try:
+        # Check if the file path ends with .zip
+        if not existing_agent_path.endswith('.zip'):
+            raise ValueError("The file path must end with .zip")
+
         # Load the SAC model directly from the zip file
         model = SACfD.load(existing_agent_path)
         model.set_env(env)
+        
+        # Check for the replay buffer file in the same directory
+        replay_buffer_path = os.path.join(os.path.dirname(existing_agent_path), 'replay_buffer.pkl')
+        if os.path.exists(replay_buffer_path):
+            print("A replay buffer is being loaded.")
+            model.load_replay_buffer(replay_buffer_path)
+        
         print(f"Buffer Size: {model.replay_buffer.size()}")
         return model
     except Exception as e:
-        print_red(f"ERROR: {str(e)}")
+        print(f"ERROR: {str(e)}")
         exit(1)
 
 
@@ -217,7 +228,9 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 # ----------------------------------- MAIN ------------------------------------
 
 
-def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, existing_agent):
+def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams,
+         existing_agent, save_replay_buffer):
+
     save_data = filename is not None
     dir_name = make_dir(filename)
 
@@ -235,6 +248,8 @@ def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_dem
 
     if save_data:
         agent.save(f"models/{dir_name}/model")
+        if save_replay_buffer:
+            agent.save_replay_buffer(f"models/{dir_name}/replay_buffer")
         print_green("Model Saved")
     env.close()
 
@@ -255,6 +270,7 @@ def parse_arguments():
 
     # Output filename for logs
     parser.add_argument('-o', '--output-filename', type=str, default=None, help='Filename for storing logs')
+    parser.add_argument('--save-replay-buffer', action='store_true', help='Saves the replay model from the buffer.')
 
     # Graphical user interface
     parser.add_argument('-gui', '--gui', action='store_true', help='Enable graphical user interface')
@@ -292,6 +308,7 @@ if __name__ == "__main__":
     if args.no_checkpoint:
         checkpoint = None
     trained_agent = args.trained_agent
+    save_replay_buffer = args.save_replay_buffer
 
     if algorithm != "SACfD" and demo_path is not None:
         print_red("WARNING: Demo path provided will NOT be used by this algorithm!")
@@ -319,4 +336,4 @@ if __name__ == "__main__":
         else:
             print_red(f"\nUnknown Hyperparameter: {key}")
 
-    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, trained_agent)
+    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, trained_agent, save_replay_buffer)
