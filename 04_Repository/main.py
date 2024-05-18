@@ -195,13 +195,13 @@ def get_existing_agent(existing_agent_path, env):
         # Load the SAC model directly from the zip file
         model = SACfD.load(existing_agent_path)
         model.set_env(env)
-        
+
         # Check for the replay buffer file in the same directory
         replay_buffer_path = os.path.join(os.path.dirname(existing_agent_path), 'replay_buffer.pkl')
         if os.path.exists(replay_buffer_path):
             print("A replay buffer is being loaded.")
             model.load_replay_buffer(replay_buffer_path)
-        
+
         print(f"Buffer Size: {model.replay_buffer.size()}")
         return model
     except Exception as e:
@@ -291,7 +291,8 @@ def parse_arguments():
                         help="Overwrite hyperparameter (e.g. lr:0.01 batch_size:10)",)
 
     # Continue Training
-    parser.add_argument("-i", "--trained-agent", help="Path to a pretrained agent to continue training", default=None, type=str, required=False)
+    parser.add_argument("-i", "--trained-agent", help="Path to a pretrained agent to continue training",
+                        default=None, type=str, required=False)
 
     return parser.parse_args()
 
@@ -336,4 +337,5 @@ if __name__ == "__main__":
         else:
             print_red(f"\nUnknown Hyperparameter: {key}")
 
-    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, trained_agent, save_replay_buffer)
+    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams,
+         trained_agent, save_replay_buffer)
