@@ -15,6 +15,7 @@ To run the `main.py` file for reinforcement learning training for tethered drone
 - `--checkpoint-episodes`: **Optional**. Frequency of checkpoint episodes. Default is `5000`.
 - `--no-checkpoint`: **Optional**. If specified, this will overwrite the checkpoint epiosde value and perform no checkpointing during training. This can speed up training. Each checkpoint will take roughly 30 seconds so removing checkpointing can save some time during training.
 - `-params` or `--hyperparams`: **Optional**. Overwrite hyperparameters by providing key-value pairs. For example, `lr:0.01 batch_size:10`.
+- `-i` or `--trained-agent`: **Optional**. Path to a pretrained agent to continue training. This should be the full path to a `.zip` file containing the pre-trained agent. NOTE: Replay Buffers may not be carried over from the pre-trained agent. Buffer size will be stated prior to training to check this.
 
 ### Example Usage
 

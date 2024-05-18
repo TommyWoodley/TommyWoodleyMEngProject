@@ -185,6 +185,11 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     return agent
 
 
+def get_existing_agent(existing_agent_path):
+    print_red("ERROR: Not yet implemented!")
+    exit(1)
+
+
 def pre_train(agent, env, demo_path, show_demos_in_env):
     from stable_baselines3.common.logger import configure
     tmp_path = "/tmp/sb3_log/"
@@ -204,14 +209,17 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 # ----------------------------------- MAIN ------------------------------------
 
 
-def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams):
+def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, existing_agent):
     save_data = filename is not None
     dir_name = make_dir(filename)
 
     env = get_env(dir_name, render_mode)
     checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
 
-    agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
+    if existing_agent is None:
+        agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
+    else:
+        agent = get_existing_agent(existing_agent)
 
     agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
 
@@ -258,6 +266,9 @@ def parse_arguments():
     parser.add_argument("-params", "--hyperparams", type=str, nargs="+", action=StoreDict,
                         help="Overwrite hyperparameter (e.g. lr:0.01 batch_size:10)",)
 
+    # Continue Training
+    parser.add_argument("-i", "--trained-agent", help="Path to a pretrained agent to continue training", default=None, type=str, required=False)
+
     return parser.parse_args()
 
 
@@ -272,6 +283,7 @@ if __name__ == "__main__":
     checkpoint = args.checkpoint_episodes
     if args.no_checkpoint:
         checkpoint = None
+    trained_agent = args.trained_agent
 
     if algorithm != "SACfD" and demo_path is not None:
         print_red("WARNING: Demo path provided will NOT be used by this algorithm!")
@@ -288,6 +300,9 @@ if __name__ == "__main__":
         print_green(f"Demo Path: {demo_path}")
     print_green(f"Checkpointing: {checkpoint}")
 
+    if trained_agent is not None:
+        print_green(f"Using pre-trained agent: {trained_agent}")
+
     accpetable_hp = ["lr", "batch_size"]
     hyperparams = args.hyperparams if args.hyperparams is not None else dict()
     for key, val in hyperparams.items():
@@ -296,4 +311,4 @@ if __name__ == "__main__":
         else:
             print_red(f"\nUnknown Hyperparameter: {key}")
 
-    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams)
+    main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams, trained_agent)
