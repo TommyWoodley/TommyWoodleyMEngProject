@@ -9,6 +9,7 @@ To run the `main.py` file for reinforcement learning training for tethered drone
 - `-t` or `--timesteps`: **Required**. The number of timesteps for training. For example, `40000`.
 - `-algo` or `--algorithm`: **Required**. The choice of algorithm. Options are `SAC` or `SACfD`.
 - `-o` or `--output-filename`: **Optional**. The filename for storing logs. If not provided; logs, and graphs will NOT be generated. The filename provided will be appended with a timestamp. This will NOT overwritte previous created logs/files.
+- `--save-replay-buffer`: **Optional**. If specified, the replay buffer will also be saved along with the model. NOTE: Replay buffers can be quite large in size - 100-200MB so regularly saving replay buffers can be an expensive operation.
 - `-gui`: **Optional**. If specified, enables the graphical user interface for the environment. This is significantly slower for training purposes (around 5-10x slower). Therefore this shouldn't be used for training 
 - `--demo-path`: **Optional**. The path to demonstration files. Default is `/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos`. This is unlikely to be suitable for any other system so will need to be set.
 - `--show-demo`: **Optional**. If specified, shows the demonstrations in the visual environment. Demonstrations will only show 
