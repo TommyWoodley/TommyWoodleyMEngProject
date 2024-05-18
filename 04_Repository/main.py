@@ -14,6 +14,7 @@ from utils.args_parsing import StoreDict
 import argparse
 import numpy as np
 import glob
+import os
 
 DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
 DEFAULT_CHECKPOINT = 5000
@@ -130,7 +131,7 @@ def get_checkpointer(should_save, dir_name, checkpoint):
     if should_save and checkpoint is not None:
         checkpoint_callback = CheckpointCallback(
             save_freq=checkpoint,
-            save_path=f"/models/{dir_name}/training_logs/",
+            save_path=f"models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
             save_vecnormalize=True)
@@ -143,7 +144,7 @@ def get_env(dir_name, render_mode):
         SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
 
     if dir_name is not None:
-        env = CustomMonitor(env, f"/models/{dir_name}/logs")
+        env = CustomMonitor(env, f"models/{dir_name}/logs")
 
     return env
 
@@ -185,9 +186,16 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     return agent
 
 
-def get_existing_agent(existing_agent_path):
-    print_red("ERROR: Not yet implemented!")
-    exit(1)
+def get_existing_agent(existing_agent_path, env):
+    try:
+        # Load the SAC model directly from the zip file
+        model = SACfD.load(existing_agent_path)
+        model.set_env(env)
+        print(f"Buffer Size: {model.replay_buffer.size()}")
+        return model
+    except Exception as e:
+        print_red(f"ERROR: {str(e)}")
+        exit(1)
 
 
 def pre_train(agent, env, demo_path, show_demos_in_env):
@@ -219,19 +227,19 @@ def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_dem
     if existing_agent is None:
         agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
     else:
-        agent = get_existing_agent(existing_agent)
+        agent = get_existing_agent(existing_agent, env)
 
     agent.learn(timesteps, log_interval=10, progress_bar=True, callback=checkpoint_callback)
 
     print_green("TRAINING COMPLETE!")
 
     if save_data:
-        agent.save(f"/models/{dir_name}/model")
+        agent.save(f"models/{dir_name}/model")
         print_green("Model Saved")
     env.close()
 
     if save_data:
-        generate_graphs(directory=f"/models/{dir_name}")
+        generate_graphs(directory=f"models/{dir_name}")
 
 
 def parse_arguments():
