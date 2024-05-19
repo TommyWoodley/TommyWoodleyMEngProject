@@ -11,6 +11,7 @@ from Gym.Callbacks.CheckpointCallback import CheckpointCallback
 from utils.util_graphics import print_green, print_red
 from utils.util_file import load_json, make_dir
 from utils.args_parsing import StoreDict
+from utils.rl.lr_schedular import LinearLearningRateSchedule
 import argparse
 import numpy as np
 import glob
@@ -20,26 +21,6 @@ DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Dat
 DEFAULT_CHECKPOINT = 5000
 
 # ---------------------------------- RL UTIL ----------------------------------
-
-
-def linear_schedule(initial_value: float):
-    """
-    Linear learning rate schedule.
-
-    :param initial_value: Initial learning rate.
-    :return: schedule that computes
-      current learning rate depending on remaining progress
-    """
-    def func(progress_remaining: float) -> float:
-        """
-        Progress will decrease from 1 (beginning) to 0.
-
-        :param progress_remaining:
-        :return: current learning rate
-        """
-        return 0.00005 + progress_remaining * initial_value
-
-    return func
 
 
 def generate_graphs(directory):
@@ -154,9 +135,9 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
     _policy_kwargs = dict(net_arch=[128, 128, 128, 64])
-    _lr_schedular = linear_schedule(hyperparams.get("lr", 0.0002))
+    _lr_schedular = LinearLearningRateSchedule(hyperparams.get("lr", 0.0002))
 
-    print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}" + (
+    print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}, " + (
                 f"lr={_lr_schedular}"))
 
     if algorithm == "SAC":
