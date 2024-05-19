@@ -1,6 +1,6 @@
 # Repository
 
-## Running the Python Script
+## Running the Training Script
 
 To run the `main.py` file for reinforcement learning training for tethered drone perching, you need to provide several arguments to specify the configuration of the training process. Below is a description of each argument and examples of how to use them.
 
