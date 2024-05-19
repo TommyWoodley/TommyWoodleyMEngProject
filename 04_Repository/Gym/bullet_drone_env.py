@@ -120,6 +120,6 @@ class BulletDroneEnv(gym.Env):
         dist_drone_branch = np.linalg.norm(state - branch_pos)
         has_collided = bool(dist_tether_branch < 0.1)
 
-        reward, _, _ = self.secondary_reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch,
+        reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch,
                                                         num_wraps=0)
         return reward - 1

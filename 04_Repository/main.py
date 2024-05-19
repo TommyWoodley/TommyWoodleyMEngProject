@@ -109,7 +109,7 @@ def convert_data(env, json_data):
     for item in json_data:
         obs = np.append(np.array(item['state']), num / 100.0)
         _next_obs = item['next_state']
-        _, _, _, _, x, z = _next_obs
+        _, _, _, _, _, _, x, z, _ = _next_obs
         next_obs = np.append(np.array(_next_obs), (num + 1) / 100.0)
 
         # Normalised action TODO: Define this relative to the env so it's consistent

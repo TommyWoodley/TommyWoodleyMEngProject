@@ -58,7 +58,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
             obs = model.env.reset()
             global global_info
         trajectory = []
-        x, _, z = global_info["original_state"]
+        x, _, z, _ = global_info["original_state"]
         trajectory.append(np.array([x, z]))
         for i in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
@@ -69,7 +69,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
                 # if human:
                 print(f"Done: {i}")
                 break
-            x, _, z = info[0]["original_state"]
+            x, _, z, _ = info[0]["original_state"]
             trajectory.append(np.array([x, z]))
         trajectory_states.append(trajectory)
     env.close()
