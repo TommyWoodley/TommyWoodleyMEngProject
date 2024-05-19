@@ -14,6 +14,6 @@ class Hanging():
         x, y, z = state
 
         if z < 2.0 and z > 0.3 and x > -0.5 and x < 0.5:
-            return 0.5, True, None
+            return 1.0, True, None
         else:
-            return max(0, 0.5 - 0.1 * _distance([x, z], [0, 1.5])), False, None
+            return max(0.0, 1.0 - 0.2 * _distance([x, z], [0, 1.5]) *  _distance([x, z], [0, 1.5])), False, None
