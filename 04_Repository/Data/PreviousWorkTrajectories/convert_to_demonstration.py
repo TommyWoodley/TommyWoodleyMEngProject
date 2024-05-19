@@ -13,7 +13,7 @@ angle = "22.5"
 
 
 def calc_reward(state):
-    x, z = state
+    x, z, t = state
     return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]))
 
 
@@ -43,7 +43,7 @@ def transform_demo(angle):
     memory = []
     for i in range(len(waypoints) - 1):
         x, y = waypoints[i]
-        current_state = (x * mult, y)
+        current_state = (x * mult, y, 0.0)
 
         if i == 0:
             memory = [current_state] * 3
@@ -55,7 +55,7 @@ def transform_demo(angle):
         augmented_current_state = tuple(item for state in memory for item in state)
 
         x, y = waypoints[i + 1]
-        next_state = (x * mult, y)
+        next_state = (x * mult, y, 0.0)
 
         # Add next state to the memory to calculate augmented next state
         memory.append(next_state)
