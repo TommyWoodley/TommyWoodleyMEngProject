@@ -152,8 +152,8 @@ def get_env(dir_name, render_mode):
 def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     _policy = "MlpPolicy"
     _seed = 0
-    _batch_size = hyperparams.get("batch_size", 32)
-    _policy_kwargs = dict(net_arch=[128, 128, 64])
+    _batch_size = hyperparams.get("batch_size", 64)
+    _policy_kwargs = dict(net_arch=[128, 128, 128, 64])
     _lr_schedular = linear_schedule(hyperparams.get("lr", 0.0002))
 
     print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}" + (
