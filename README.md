@@ -2,6 +2,11 @@
 
 ## Project Plan
 
+## Structure
+This repositroy contains two directories `progress_updates` and `src`:
+- `src`- main content of the repository - check out the ReadMe in that folder for more information.
+- `progress_updates` - in the process of being migrated to a private repo
+
 ### Aim
 Design and Implement a Framework for Learning Agile Perching Trajectories from Non-Expert Demonstrations.
 
