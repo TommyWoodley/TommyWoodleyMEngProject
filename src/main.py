@@ -130,14 +130,15 @@ def get_env(dir_name, render_mode):
     return env
 
 
-def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
+def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams,
+              gamma: float = 0.96, tau: float = 0.005, target_update_interval: int = 1):
     _policy = "MlpPolicy"
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
-    _policy_kwargs = dict(net_arch=[128, 128, 128, 64])
+    _policy_kwargs = hyperparams.get("policy_kwargs", dict(net_arch=[128, 128, 128, 64]))
     _lr_schedular = LinearLearningRateSchedule(hyperparams.get("lr", 0.0002))
 
-    print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}, " + (
+    print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, gamma={gamma}, tau={tau}, target_update_interval={target_update_interval}, policy_kwargs={_policy_kwargs}, " + (
                 f"lr={_lr_schedular}"))
 
     if algorithm == "SAC":
@@ -148,6 +149,9 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             batch_size=_batch_size,
             learning_rate=_lr_schedular,
             policy_kwargs=_policy_kwargs,
+            gamma=gamma,
+            tau=tau,
+            target_update_interval=target_update_interval,
         )
     elif algorithm == "SACfD":
         agent = SACfD(
@@ -157,8 +161,10 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             batch_size=_batch_size,
             policy_kwargs=_policy_kwargs,
             learning_starts=0,
-            gamma=0.96,
-            learning_rate=_lr_schedular
+            learning_rate=_lr_schedular,
+            gamma=gamma,
+            tau=tau,
+            target_update_interval=target_update_interval,
         )
         pre_train(agent, env, demo_path, show_demos_in_env)
 
@@ -198,12 +204,12 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
     agent.set_logger(new_logger)
 
     data = get_buffer_data(env, demo_path, show_demos_in_env)
-    print("Buffer Size: ", agent.replay_buffer.size())
+    # print("Buffer Size: ", agent.replay_buffer.size())
 
     for obs, next_obs, action, reward, done, info in data:
         agent.replay_buffer.add(obs, next_obs, action, reward, done, info)
-    print("Buffer Size: ", agent.replay_buffer.size())
-    print_green("Pretraining Complete!")
+    # print("Buffer Size: ", agent.replay_buffer.size())
+    # print_green("Pretraining Complete!")
 
 
 # ----------------------------------- MAIN ------------------------------------
