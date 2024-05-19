@@ -27,9 +27,9 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install --no-cache-dir -r requirements.txt
-      working-directory: 04_Repository/
+      working-directory: src/
       
     - name: Run Pytest
       run: |
         pytest tests/
-      working-directory: 04_Repository/
+      working-directory: src/
