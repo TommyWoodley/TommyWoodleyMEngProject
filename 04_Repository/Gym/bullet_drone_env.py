@@ -28,7 +28,7 @@ class BulletDroneEnv(gym.Env):
                                                 gui_mode=(render_mode == "human"))
         self.action_space = spaces.Box(low=np.array([-0.001, -0.001, -0.001]),
                                        high=np.array([0.001, 0.001, 0.001]), dtype=np.float32)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float32)
         self.render_mode = render_mode
         self.num_steps = 0
         self.should_render = True
@@ -46,7 +46,9 @@ class BulletDroneEnv(gym.Env):
             reset_pos = self._generate_reset_position(seed)
         self.simulator.reset(reset_pos)
         self.num_steps = 0
-        return reset_pos, {}
+
+        aug_state = np.append(reset_pos, 0.0).astype(np.float32)
+        return aug_state, {}
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
         has_collided, dist_tether_branch, dist_drone_branch, dist_drone_ground, num_wraps = self.simulator.step(action)
@@ -71,7 +73,9 @@ class BulletDroneEnv(gym.Env):
         #     terminated = True
         #     truncated = False
 
-        return state, aug_reward, terminated, truncated, info
+        aug_state = np.append(state, num_wraps).astype(np.float32)
+
+        return aug_state, aug_reward, terminated, truncated, info
 
     def render(self) -> None:
         if self.should_render:

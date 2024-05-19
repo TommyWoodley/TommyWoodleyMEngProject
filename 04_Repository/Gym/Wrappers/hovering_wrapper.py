@@ -23,7 +23,7 @@ class HoveringWrapper(gym.Wrapper):
         obs, info = self.env.reset(seed, options, degrees, position)
         self.episode_count = 0
         # Return the augmented observation
-        augmented_obs = np.append(obs, self.get_hover_ratio())
+        augmented_obs = np.append(obs, self.get_hover_ratio()).astype(np.float32)
         return augmented_obs, info
 
     def get_hover_ratio(self):
@@ -44,5 +44,5 @@ class HoveringWrapper(gym.Wrapper):
         # print(self.hover_count, np.linalg.norm(action))
         # Augment the observation with the hover count
 
-        augmented_obs = np.append(obs, self.get_hover_ratio())
+        augmented_obs = np.append(obs, self.get_hover_ratio()).astype(np.float32)
         return augmented_obs, reward, done, truncated, info

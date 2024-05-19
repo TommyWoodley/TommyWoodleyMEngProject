@@ -16,7 +16,8 @@ class PositionWrapper(gym.Wrapper):
 
         # Position Based Action Space
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=self.MIN, high=self.MAX, shape=(2,), dtype=np.float32)
+        # TODO: Do this relative to the other environments - make it nicer :)
+        self.observation_space = spaces.Box(low=self.MIN, high=self.MAX, shape=(3,), dtype=np.float32)
         self.current_state = None
         env.unwrapped.should_render = False
         self.num_steps = 0
@@ -37,11 +38,6 @@ class PositionWrapper(gym.Wrapper):
             actual_steps_taken += 1
 
         avg_reward = total_reward / actual_steps_taken if actual_steps_taken != 0 else 0
-
-        # if avg_reward > 0:
-        #     print("REWARD", reward)
-        # if avg_reward < -1:
-        #     print("REWARD", reward)
         return state, avg_reward, terminated, truncated, info
 
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
