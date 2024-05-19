@@ -1,5 +1,4 @@
 import gymnasium as gym
-from gymnasium import spaces
 from typing import Dict, Any, Tuple
 import numpy as np
 
@@ -42,7 +41,7 @@ class SymmetricWrapper(gym.Wrapper):
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
               degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         state, info = self.env.reset(seed, options, degrees, position)
-        x, y, z, t = state # Do we need this line?
+        x, y, z, t = state  # Do we need this line?
         if x >= 0:
             self.positive = True
         else:

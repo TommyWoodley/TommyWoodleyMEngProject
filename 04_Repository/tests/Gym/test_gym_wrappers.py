@@ -32,14 +32,17 @@ def test_two_dim_bullet_env():
 def test_position_wrapped_two_dim_bullet_env():
     util_test_valid_env(PositionWrapper(TwoDimWrapper(BulletDroneEnv(render_mode="console"))))
 
+
 def test_fully_wrapped_env_1():
     util_test_valid_env(PositionWrapper(TwoDimWrapper(
         SymmetricWrapper(BulletDroneEnv(render_mode="console")))))
-    
+
+
 def test_fully_wrapped_env_2():
     util_test_valid_env(MemoryWrapper(PositionWrapper(TwoDimWrapper(
         SymmetricWrapper(BulletDroneEnv(render_mode="console"))))))
-    
+
+
 def test_fully_wrapped_env_3():
     util_test_valid_env(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
         SymmetricWrapper(BulletDroneEnv(render_mode="console")))))))

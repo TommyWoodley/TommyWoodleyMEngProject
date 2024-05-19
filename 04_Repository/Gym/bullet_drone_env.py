@@ -121,5 +121,5 @@ class BulletDroneEnv(gym.Env):
         has_collided = bool(dist_tether_branch < 0.1)
 
         reward, _, _ = self.reward.reward_fun(state, has_collided, dist_tether_branch, dist_drone_branch,
-                                                        num_wraps=0)
+                                              num_wraps=0)
         return reward - 1
