@@ -49,7 +49,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False)
     num_trajectories = len(plotting_degrees)
     if human:
         print("Num Trajectories: ", num_trajectories)
-    trajectory_length = 60
+    trajectory_length = 100
     trajectory_states = []
     done = False
 
