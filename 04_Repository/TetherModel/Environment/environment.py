@@ -26,6 +26,7 @@ class Environment:
                                            basePosition=position,
                                            baseOrientation=orientation_quat)
         self.branch_pos = position
+        p.changeDynamics(tree_branch_id, -1, lateralFriction=1.0)
         return tree_branch_id
 
     def get_tree_branch_midpoint(self):
