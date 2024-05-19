@@ -32,6 +32,7 @@ def objective(trial):
                       gamma=gamma, tau=tau, target_update_interval=target_update_interval)
 
     # Train the model
+    # TODO: Change this to be 50k timesteps
     model.learn(total_timesteps=1_000, progress_bar=True, log_interval=100_000)
 
     # Evaluate the model
@@ -42,6 +43,7 @@ def objective(trial):
     performance = avg_reward - avg_length
     print(f"Over {len(rewards)} episodes: Avg Reward: {avg_reward}, Avg Length: {avg_length}, Perf={performance}")
 
+    # TODO: Log this to a file :)
     return performance
 
 # Create the Optuna study and optimize
