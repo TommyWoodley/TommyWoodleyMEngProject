@@ -17,7 +17,7 @@ import numpy as np
 import glob
 import os
 
-DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/Data/PreviousWorkTrajectories/rl_demos"
+DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/src/Data/PreviousWorkTrajectories/rl_demos"
 DEFAULT_CHECKPOINT = 5000
 
 # ---------------------------------- RL UTIL ----------------------------------
