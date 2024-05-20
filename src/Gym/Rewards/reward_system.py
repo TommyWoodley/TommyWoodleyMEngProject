@@ -17,14 +17,14 @@ class RewardSystem():
         assert approaching_reward <= 0 and approaching_reward >= -1, f"was {approaching_reward}"
 
         # Wrapping reward is between -1 and 0
-        wrapping_reward = 1.0 * max(num_wraps, 1.0) - 1.0
-        assert wrapping_reward <= 0 and wrapping_reward >= -1
+        wrapping_reward = 1.0 * min(num_wraps, 1.0) - 1.0
+        assert wrapping_reward <= 0 and wrapping_reward >= -1, f"was {wrapping_reward}"
         
         # Hanging reward is between 0 and 1
         hanging_reward, hanging_done, _ = self.hanging_reward.reward_fun(state, has_collided, dist_tether_branch,
                                                         dist_drone_branch, num_wraps)
         hanging_reward = hanging_reward - 1 # Now its between -1 and 0
-        assert hanging_reward <= 0 and hanging_reward >= -1
+        assert hanging_reward <= 0 and hanging_reward >= -1, f"was {hanging_reward}"
         
         total_reward = 0
         match self.phase:
