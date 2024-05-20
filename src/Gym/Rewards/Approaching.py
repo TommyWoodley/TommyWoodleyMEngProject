@@ -19,13 +19,14 @@ class CircularApproachingReward():
 
         reward = min(self._calculate_sector_reward(state),
                      self._calc_physical_reward(dist_tether_branch, dist_drone_branch)) + (
-                         1.0 if has_collided else 0.0) + (1.0 * max(num_wraps, 0.5))
-        reward = self.clip_norm(reward, -3.5, 1.5)
-        return reward - 1, num_wraps > 0.75, False
+                         1.0 if has_collided else 0.0)
+        reward = self.clip_norm(reward, -3.5, 1.0)
+        return reward - 1, False, False
 
     def clip_norm(self, reward, min_val, max_val):
-        clipped_val = min(max_val, max(reward, min_val)) - max_val
-        return clipped_val / (max_val - min_val)
+        clipped_val = min(max_val, max(reward, min_val)) # -7
+        normalized_val = (clipped_val - min_val) / (max_val - min_val)
+        return normalized_val
 
     def _calculate_sector_reward(self, state):
         x, _, z = state
