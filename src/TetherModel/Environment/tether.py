@@ -67,7 +67,7 @@ class Tether:
                                            baseOrientation=p.getQuaternionFromEuler([0, 0, 0]))
             self.segments.append(segment_id)
 
-            p.changeDynamics(segment_id, -1, lateralFriction=1.0)
+            p.changeDynamics(segment_id, -1, lateralFriction=0.5)
 
             # Connect this segment to the previous one (if not the first)
             if i > 0:
@@ -133,7 +133,7 @@ class Tether:
         self.drone_prev_angle = drone_angle_degrees
 
         self.time += 1
-        return abs(self.drone_wraps - self.weight_wraps)
+        return abs(self.weight_wraps)
 
     def get_segments(self):
         return self.segments

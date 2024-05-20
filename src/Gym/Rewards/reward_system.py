@@ -38,7 +38,7 @@ class RewardSystem():
 
             case "approaching":
                 total_reward = approaching_reward + wrapping_reward - 1 # Between -3 and -1
-                done = bool(num_wraps > 1.0)
+                done = bool(num_wraps > 0.9)
             case _:
                 raise ValueError("Unknown phase type")
         

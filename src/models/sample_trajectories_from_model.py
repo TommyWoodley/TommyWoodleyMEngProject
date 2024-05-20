@@ -38,12 +38,12 @@ def sample_trajectories(dir, show=True, human=False, phase="all"):
 
 
 def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all"):
-    plotting_degrees = [0, 22.5, 45, 315, 337.5]
+    plotting_degrees = [0, 11.25, 22.5, 33.75, 45]
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
-    env = SampleTrajEnv(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(
-        BulletDroneEnv(render_mode=render_mode, phase=phase)))))), plotting_degrees=plotting_degrees)
+    env = SampleTrajEnv(HoveringWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(
+        BulletDroneEnv(render_mode=render_mode, phase=phase))))), plotting_degrees=plotting_degrees)
     model.set_env(env)
 
     num_trajectories = len(plotting_degrees)
@@ -90,4 +90,4 @@ if __name__ == "__main__":
     if dir.endswith(".zip"):
         sample_trajectories_from_file(dir, None, show=True, human=human)
     else:
-        sample_trajectories(dir, show=True, human=human)
+        sample_trajectories(dir, show=True, human=human, phase="approaching")

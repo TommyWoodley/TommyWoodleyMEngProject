@@ -44,7 +44,7 @@ def generate_graphs(directory, phase="all"):
 # Shows the demonstration data in the enviornment - useful for verification purpose
 def show_in_env(env, transformed_data):
     start, _, _, _, _, _ = transformed_data[0]
-    x, z = start
+    x, z, _, _, _, _, _, _, _, _ = start
 
     state = env.reset(position=np.array([x, 0.0, z]))
     done = False
@@ -88,10 +88,11 @@ def convert_data(env, json_data):
     dataset = []
     num = 0
     for item in json_data:
-        obs = np.append(np.array(item['state']), num / 100.0)
+        _, _, _, _, _, _, x, z, t = item['state']
+        obs = np.append(np.array([x, z, t]), num / 100.0)
         _next_obs = item['next_state']
-        _, _, _, _, _, _, x, z, _ = _next_obs
-        next_obs = np.append(np.array(_next_obs), (num + 1) / 100.0)
+        _, _, _, _, _, _, x, z, t = _next_obs
+        next_obs = np.append(np.array(np.array([x, z, t])), (num + 1) / 100.0)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 4.0
@@ -122,8 +123,8 @@ def get_checkpointer(should_save, dir_name, checkpoint, phase="all"):
 
 
 def get_env(dir_name, render_mode, phase):
-    env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
-        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode, phase=phase))))))
+    env = HoveringWrapper(PositionWrapper(TwoDimWrapper(
+        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode, phase=phase)))))
 
     if dir_name is not None:
         env = CustomMonitor(env, f"models/{dir_name}/logs")
@@ -201,8 +202,9 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
     data = get_buffer_data(env, demo_path, show_demos_in_env)
     print("Buffer Size: ", agent.replay_buffer.size())
 
-    for obs, next_obs, action, reward, done, info in data:
-        agent.replay_buffer.add(obs, next_obs, action, reward, done, info)
+    for i in range(5):
+        for obs, next_obs, action, reward, done, info in data:
+            agent.replay_buffer.add(obs, next_obs, action, reward, done, info)
     print("Buffer Size: ", agent.replay_buffer.size())
     print_green("Pretraining Complete!")
 

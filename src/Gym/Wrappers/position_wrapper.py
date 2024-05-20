@@ -38,6 +38,7 @@ class PositionWrapper(gym.Wrapper):
             actual_steps_taken += 1
 
         avg_reward = total_reward / actual_steps_taken if actual_steps_taken != 0 else 0
+        avg_reward -= ((self.num_steps * self.num_steps) / 10_000)
         return state, avg_reward, terminated, truncated, info
 
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
