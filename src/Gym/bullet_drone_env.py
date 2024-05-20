@@ -72,7 +72,6 @@ class BulletDroneEnv(gym.Env):
             print(f'Agent position: {self.simulator.drone_pos}')
 
     def close(self) -> None:
-        self.reward.end()
         if hasattr(self, 'simulator'):
             self.simulator.close()
 
@@ -106,5 +105,5 @@ class BulletDroneEnv(gym.Env):
         has_collided = bool(dist_tether_branch < 0.1)
 
         reward, _ = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
-                                              num_wraps=1.0)
+                                              num_wraps=0.0)
         return reward

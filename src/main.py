@@ -23,7 +23,7 @@ DEFAULT_CHECKPOINT = 5000
 # ---------------------------------- RL UTIL ----------------------------------
 
 
-def generate_graphs(directory):
+def generate_graphs(directory, phase="all"):
     from models.generate_reward_graph_from_logs import read_csv_file
     from models.visualise_reward import plot_reward_visualisation
     from models.sample_trajectories_from_model import sample_trajectories
@@ -38,7 +38,7 @@ def generate_graphs(directory):
 
     # visualise sample trajectories
     print_green("Generating Sample Trajectories")
-    sample_trajectories(directory, show=False)
+    sample_trajectories(directory, show=False, phase=phase)
 
 
 # Shows the demonstration data in the enviornment - useful for verification purpose
@@ -235,7 +235,7 @@ def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_dem
     env.close()
 
     if save_data:
-        generate_graphs(directory=f"models/{dir_name}")
+        generate_graphs(directory=f"models/{dir_name}", phase=phase)
 
 
 def parse_arguments():

@@ -3,7 +3,8 @@ from Gym.Rewards.Hanging import Hanging
 
 class RewardSystem():
     def __init__(self, phase: str) -> None:
-        self.phase = "all"
+        self.phase = phase
+        print("Phase: ", phase)
         self.approaching_reward = CircularApproachingReward()
         self.hanging_reward = Hanging()
     

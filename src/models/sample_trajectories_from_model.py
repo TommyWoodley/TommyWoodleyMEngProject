@@ -31,19 +31,19 @@ class SampleTrajEnv(gym.Wrapper):
         return obs, info
 
 
-def sample_trajectories(dir, show=True, human=False):
+def sample_trajectories(dir, show=True, human=False, phase="all"):
     file_name = f"{dir}/model.zip"
     output_filename = f"{dir}/sample_trajectories.png"
-    sample_trajectories_from_file(file_name, output_filename, show, human)
+    sample_trajectories_from_file(file_name, output_filename, show, human, phase=phase)
 
 
-def sample_trajectories_from_file(file, output_filename, show=True, human=False):
+def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all"):
     plotting_degrees = [0, 22.5, 45, 315, 337.5]
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
     env = SampleTrajEnv(HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(SymmetricWrapper(
-        BulletDroneEnv(render_mode=render_mode)))))), plotting_degrees=plotting_degrees)
+        BulletDroneEnv(render_mode=render_mode, phase=phase)))))), plotting_degrees=plotting_degrees)
     model.set_env(env)
 
     num_trajectories = len(plotting_degrees)
