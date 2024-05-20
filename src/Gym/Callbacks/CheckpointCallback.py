@@ -36,6 +36,7 @@ class CheckpointCallback(BaseCallback):
         save_replay_buffer: bool = False,
         save_vecnormalize: bool = False,
         verbose: int = 0,
+        phase: str = "all",
     ):
         super().__init__(verbose)
         self.save_freq = save_freq
@@ -43,6 +44,7 @@ class CheckpointCallback(BaseCallback):
         self.name_prefix = name_prefix
         self.save_replay_buffer = save_replay_buffer
         self.save_vecnormalize = save_vecnormalize
+        self.phase = phase
 
     def _init_callback(self) -> None:
         # Create folder if needed
@@ -85,6 +87,6 @@ class CheckpointCallback(BaseCallback):
 
             sample_trajectories_from_file(model_path,
                                           output_filename=self._checkpoint_path(extension="png"),
-                                          show=False, human=False)
+                                          show=False, human=False, phase=self.phase)
 
         return True

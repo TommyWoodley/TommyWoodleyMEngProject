@@ -108,14 +108,15 @@ def convert_data(env, json_data):
 # ---------------------------- ENVIRONMENT & AGENT ----------------------------
 
 
-def get_checkpointer(should_save, dir_name, checkpoint):
+def get_checkpointer(should_save, dir_name, checkpoint, phase="all"):
     if should_save and checkpoint is not None:
         checkpoint_callback = CheckpointCallback(
             save_freq=checkpoint,
             save_path=f"models/{dir_name}/training_logs/",
             name_prefix="checkpoint",
             save_replay_buffer=False,
-            save_vecnormalize=True)
+            save_vecnormalize=True,
+            phase=phase)
         return checkpoint_callback
     return None
 
@@ -216,7 +217,7 @@ def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_dem
     dir_name = make_dir(filename)
 
     env = get_env(dir_name, render_mode, phase)
-    checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
+    checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint, phase)
 
     if existing_agent is None:
         agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
