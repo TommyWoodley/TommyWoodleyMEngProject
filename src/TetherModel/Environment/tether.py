@@ -32,9 +32,13 @@ class Tether:
         mid_index = len(self.segments) // 2
         self.mid_indices = [mid_index - 1, mid_index]
 
-        self.prev_angle = None
-        self.cumulative_angle_change = 0.0
-        self.wraps = 0.0
+        self.weight_prev_angle = None
+        self.drone_prev_angle = None
+        self.weight_cumulative_angle_change = 0.0
+        self.weight_wraps = 0.0
+        self.drone_cumulative_angle_change = 0.0
+        self.drone_wraps = 0.0
+        self.time = 0
 
     def create_tether(self) -> None:
         # Create each segment
@@ -75,34 +79,61 @@ class Tether:
                 )
 
     def compute_total_rotation(self):
-        pos, _ = p.getBasePositionAndOrientation(self.segments[-1])
-        last_x = pos[0]
-        last_y = pos[2]
-        delta_x = last_x - 0
-        delta_y = 2.7 - last_y
+        # ANGLE FOR WEIGHT
+        (weight_x, _, weight_y), _ = p.getBasePositionAndOrientation(self.segments[-1])
+        weight_delta_x = weight_x - 0
+        weight_delta_y = 2.7 - weight_y
 
         # Compute the angle using arctan2, which considers quadrant location
-        angle_radians = np.arctan2(delta_x, delta_y)  # swapped x and y to align with the vertical
-        angle_degrees = np.degrees(angle_radians)
+        weight_angle_radians = np.arctan2(weight_delta_x, weight_delta_y)  # swapped x and y to align with the vertical
+        weight_angle_degrees = np.degrees(weight_angle_radians)
 
-        if self.prev_angle is not None:
+        if self.weight_prev_angle is not None:
             # Calculate angle change considering the wrap around at 180/-180
-            angle_change = angle_degrees - self.prev_angle
-            if angle_change > 180:
-                angle_change -= 360
-            elif angle_change < -180:
-                angle_change += 360
+            weight_angle_change = weight_angle_degrees - self.weight_prev_angle
+            if weight_angle_change > 180:
+                weight_angle_change -= 360
+            elif weight_angle_change < -180:
+                weight_angle_change += 360
 
             # Update cumulative angle change
-            self.cumulative_angle_change += angle_change
+            self.weight_cumulative_angle_change += weight_angle_change
 
             # Update wraps as a float
-            self.wraps = self.cumulative_angle_change / 360.0
+            self.weight_wraps = self.weight_cumulative_angle_change / 360.0
 
         # Update the previous angle for the next call
-        self.prev_angle = angle_degrees
+        self.weight_prev_angle = weight_angle_degrees
 
-        return abs(self.wraps)
+        # ANGLE FOR DRONE
+
+        (drone_x, _, drone_y), _ = p.getBasePositionAndOrientation(self.segments[0])
+        drone_delta_x = drone_x - 0
+        drone_delta_y = 2.7 - drone_y
+
+        # Compute the angle using arctan2, which considers quadrant location
+        drone_angle_radians = np.arctan2(drone_delta_x, drone_delta_y)  # swapped x and y to align with the vertical
+        drone_angle_degrees = np.degrees(drone_angle_radians)
+
+        if self.drone_prev_angle is not None:
+            # Calculate angle change considering the wrap around at 180/-180
+            drone_angle_change = drone_angle_degrees - self.drone_prev_angle
+            if drone_angle_change > 180:
+                drone_angle_change -= 360
+            elif drone_angle_change < -180:
+                drone_angle_change += 360
+
+            # Update cumulative angle change
+            self.drone_cumulative_angle_change += drone_angle_change
+
+            # Update wraps as a float
+            self.drone_wraps = self.drone_cumulative_angle_change / 360.0
+
+        # Update the previous angle for the next call
+        self.drone_prev_angle = drone_angle_degrees
+
+        self.time += 1
+        return abs(self.drone_wraps - self.weight_wraps)
 
     def get_segments(self):
         return self.segments
