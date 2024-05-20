@@ -2,7 +2,6 @@ from Gym.bullet_drone_env import BulletDroneEnv
 from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
 from Gym.Wrappers.position_wrapper import PositionWrapper
 from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
-from Gym.Wrappers.memory_wrapper import MemoryWrapper
 from Gym.Wrappers.hovering_wrapper import HoveringWrapper
 from Gym.Algorithms.sacfd import SACfD
 from stable_baselines3 import SAC

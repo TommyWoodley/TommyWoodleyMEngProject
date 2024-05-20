@@ -24,7 +24,7 @@ class CircularApproachingReward():
         return reward - 1, False, False
 
     def clip_norm(self, reward, min_val, max_val):
-        clipped_val = min(max_val, max(reward, min_val)) # -7
+        clipped_val = min(max_val, max(reward, min_val))
         normalized_val = (clipped_val - min_val) / (max_val - min_val)
         return normalized_val
 

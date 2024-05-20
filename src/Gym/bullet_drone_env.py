@@ -56,7 +56,8 @@ class BulletDroneEnv(gym.Env):
         self.num_steps += 1
         aug_state = np.append(state, num_wraps).astype(np.float32)
 
-        reward, terminated = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps)
+        reward, terminated = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
+                                                   num_wraps)
 
         info = {"distance_to_goal": -reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
 
@@ -105,5 +106,5 @@ class BulletDroneEnv(gym.Env):
         has_collided = bool(dist_tether_branch < 0.1)
 
         reward, _ = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
-                                              num_wraps=0.0)
+                                          num_wraps=0.0)
         return reward
