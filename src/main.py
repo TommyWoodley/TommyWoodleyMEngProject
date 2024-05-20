@@ -120,9 +120,9 @@ def get_checkpointer(should_save, dir_name, checkpoint):
     return None
 
 
-def get_env(dir_name, render_mode):
+def get_env(dir_name, render_mode, phase):
     env = HoveringWrapper(MemoryWrapper(PositionWrapper(TwoDimWrapper(
-        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode))))))
+        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode, phase=phase))))))
 
     if dir_name is not None:
         env = CustomMonitor(env, f"models/{dir_name}/logs")
@@ -134,7 +134,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     _policy = "MlpPolicy"
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
-    _policy_kwargs = dict(net_arch=[128, 128, 128, 64])
+    _policy_kwargs = dict(net_arch=[128, 128, 64])
     _lr_schedular = LinearLearningRateSchedule(hyperparams.get("lr", 0.0002))
 
     print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}, " + (
@@ -210,12 +210,12 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 
 
 def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams,
-         existing_agent, save_replay_buffer):
+         existing_agent, save_replay_buffer, phase):
 
     save_data = filename is not None
     dir_name = make_dir(filename)
 
-    env = get_env(dir_name, render_mode)
+    env = get_env(dir_name, render_mode, phase)
     checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint)
 
     if existing_agent is None:
@@ -275,6 +275,10 @@ def parse_arguments():
     parser.add_argument("-i", "--trained-agent", help="Path to a pretrained agent to continue training",
                         default=None, type=str, required=False)
 
+    # Train particular phase
+    parser.add_argument("-p", "--phase", type=str, choices=["approaching", "all"], default="all",
+                        help="Train a particular phase of a the system.")
+
     return parser.parse_args()
 
 
@@ -291,6 +295,7 @@ if __name__ == "__main__":
         checkpoint = None
     trained_agent = args.trained_agent
     save_replay_buffer = args.save_replay_buffer
+    phase = args.phase
 
     if algorithm != "SACfD" and demo_path is not None:
         print_red("WARNING: Demo path provided will NOT be used by this algorithm!")
@@ -319,4 +324,4 @@ if __name__ == "__main__":
             print_red(f"\nUnknown Hyperparameter: {key}")
 
     main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams,
-         trained_agent, save_replay_buffer)
+         trained_agent, save_replay_buffer, phase)
