@@ -89,4 +89,4 @@ if __name__ == "__main__":
     if dir.endswith(".zip"):
         sample_trajectories_from_file(dir, None, show=True, human=human)
     else:
-        sample_trajectories(dir, show=True, human=human, phase="approaching")
+        sample_trajectories(dir, show=True, human=human)
