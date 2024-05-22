@@ -67,7 +67,7 @@ class Tether:
                                            baseOrientation=p.getQuaternionFromEuler([0, 0, 0]))
             self.segments.append(segment_id)
 
-            p.changeDynamics(segment_id, -1, lateralFriction=0.5)
+            p.changeDynamics(segment_id, -1, lateralFriction=1.2)
 
             # Connect this segment to the previous one (if not the first)
             if i > 0:
