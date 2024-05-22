@@ -55,3 +55,17 @@ Term 2 - April 2024
 - 10th April 2024
   - [Markdown](./24_04_10/weekly_update.md)
   - [Slides](./24_04_10/weekly_update.pdf)
+- 17th April 2024
+  - [Markdown](./24_04_17/weekly_update.md)
+  - [Slides](./24_04_17/weekly_update.pdf)
+
+Term 3 - May 2024
+- 1st May 2024
+  - [Markdown](./24_05_01/weekly_update.md)
+  - [Slides](./24_05_01/weekly_update.pdf)
+- 15th May 2024
+  - [Markdown](./24_05_15/weekly_update.md)
+  - [Slides](./24_05_15/weekly_update.pdf)
+- 22nd May 2024
+  - [Markdown](./24_05_22/weekly_update.md)
+  - [Slides](./24_05_22/weekly_update.pdf)
