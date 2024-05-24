@@ -1,6 +1,6 @@
 from Gym.Rewards.Approaching import CircularApproachingReward
 from Gym.Rewards.Hanging import Hanging
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 class RewardSystem():
@@ -17,7 +17,7 @@ class RewardSystem():
         self.total_rewards = []
 
     def calculate(self, state, has_collided, dist_tether_branch, dist_drone_branch,
-                   num_wraps):
+                  num_wraps):
 
         # Approaching reward is between -1 and 0
         approaching_reward, _, _ = self.approaching_reward.reward_fun(state, has_collided, dist_tether_branch,
@@ -53,7 +53,7 @@ class RewardSystem():
                 done = bool(num_wraps > 0.9)
             case _:
                 raise ValueError("Unknown phase type")
-        
+
         # self.approaching_rewards.append(approaching_reward)
         # self.wrapping_rewards.append(wrapping_reward)
         # self.hanging_rewards.append(hanging_reward)
@@ -70,7 +70,7 @@ class RewardSystem():
         # plt.plot(self.hanging_rewards, label='Hanging Reward', marker='o')
         # plt.plot(self.distance_rewards, label='Distance Reward', marker='o')
         # plt.plot(self.total_rewards, label='Total Reward', marker='o', linestyle='--')
-        
+
         # plt.xlabel('Time Steps')
         # plt.ylabel('Reward Value')
         # plt.title('Reward Components Over Time')
