@@ -65,6 +65,12 @@ class Drone:
 
         # Set the new position and keep the current orientation
         p.resetBasePositionAndOrientation(self.model, position, current_orientation)
+    
+    def get_full_state(self):
+        pos, orn = p.getBasePositionAndOrientation(self.model)
+        orn_euler = p.getEulerFromQuaternion(orn)
+        return pos, orn_euler
+
 
     def get_height_above_ground(self):
         _, _, z = self.get_world_centre_bottom()

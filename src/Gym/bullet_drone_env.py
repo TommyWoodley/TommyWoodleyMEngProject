@@ -2,6 +2,9 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from typing import Dict, Any, Tuple
+import os
+import pandas as pd
+import time
 
 from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimulator
 from Gym.Rewards.reward_system import RewardSystem
@@ -21,7 +24,7 @@ class BulletDroneEnv(gym.Env):
     centre_pos = np.array([0.0, 0.0, 3.0])  # Goal state
     reset_pos_distance = 2.0
 
-    def __init__(self, render_mode: str = "human", phase: str = "all") -> None:
+    def __init__(self, render_mode: str = "human", phase: str = "all", log_dir = None) -> None:
         super(BulletDroneEnv, self).__init__()
         self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42),
                                                 gui_mode=(render_mode == "human"))
@@ -32,6 +35,13 @@ class BulletDroneEnv(gym.Env):
         self.num_steps = 0
         self.should_render = True
         self.reward = RewardSystem(phase)
+        self.is_logging = bool(log_dir is not None)
+        if self.is_logging:
+            self.log_dir = log_dir
+            os.makedirs(self.log_dir, exist_ok=True)
+            self.csv_file = None
+            self.timestep = 0
+            self.df = None
 
     def reset(self, seed: int = None, options: Dict[str, Any] = None,
               degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:
@@ -45,6 +55,14 @@ class BulletDroneEnv(gym.Env):
         self.simulator.reset(reset_pos)
         self.num_steps = 0
         self.reward.reset()
+
+        if self.is_logging:
+            self.timestep = 0
+            timestamp = int(time.time())
+            self.csv_file = os.path.join(self.log_dir, f"log_{timestamp}.csv")
+            self.df = pd.DataFrame(columns=["timestep", "x", "y", "z", "roll", "pitch", "yaw"])
+            pos, orn_euler = self.simulator.drone.get_full_state()
+            self.log_state(pos, orn_euler)
 
         aug_state = np.append(reset_pos, 0.0).astype(np.float32)
         return aug_state, {}
@@ -61,6 +79,13 @@ class BulletDroneEnv(gym.Env):
                                                    num_wraps)
 
         info = {"distance_to_goal": -reward, "has_crashed": bool(dist_drone_branch < 0.1), "num_wraps": num_wraps}
+
+        if self.is_logging:
+            pos, orn_euler = self.simulator.drone.get_full_state()
+            self.log_state(pos, orn_euler)
+            self.timestep += 1
+            if terminated:
+                self.save_to_csv()
 
         return aug_state, reward, terminated, False, info
 
@@ -109,3 +134,14 @@ class BulletDroneEnv(gym.Env):
         reward, _ = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
                                           num_wraps=0.0)
         return reward
+    
+    def log_state(self, pos, orn_euler):
+        # Log state to DataFrame
+        self.df = self.df._append({
+            "timestep": self.timestep,
+            "x": pos[0], "y": pos[1], "z": pos[2],
+            "roll": orn_euler[0], "pitch": orn_euler[1], "yaw": orn_euler[2]
+        }, ignore_index=True)
+
+    def save_to_csv(self):
+        self.df.to_csv(self.csv_file, index=False)
