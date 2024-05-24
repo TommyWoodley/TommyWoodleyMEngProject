@@ -44,6 +44,7 @@ class BulletDroneEnv(gym.Env):
             reset_pos = self._generate_reset_position(seed)
         self.simulator.reset(reset_pos)
         self.num_steps = 0
+        self.reward.reset()
 
         aug_state = np.append(reset_pos, 0.0).astype(np.float32)
         return aug_state, {}
