@@ -24,7 +24,7 @@ class BulletDroneEnv(gym.Env):
     centre_pos = np.array([0.0, 0.0, 3.0])  # Goal state
     reset_pos_distance = 2.0
 
-    def __init__(self, render_mode: str = "human", phase: str = "all", log_dir = None) -> None:
+    def __init__(self, render_mode: str = "human", phase: str = "all", log_dir=None) -> None:
         super(BulletDroneEnv, self).__init__()
         self.simulator = TetheredDroneSimulator(drone_pos=self._generate_reset_position(42),
                                                 gui_mode=(render_mode == "human"))
@@ -134,7 +134,7 @@ class BulletDroneEnv(gym.Env):
         reward, _ = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
                                           num_wraps=0.0)
         return reward
-    
+
     def log_state(self, pos, orn_euler):
         # Log state to DataFrame
         self.df = self.df._append({
