@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 import os
 import glob
+import numpy as np
 
 limits = {
     'x': (-3, 3),
@@ -45,6 +46,36 @@ def plot_columns_over_time(input_file, output_dir):
             plt.savefig(output_file)
             plt.close()
 
+    def plot_xz_with_roll(data, filename_suffix):
+        plt.figure(figsize=(10,6))
+        plt.plot(data["x"], data["z"], color="blue")
+        plt.ylim(1.5, 4.5)
+        plt.xlim(-1.5, 1.5)
+
+        for i in range(0, len(data), max(1, len(data)// 20)):
+            x = data["x"].iloc[i]
+            z = data["z"].iloc[i]
+            roll = data["roll"].iloc[i]
+
+            line_length = 0.05
+            dx = line_length * np.cos(roll)
+            dz = line_length * np.sin(roll)
+
+            plt.plot([x - dx, x + dx], [z - dz, z + dz], color='red')
+
+        # Add labels and title
+        plt.xlabel('x')
+        plt.ylabel('z')
+        plt.title('x vs z with roll')
+        plt.legend()
+        plt.grid(True)
+
+        # Save the plot
+        base_filename = os.path.splitext(os.path.basename(input_file))[0]
+        output_file = os.path.join(output_dir, f'{base_filename}_xz_with_roll_{filename_suffix}.png')
+        plt.savefig(output_file)
+        plt.close()
+
     plot_data(data, 'full')
 
     if first_phase_one_index is not None:
@@ -52,6 +83,7 @@ def plot_columns_over_time(input_file, output_dir):
 
         plot_data(data.iloc[first_phase_one_index:], "phase1")
 
+        plot_xz_with_roll(data.iloc[first_phase_one_index:], "phase1")
 
 # Main function to handle command-line arguments
 def main():
