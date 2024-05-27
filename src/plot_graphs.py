@@ -86,7 +86,7 @@ def plot_columns_over_time(input_file, output_dir):
         plot_xz_with_roll(data.iloc[first_phase_one_index:], "phase1")
 
 
-def plot_reward_visualisation(directory, show=True, plot_type = 0.0):
+def plot_reward_visualisation(directory, show=True, plot_type=0.0):
     from Gym.bullet_drone_env import BulletDroneEnv
     env = BulletDroneEnv(render_mode="console")
 
@@ -166,7 +166,7 @@ def main():
     group_plots = parser_plots.add_mutually_exclusive_group(required=True)
     group_plots.add_argument('-i', '--input', help='Path to the input CSV file')
     group_plots.add_argument('-d', '--directory', help='Path to the directory containing CSV files')
-    
+
     # Rewards Visualisation Based Parser
     parser_rewards = subparsers.add_parser('rewards', help='Create rewards visualizations')
     parser_rewards.add_argument('-o', '--output_directory', default=None, help='Output directory for rewards')
@@ -175,7 +175,8 @@ def main():
     # Learning Visualisation Based Parser
     parser_learning = subparsers.add_parser('learn', help='Create reward learning graph')
     parser_learning.add_argument('-i', '--input', required=True, help='Path to the learning input CSV file')
-    parser_learning.add_argument('-n', '--num-episodes', default=None, type=int, help='Maximum number of episodes to show')
+    parser_learning.add_argument('-n', '--num-episodes', default=None, type=int,
+                                 help='Maximum number of episodes to show')
     parser_learning.add_argument('-s', '--smoothing', default=10, type=int, help="Smoothing applied to reward curve.")
 
     args = parser.parse_args()
@@ -188,7 +189,7 @@ def main():
         parser_rewards.print_help()
         print("\nSubcommand 'learn' help:")
         parser_learning.print_help()
-    
+
     if args.help:
         print_combined_help()
     elif args.command == 'plots':
@@ -201,10 +202,10 @@ def main():
 
     elif args.command == "rewards":
         plot_reward_visualisation(args.output_directory, True, args.plot_type)
-    
+
     elif args.command == "learn":
         read_csv_file(args.input, num_episodes=args.num_episodes, smoothing=args.smoothing, show=True)
-    
+
     else:
         parser.print_help()
 
