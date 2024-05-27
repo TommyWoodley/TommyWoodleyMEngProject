@@ -44,7 +44,7 @@ def plot_columns_over_time(input_file, output_dir):
             output_file = os.path.join(output_dir, f'{base_filename}_{column}_over_time_{suffix}.png')
             plt.savefig(output_file)
             plt.close()
-    
+
     plot_data(data, 'full')
 
     if first_phase_one_index is not None:
