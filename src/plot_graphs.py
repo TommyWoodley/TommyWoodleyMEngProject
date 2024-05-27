@@ -4,6 +4,15 @@ import argparse
 import os
 import glob
 
+limits = {
+    'x': (-3, 3),
+    'y': (-3, 3),
+    'z': (0, 6),
+    'roll': (-1, 1),
+    'pitch': (-1, 1),
+    'yaw': (-1, 1)
+    }
+
 
 # Function to read the CSV file and plot each column over time
 def plot_columns_over_time(input_file, output_dir):
@@ -13,19 +22,19 @@ def plot_columns_over_time(input_file, output_dir):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    # List of columns to plot
-    columns = ['x', 'y', 'z', 'roll', 'pitch', 'yaw']
-
     # Plot each column over time
-    for column in columns:
+    for column, (min_limit, max_limit) in limits.items():
         plt.figure(figsize=(10, 6))
         plt.plot(data['timestep'], data[column], label=f'{column} over time', color='blue')
+
+        actual_min = min(data[column].min(), min_limit)
+        actual_max = max(data[column].max(), max_limit)
+        plt.ylim(actual_min, actual_max)
 
         # Add labels and title
         plt.xlabel('Time')
         plt.ylabel(column)
         plt.title(f'{column} over Time')
-        plt.legend()
         plt.grid(True)
 
         # Save the plot
