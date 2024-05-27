@@ -47,12 +47,12 @@ def plot_columns_over_time(input_file, output_dir):
             plt.close()
 
     def plot_xz_with_roll(data, filename_suffix):
-        plt.figure(figsize=(10,6))
+        plt.figure(figsize=(10, 6))
         plt.plot(data["x"], data["z"], color="blue")
         plt.ylim(1.5, 4.5)
         plt.xlim(-1.5, 1.5)
 
-        for i in range(0, len(data), max(1, len(data)// 20)):
+        for i in range(0, len(data), max(1, len(data) // 20)):
             x = data["x"].iloc[i]
             z = data["z"].iloc[i]
             roll = data["roll"].iloc[i]
@@ -84,6 +84,7 @@ def plot_columns_over_time(input_file, output_dir):
         plot_data(data.iloc[first_phase_one_index:], "phase1")
 
         plot_xz_with_roll(data.iloc[first_phase_one_index:], "phase1")
+
 
 # Main function to handle command-line arguments
 def main():
