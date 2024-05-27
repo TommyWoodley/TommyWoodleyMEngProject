@@ -125,6 +125,32 @@ def plot_reward_visualisation(directory, show=True, plot_type = 0.0):
         plt.clf()
 
 
+def read_csv_file(filename, num_episodes=None, smoothing=10, show=True):
+    from utils.graphics.plot_rl_rewards_training import plot_rl_reward_graph
+    try:
+        # Load the CSV file into a DataFrame
+        data = pd.read_csv(filename, comment='#', header=0)
+
+        directory = os.path.dirname(filename)
+        output_filename = os.path.join(directory, 'rewards_graph.png')
+
+        rewards = data['r']
+        lengths = data['l']
+        if num_episodes is not None:
+            rewards = rewards.iloc[0:num_episodes]
+            lengths = lengths.iloc[0:num_episodes]
+        plot_rl_reward_graph(rewards, episode_lens=lengths, output_filename=output_filename, window_size=smoothing,
+                             show_plot=show)
+    except FileNotFoundError:
+        print("Error: File not found. Please check the filename and try again.")
+    except pd.errors.EmptyDataError:
+        print("Error: File is empty.")
+    except pd.errors.ParserError:
+        print("Error: File could not be parsed. Check if the file is a valid CSV.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 # Main function to handle command-line arguments
 def main():
     parser = argparse.ArgumentParser(description='Main Parser', add_help=False)
@@ -139,10 +165,16 @@ def main():
     group_plots.add_argument('-i', '--input', help='Path to the input CSV file')
     group_plots.add_argument('-d', '--directory', help='Path to the directory containing CSV files')
     
-    # Rewards Based Parser
+    # Rewards Visualisation Based Parser
     parser_rewards = subparsers.add_parser('rewards', help='Create rewards visualizations')
     parser_rewards.add_argument('-o', '--output_directory', default=None, help='Output directory for rewards')
     parser_rewards.add_argument('-p', '--plot_type', choices=[0, 1], type=int, required=True, help='Plot type (0 or 1)')
+
+    # Learning Visualisation Based Parser
+    parser_learning = subparsers.add_parser('learn', help='Create reward learning graph')
+    parser_learning.add_argument('-i', '--input', required=True, help='Path to the learning input CSV file')
+    parser_learning.add_argument('-n', '--num-episodes', default=None, type=int, help='Maximum number of episodes to show')
+    parser_learning.add_argument('-s', '--smoothing', default=10, type=int, help="Smoothing applied to reward curve.")
 
     args = parser.parse_args()
 
@@ -152,6 +184,8 @@ def main():
         parser_plots.print_help()
         print("\nSubcommand 'rewards' help:")
         parser_rewards.print_help()
+        print("\nSubcommand 'learn' help:")
+        parser_learning.print_help()
     
     if args.help:
         print_combined_help()
@@ -165,6 +199,9 @@ def main():
 
     elif args.command == "rewards":
         plot_reward_visualisation(args.output_directory, True, args.plot_type)
+    
+    elif args.command == "learn":
+        read_csv_file(args.input, num_episodes=args.num_episodes, smoothing=args.smoothing, show=True)
     
     else:
         parser.print_help()
