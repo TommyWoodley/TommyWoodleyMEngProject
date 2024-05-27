@@ -117,8 +117,10 @@ def plot_reward_visualisation(directory, show=True, plot_type = 0.0):
     plt.scatter(branch_x, branch_z, color='red', label='Branch', s=20)  # 's' adjusts the size of the point
     plt.legend()
 
+    suffix = "approaching" if plot_type == 0 else "wrapping"
+
     if directory is not None:
-        plt.savefig(f"{directory}/reward_visualisation.png")
+        plt.savefig(f"{directory}/reward_visualisation_{suffix}.png")
     if show:
         plt.show()
     else:
