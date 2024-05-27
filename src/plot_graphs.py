@@ -86,23 +86,88 @@ def plot_columns_over_time(input_file, output_dir):
         plot_xz_with_roll(data.iloc[first_phase_one_index:], "phase1")
 
 
+def plot_reward_visualisation(directory, show=True, plot_type = 0.0):
+    from Gym.bullet_drone_env import BulletDroneEnv
+    env = BulletDroneEnv(render_mode="console")
+
+    # Set the range for x and z
+    x_values = np.linspace(-3, 3, 100)
+    z_values = np.linspace(0, 6, 100)
+
+    # Create a grid of x, y=0, z values
+    x_grid, z_grid = np.meshgrid(x_values, z_values)
+
+    # Compute the rewards for each position
+    rewards = np.array([[env.calc_reward([x, 0, z], plot_type) for x, z in zip(x_row, z_row)]
+                        for x_row, z_row in zip(x_grid, z_grid)])
+
+    # Branch coordinates
+    branch_x = 0  # Example x-coordinate
+    branch_z = 2.7  # Example z-coordinate
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    heatmap = plt.imshow(rewards, extent=[-3, 3, 0, 6], origin='lower', aspect='auto', cmap='viridis')
+    plt.colorbar(heatmap, label='Reward')
+    plt.title('Reward Function Visualization')
+    plt.xlabel('X coordinate')
+    plt.ylabel('Z coordinate')
+
+    # Add the branch point
+    plt.scatter(branch_x, branch_z, color='red', label='Branch', s=20)  # 's' adjusts the size of the point
+    plt.legend()
+
+    if directory is not None:
+        plt.savefig(f"{directory}/reward_visualisation.png")
+    if show:
+        plt.show()
+    else:
+        plt.clf()
+
+
 # Main function to handle command-line arguments
 def main():
-    parser = argparse.ArgumentParser(description='Plot CSV columns over time.')
-    parser.add_argument('-i', '--input', help='Path to the input CSV file')
-    parser.add_argument('-d', '--directory', help='Path to the directory containing CSV files')
-    parser.add_argument('-o', '--output', required=True, help='Directory to save the output plots')
+    parser = argparse.ArgumentParser(description='Main Parser', add_help=False)
+    parser.add_argument('-h', '--help', action='store_true', help='Show this help message and exit')
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Position Plots Parsing
+    parser_plots = subparsers.add_parser('plots', help="Create positional plots for all dimensions from logs")
+    parser_plots.add_argument('-o', '--output', required=True, help='Directory to save the output plots')
+    group_plots = parser_plots.add_mutually_exclusive_group(required=True)
+    group_plots.add_argument('-i', '--input', help='Path to the input CSV file')
+    group_plots.add_argument('-d', '--directory', help='Path to the directory containing CSV files')
+    
+    # Rewards Based Parser
+    parser_rewards = subparsers.add_parser('rewards', help='Create rewards visualizations')
+    parser_rewards.add_argument('-o', '--output_directory', default=None, help='Output directory for rewards')
+    parser_rewards.add_argument('-p', '--plot_type', choices=[0, 1], type=int, required=True, help='Plot type (0 or 1)')
 
     args = parser.parse_args()
 
-    if args.input:
-        plot_columns_over_time(args.input, args.output)
-    elif args.directory:
-        csv_files = glob.glob(os.path.join(args.directory, '*.csv'))
-        for csv_file in csv_files:
-            plot_columns_over_time(csv_file, args.output)
+    def print_combined_help():
+        parser.print_help()
+        print("\nSubcommand 'plots' help:")
+        parser_plots.print_help()
+        print("\nSubcommand 'rewards' help:")
+        parser_rewards.print_help()
+    
+    if args.help:
+        print_combined_help()
+    elif args.command == 'plots':
+        if args.input:
+            plot_columns_over_time(args.input, args.output)
+        elif args.directory:
+            csv_files = glob.glob(os.path.join(args.directory, '*.csv'))
+            for csv_file in csv_files:
+                plot_columns_over_time(csv_file, args.output)
+
+    elif args.command == "rewards":
+        plot_reward_visualisation(args.output_directory, True, args.plot_type)
+    
     else:
-        print("Please provide either an input file with -i or a directory with -d.")
+        parser.print_help()
 
 
 if __name__ == '__main__':
