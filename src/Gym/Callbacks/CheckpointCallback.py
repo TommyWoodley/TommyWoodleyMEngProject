@@ -1,7 +1,6 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from models.sample_trajectories_from_model import sample_trajectories_from_file
 from stable_baselines3.common.callbacks import BaseCallback
 
 
@@ -64,6 +63,8 @@ class CheckpointCallback(BaseCallback):
                             f"{self.name_prefix}_{checkpoint_type}{self.num_timesteps}_steps.{extension}")
 
     def _on_step(self) -> bool:
+        from models.sample_trajectories_from_model import sample_trajectories_from_file
+
         if self.n_calls % self.save_freq == 0:
             model_path = self._checkpoint_path(extension="zip")
             self.model.save(model_path)

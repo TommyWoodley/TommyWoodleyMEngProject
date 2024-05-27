@@ -1,12 +1,3 @@
-from Gym.bullet_drone_env import BulletDroneEnv
-from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
-from Gym.Wrappers.position_wrapper import PositionWrapper
-from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
-from Gym.Wrappers.hovering_wrapper import HoveringWrapper
-from Gym.Algorithms.sacfd import SACfD
-from stable_baselines3 import SAC
-from Gym.Wrappers.custom_monitor import CustomMonitor
-from Gym.Callbacks.CheckpointCallback import CheckpointCallback
 from utils.util_graphics import print_green, print_red
 from utils.util_file import load_json, make_dir
 from utils.args_parsing import StoreDict
@@ -109,6 +100,8 @@ def convert_data(env, json_data):
 
 
 def get_checkpointer(should_save, dir_name, checkpoint, phase="all"):
+    from Gym.Callbacks.CheckpointCallback import CheckpointCallback
+
     if should_save and checkpoint is not None:
         checkpoint_callback = CheckpointCallback(
             save_freq=checkpoint,
@@ -122,6 +115,13 @@ def get_checkpointer(should_save, dir_name, checkpoint, phase="all"):
 
 
 def get_env(dir_name, render_mode, phase):
+    from Gym.bullet_drone_env import BulletDroneEnv
+    from Gym.Wrappers.two_dim_wrapper import TwoDimWrapper
+    from Gym.Wrappers.position_wrapper import PositionWrapper
+    from Gym.Wrappers.symmetric_wrapper import SymmetricWrapper
+    from Gym.Wrappers.hovering_wrapper import HoveringWrapper
+    from Gym.Wrappers.custom_monitor import CustomMonitor
+
     env = HoveringWrapper(PositionWrapper(TwoDimWrapper(
         SymmetricWrapper(BulletDroneEnv(render_mode=render_mode, phase=phase)))))
 
@@ -132,6 +132,9 @@ def get_env(dir_name, render_mode, phase):
 
 
 def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
+    from Gym.Algorithms.sacfd import SACfD
+    from stable_baselines3 import SAC
+
     _policy = "MlpPolicy"
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
@@ -213,7 +216,6 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 
 def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_demo, checkpoint, hyperparams,
          existing_agent, save_replay_buffer, phase):
-
     save_data = filename is not None
     dir_name = make_dir(filename)
 
