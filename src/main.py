@@ -15,7 +15,7 @@ DEFAULT_CHECKPOINT = 5000
 
 def generate_graphs(directory, phase="all"):
     from models.generate_reward_graph_from_logs import read_csv_file
-    from models.visualise_reward import plot_reward_visualisation
+    from plot_graphs import plot_reward_visualisation
     from models.sample_trajectories_from_model import sample_trajectories
 
     # visualise reward function used
