@@ -60,9 +60,9 @@ class BulletDroneEnv(gym.Env):
             self.timestep = 0
             timestamp = int(time.time())
             self.csv_file = os.path.join(self.log_dir, f"log_{timestamp}.csv")
-            self.df = pd.DataFrame(columns=["timestep", "x", "y", "z", "roll", "pitch", "yaw"])
+            self.df = pd.DataFrame(columns=["timestep", "x", "y", "z", "roll", "pitch", "yaw", "phase"])
             pos, orn_euler = self.simulator.drone.get_full_state()
-            self.log_state(pos, orn_euler)
+            self.log_state(pos, orn_euler, 0)
 
         aug_state = np.append(reset_pos, 0.0).astype(np.float32)
         return aug_state, {}
@@ -82,7 +82,8 @@ class BulletDroneEnv(gym.Env):
 
         if self.is_logging:
             pos, orn_euler = self.simulator.drone.get_full_state()
-            self.log_state(pos, orn_euler)
+            # Phase 0 (Approaching if num_wraps <= 0.75), Phase 1 (Otherwise)
+            self.log_state(pos, orn_euler, 1 if num_wraps > 0.75 else 0)
             self.timestep += 1
             if terminated:
                 self.save_to_csv()
@@ -135,12 +136,13 @@ class BulletDroneEnv(gym.Env):
                                           num_wraps=0.0)
         return reward
 
-    def log_state(self, pos, orn_euler):
+    def log_state(self, pos, orn_euler, phase):
         # Log state to DataFrame
         self.df = self.df._append({
             "timestep": self.timestep,
             "x": pos[0], "y": pos[1], "z": pos[2],
-            "roll": orn_euler[0], "pitch": orn_euler[1], "yaw": orn_euler[2]
+            "roll": orn_euler[0], "pitch": orn_euler[1], "yaw": orn_euler[2],
+            "phase": phase
         }, ignore_index=True)
 
     def save_to_csv(self):
