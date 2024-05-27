@@ -172,6 +172,8 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
 
 
 def get_existing_agent(existing_agent_path, env):
+    from Gym.Algorithms.sacfd import SACfD
+
     try:
         # Check if the file path ends with .zip
         if not existing_agent_path.endswith('.zip'):
