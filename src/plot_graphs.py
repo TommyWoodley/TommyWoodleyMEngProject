@@ -10,8 +10,7 @@ limits = {
     'z': (0, 6),
     'roll': (-1, 1),
     'pitch': (-1, 1),
-    'yaw': (-1, 1)
-    }
+    'yaw': (-1, 1)}
 
 
 # Function to read the CSV file and plot each column over time
