@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Callable
 
 import numpy as np
 import torch as th
@@ -19,15 +19,15 @@ class DualReplayBuffer(BaseBuffer):
         n_envs: int = 1,
         optimize_memory_usage: bool = False,
         handle_timeout_termination: bool = True,
-        weighting: int = 2,
+        weighting_function: Callable[[int], float] = lambda step: 0.5,
     ):
         super().__init__(buffer_size, observation_space, action_space, device, n_envs)
         self.online_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs,
                                                  optimize_memory_usage, handle_timeout_termination)
         self.offline_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs,
                                                   optimize_memory_usage, handle_timeout_termination)
-        self.weighting = weighting
-        print(f"Dual Buffer Weighting {weighting}")
+        self.weighting_function = weighting_function
+        self.current_step = 0
 
     def add(
         self,
@@ -39,11 +39,16 @@ class DualReplayBuffer(BaseBuffer):
         infos: List[Dict[str, Any]],
     ) -> None:
         self._add_online(obs, next_obs, action, reward, done, infos)
+        self.current_step += 1
 
     def sample(self, batch_size: int, env: Optional[VecNormalize] = None) -> ReplayBufferSamples:
-        ideal_online_batch_size = batch_size // self.weighting
+        current_weighting = self.weighting_function(self.current_step)
+
+        ideal_online_batch_size = max(1, int(batch_size * current_weighting))
         actual_online_batch_size = min(ideal_online_batch_size, self.online_replay_buffer.size())
         offline_batch_size = batch_size - actual_online_batch_size
+
+        print(f"Sample {batch_size}: {actual_online_batch_size} Online, {offline_batch_size}")
 
         online_samples = self.online_replay_buffer.sample(actual_online_batch_size, env)
         offline_samples = self.offline_replay_buffer.sample(offline_batch_size, env)

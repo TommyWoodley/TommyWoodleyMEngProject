@@ -130,7 +130,7 @@ def get_env(dir_name, render_mode, phase):
     return env
 
 
-def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
+def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams, timesteps):
     from Gym.Algorithms.sacfd import SACfD
     from Gym.Algorithms.dual_buffer import DualReplayBuffer
     from stable_baselines3 import SAC
@@ -139,6 +139,10 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
     _policy_kwargs = dict(net_arch=[128, 128, 64])
+    def linear_decay_weighting(current_step: int, initial_weighting: int = 0.5, final_weighting: int = 0.01, decay_steps: int = timesteps) -> float:
+        progress = min(1.0, current_step / decay_steps)
+        return initial_weighting - progress * (initial_weighting - final_weighting)
+    _replay_buffer_kwargs = dict(weighting_function=lambda step: linear_decay_weighting(step),)
     _lr_schedular = LinearLearningRateSchedule(hyperparams.get("lr", 0.0002))
 
     print_green(f"Hyperparamters: seed={_seed}, batch_size={_batch_size}, policy_kwargs={_policy_kwargs}, " + (
@@ -164,7 +168,8 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             learning_starts=0,
             gamma=0.96,
             learning_rate=_lr_schedular,
-            replay_buffer_class=DualReplayBuffer
+            replay_buffer_class=DualReplayBuffer,
+            replay_buffer_kwargs=_replay_buffer_kwargs,
         )
         pre_train(agent, env, demo_path, show_demos_in_env)
 
@@ -228,7 +233,7 @@ def main(algorithm, timesteps, filename, render_mode, demo_path, should_show_dem
     checkpoint_callback = get_checkpointer(save_data, dir_name, checkpoint, phase)
 
     if existing_agent is None:
-        agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams)
+        agent = get_agent(algorithm, env, demo_path, should_show_demo, hyperparams, timesteps)
     else:
         agent = get_existing_agent(existing_agent, env)
 
