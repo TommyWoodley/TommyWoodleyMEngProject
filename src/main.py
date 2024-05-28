@@ -132,6 +132,7 @@ def get_env(dir_name, render_mode, phase):
 
 def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
     from Gym.Algorithms.sacfd import SACfD
+    from Gym.Algorithms.dual_buffer import DualReplayBuffer
     from stable_baselines3 import SAC
 
     _policy = "MlpPolicy"
@@ -162,7 +163,8 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             policy_kwargs=_policy_kwargs,
             learning_starts=0,
             gamma=0.96,
-            learning_rate=_lr_schedular
+            learning_rate=_lr_schedular,
+            replay_buffer_class=DualReplayBuffer
         )
         pre_train(agent, env, demo_path, show_demos_in_env)
 
@@ -208,8 +210,9 @@ def pre_train(agent, env, demo_path, show_demos_in_env):
 
     for i in range(5):
         for obs, next_obs, action, reward, done, info in data:
-            agent.replay_buffer.add(obs, next_obs, action, reward, done, info)
-    print("Buffer Size: ", agent.replay_buffer.size())
+            agent.replay_buffer._add_offline(obs, next_obs, action, reward, done, info)
+    print("Online Buffer Size: ", agent.replay_buffer.online_replay_buffer.size())
+    print("Offline Buffer Size: ", agent.replay_buffer.offline_replay_buffer.size())
     print_green("Pretraining Complete!")
 
 
