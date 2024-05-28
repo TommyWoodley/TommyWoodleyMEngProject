@@ -6,9 +6,8 @@ from gymnasium import spaces
 
 from stable_baselines3.common.type_aliases import ReplayBufferSamples, RolloutBufferSamples
 from stable_baselines3.common.vec_env import VecNormalize
-from stable_baselines3.common.buffers import BaseBuffer
-
 from stable_baselines3.common.buffers import ReplayBuffer, BaseBuffer
+
 
 class DualReplayBuffer(BaseBuffer):
     def __init__(
@@ -23,11 +22,13 @@ class DualReplayBuffer(BaseBuffer):
         weighting: int = 2,
     ):
         super().__init__(buffer_size, observation_space, action_space, device, n_envs)
-        self.online_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs, optimize_memory_usage, handle_timeout_termination)
-        self.offline_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs, optimize_memory_usage, handle_timeout_termination)
+        self.online_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs,
+                                                 optimize_memory_usage, handle_timeout_termination)
+        self.offline_replay_buffer = ReplayBuffer(buffer_size, observation_space, action_space, device, n_envs,
+                                                  optimize_memory_usage, handle_timeout_termination)
         self.weighting = weighting
         print(f"Dual Buffer Weighting {weighting}")
-    
+
     def add(
         self,
         obs: np.ndarray,
@@ -51,7 +52,6 @@ class DualReplayBuffer(BaseBuffer):
         assert len(combined_samples.observations) == batch_size, f"was {len(combined_samples.observations)}"
 
         return combined_samples
-
     
     def _add_online(
         self,
@@ -63,7 +63,7 @@ class DualReplayBuffer(BaseBuffer):
         infos: List[Dict[str, Any]],
     ) -> None:
         self.online_replay_buffer.add(obs, next_obs, action, reward, done, infos)
-    
+
     def _add_offline(
         self,
         obs: np.ndarray,
@@ -84,7 +84,7 @@ class DualReplayBuffer(BaseBuffer):
             dones=th.cat((first_sample.dones, second_sample.dones)),
             rewards=th.cat((first_sample.rewards, second_sample.rewards)),
         )
-    
+
     def _get_samples(
         self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None
     ) -> Union[ReplayBufferSamples, RolloutBufferSamples]:
@@ -94,4 +94,3 @@ class DualReplayBuffer(BaseBuffer):
         :return:
         """
         raise NotImplementedError()
-    
