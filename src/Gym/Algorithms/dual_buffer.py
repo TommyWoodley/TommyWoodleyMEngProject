@@ -48,13 +48,7 @@ class DualReplayBuffer(BaseBuffer):
         offline_samples = self.offline_replay_buffer.sample(offline_batch_size, env)
 
         combined_samples = self._concat_samples(online_samples, offline_samples)
-
-        # print("Shape: ", online_samples.observations.shape, online_samples.actions.shape, online_samples.next_observations.shape, online_samples.dones.shape, online_samples.rewards.shape)
-        # print("Shape: ", offline_samples.observations.shape, offline_samples.actions.shape, offline_samples.next_observations.shape, offline_samples.dones.shape, offline_samples.rewards.shape)
-        # print(f"Sampling from {batch_size}: {actual_online_batch_size} Online, {offline_batch_size} Offline")
         assert len(combined_samples.observations) == batch_size, f"was {len(combined_samples.observations)}"
-
-        # print("Shape: ", combined_samples.observations.shape, combined_samples.actions.shape, combined_samples.next_observations.shape, combined_samples.dones.shape, combined_samples.rewards.shape)
 
         return combined_samples
 
