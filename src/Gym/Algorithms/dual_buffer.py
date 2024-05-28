@@ -52,7 +52,7 @@ class DualReplayBuffer(BaseBuffer):
         assert len(combined_samples.observations) == batch_size, f"was {len(combined_samples.observations)}"
 
         return combined_samples
-    
+
     def _add_online(
         self,
         obs: np.ndarray,
