@@ -150,6 +150,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             seed=_seed,
             batch_size=_batch_size,
             learning_rate=_lr_schedular,
+            gamma=0.96,
             policy_kwargs=_policy_kwargs,
         )
     elif algorithm == "SACfD":
