@@ -139,7 +139,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams, timeste
     _seed = 0
     _batch_size = hyperparams.get("batch_size", 64)
     _policy_kwargs = dict(net_arch=[128, 128, 64])
-    def linear_decay_weighting(current_step: int, initial_weighting: int = 0.5, final_weighting: int = 0.01, decay_steps: int = timesteps) -> float:
+    def linear_decay_weighting(current_step: int, initial_weighting: int = 0.8, final_weighting: int = 0.01, decay_steps: int = timesteps) -> float:
         progress = min(1.0, current_step / decay_steps)
         return initial_weighting - progress * (initial_weighting - final_weighting)
     _replay_buffer_kwargs = dict(weighting_function=lambda step: linear_decay_weighting(step),)

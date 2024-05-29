@@ -48,7 +48,7 @@ class DualReplayBuffer(BaseBuffer):
         actual_online_batch_size = min(ideal_online_batch_size, self.online_replay_buffer.size())
         offline_batch_size = batch_size - actual_online_batch_size
 
-        print(f"Sample {batch_size}: {actual_online_batch_size} Online, {offline_batch_size}")
+        # print(f"Sample {batch_size}: {actual_online_batch_size} Online, {offline_batch_size}")
 
         online_samples = self.online_replay_buffer.sample(actual_online_batch_size, env)
         offline_samples = self.offline_replay_buffer.sample(offline_batch_size, env)
