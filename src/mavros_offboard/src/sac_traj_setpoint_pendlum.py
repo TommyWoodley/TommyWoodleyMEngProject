@@ -382,11 +382,6 @@ class MavrosOffboardSuctionMission():
                 pass
 
 
-    def assertTrue(self, assertTrue, fail_msg):
-        if not assertTrue:
-            rospy.loginfo(fail_msg)
-
-
     def check_position_diff(self, pos, zy=True):
         """publish diff between target and desired position: in meters"""
             
@@ -431,6 +426,8 @@ class MavrosOffboardSuctionMission():
                 "goto x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  |  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  | diff:{6:.4f}".format(
                     desired[0], desired[1], desired[2], pos[0], pos[1], pos[2], np.linalg.norm(desired - pos) ))
         return np.linalg.norm(desired - pos) < offset
+
+    # ----------- FLIGHT PATH METHODS -----------
 
     def swingPendelum(self, centerX, centerY, centerZ):
 
@@ -499,8 +496,6 @@ class MavrosOffboardSuctionMission():
                 rate.sleep()
             except rospy.ROSInterruptException:
                 pass     
-    
-    # ----------- FLIGHT PATH METHODS -----------
 
     def navigate_to_starting_position(self, rate, initX, initY, initZ, last_req):
         offb_set_mode = SetModeRequest()
