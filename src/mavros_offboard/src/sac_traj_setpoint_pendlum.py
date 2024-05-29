@@ -160,6 +160,7 @@ class MavrosOffboardSuctionMission():
     #
     # Helper methods
     #
+    # ----------- CALLBACKS -----------
     def altitude_callback(self, data):
         self.altitude = data
 
@@ -235,7 +236,7 @@ class MavrosOffboardSuctionMission():
         if not self.sub_topics_ready['local_vel']:
             self.sub_topics_ready['local_vel'] = True 
 
-        
+    # ----------- HELPERS -----------
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
 
         rate = rospy.Rate(10)  # Hz
@@ -277,47 +278,9 @@ class MavrosOffboardSuctionMission():
                 , self.local_position.pose.position.x,self.local_position.pose.position.y,self.local_position.pose.position.z \
                 ,self.local_velocety.twist.linear.x,self.local_velocety.twist.linear.y, self.local_velocety.twist.linear.z)
 
-
-    def send_pos_target(self):
-        rate = rospy.Rate(40)  # Hz
-        count = 0
-        self.pos_target = PositionTarget()
-                
-        while not rospy.is_shutdown() and count < self.dp.shape[0]-2:
-            self.pos_target.header = Header()
-            self.pos_target.header.frame_id = "trajectory_pos"
-            self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.type_mask = PositionTarget.IGNORE_AFX + PositionTarget.IGNORE_AFY + PositionTarget.IGNORE_AFZ + \
-                                        PositionTarget.FORCE + PositionTarget.IGNORE_YAW +  \
-                                        PositionTarget.IGNORE_VX + PositionTarget.IGNORE_VY + PositionTarget.IGNORE_VZ
-            self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
-
-            self.pos_target.position.x = self.dp[count][0]
-            self.pos_target.position.y = self.dp[count][1]
-            self.pos_target.position.z = self.dp[count][2]
-
-            self.pos_target.yaw_rate = 0.0
-            self.pos_target_setpoint_pub.publish(self.pos_target)
-
-            #reached_pos = self.is_at_position(self.offset, self.dp[count][0], self.dp[count][1], self.dp[count][2])
-            
-            if self.is_at_position(self.offset, self.dp[count][0], self.dp[count][1], self.dp[count][2]): ## check diff to next point as second citeria 
-                count+=1
-
-            self.saveDataToLogData(self.dp[count][0] , self.dp[count][1], self.dp[count][2])
-    
-            try:  # prevent garbage in console output when thread is killed
-                rate.sleep()
-            except rospy.ROSInterruptException:
-                pass
-        
-        rospy.loginfo("Position SP completes. Passing on to Velocity SP!")
-
-
     def returnDifference(self, pos):
         diff = ((self.local_position.pose.position.x-pos[0])**2+(self.local_position.pose.position.y-pos[1])**2+(self.local_position.pose.position.z-pos[2])**2)**0.5
         return diff
-
 
     def send_pos_raw(self, xOffset = 0, yOffset = 0, zOffset = 0 ):
 
@@ -380,35 +343,7 @@ class MavrosOffboardSuctionMission():
                 rate.sleep()
             except rospy.ROSInterruptException:
                 pass
-
-
-    def check_position_diff(self, pos, zy=True):
-        """publish diff between target and desired position: in meters"""
-            
-        #desired = np.array((self.flattarget.position.x, self.flattarget.position.y, self.flattarget.position.z))
-        if zy:
-            desired = np.array((pos[2]))
-            current = np.array((self.local_position.pose.position.z))
-        else:
-            desired = np.array((pos[1]))
-            current = np.array((self.local_position.pose.position.y))        
-                        
-        diff = abs(desired-current) #np.linalg.norm(desired - current) 
         
-        if zy:                
-            rospy.loginfo(
-            "status: pub_pos | x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  |  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  | diff:{6:.4f}".format(
-                pos[0], pos[1], pos[2], self.local_position.pose.position.x, self.local_position.pose.position.y, self.local_position.pose.position.z, diff))
-        else:
-            rospy.loginfo(
-            "status: pub_vel | x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  |  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  | diff:{6:.4f}".format(
-                pos[0], pos[1], pos[2], self.local_position.pose.position.x, self.local_position.pose.position.y, self.local_position.pose.position.z, diff))
-                
-        self.diff_pub.publish(diff)
-        
-        return diff
-        
-
     def is_at_position(self, offset, x=0, y=0, z=0, printOut = True):
         """offset: meters"""
         rospy.logdebug(
