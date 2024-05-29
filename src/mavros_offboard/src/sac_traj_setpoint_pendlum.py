@@ -643,6 +643,32 @@ class MavrosOffboardSuctionMission():
 
             
             rate.sleep()
+    
+    # ----------- FLIGHT PATH METHODS -----------
+    
+    # using datapoint file and iterate over the datapoint for pitch angle
+    def auto_send_landing_pos_att(self):
+        rate = rospy.Rate(20)  # Hz
+        count = 0
+        loop_file = True
+        
+        while not rospy.is_shutdown():  
+            if True:
+                if loop_file:
+                     count += 1
+                     if count >= self.anglePoints.shape[0]:
+                        count = -1
+                        loop_file = False
+                self.att_setpoint_pub.publish(self.att_raw_msg(count))
+            else:
+                self.pos_target_setpoint_pub.publish(self.pos_raw_msg(None))
+            self.saveDataToLogData(0,0,0)
+            try:  # prevent garbage in console output when thread is killed
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                pass
+                
+        rospy.loginfo("Finish sending setpoints!")  
 
     def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
 
@@ -997,30 +1023,6 @@ class MavrosOffboardSuctionMission():
         att_target.body_rate = vector3
 
         return att_target
-
-    # using datapoint file and iterate over the datapoint for pitch angle
-    def auto_send_landing_pos_att(self):
-        rate = rospy.Rate(20)  # Hz
-        count = 0
-        loop_file = True
-        
-        while not rospy.is_shutdown():  
-            if True:
-                if loop_file:
-                     count += 1
-                     if count >= self.anglePoints.shape[0]:
-                        count = -1
-                        loop_file = False
-                self.att_setpoint_pub.publish(self.att_raw_msg(count))
-            else:
-                self.pos_target_setpoint_pub.publish(self.pos_raw_msg(None))
-            self.saveDataToLogData(0,0,0)
-            try:  # prevent garbage in console output when thread is killed
-                rate.sleep()
-            except rospy.ROSInterruptException:
-                pass
-                
-        rospy.loginfo("Finish sending setpoints!")  
 
 
 if __name__ == '__main__':
