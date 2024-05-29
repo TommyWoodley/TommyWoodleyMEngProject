@@ -645,7 +645,38 @@ class MavrosOffboardSuctionMission():
             rate.sleep()
     
     # ----------- FLIGHT PATH METHODS -----------
-    
+
+    def navigate_to_starting_position(self, rate, initX, initY, initZ, last_req):
+        offb_set_mode = SetModeRequest()
+        offb_set_mode.custom_mode = 'OFFBOARD'
+
+        arm_cmd = CommandBoolRequest()
+        arm_cmd.value = True
+
+        while(not rospy.is_shutdown()):
+            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
+                    rospy.loginfo("OFFBOARD enabled")
+                
+                last_req = rospy.Time.now()
+            else:
+                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+                    if(self.arming_client.call(arm_cmd).success == True):
+                        rospy.loginfo("Vehicle armed")
+                
+                    last_req = rospy.Time.now()
+
+            self.pos_setpoint_pub.publish(self.pos)
+
+            if self.is_at_position(self.offset,initX, initY, initZ, printOut=False):
+                rospy.loginfo("INITIAL POSITION REACHED")
+                break
+
+            
+            rate.sleep()
+        
+        return last_req
+
     # using datapoint file and iterate over the datapoint for pitch angle
     def auto_send_landing_pos_att(self):
         rate = rospy.Rate(20)  # Hz
@@ -668,8 +699,36 @@ class MavrosOffboardSuctionMission():
             except rospy.ROSInterruptException:
                 pass
                 
-        rospy.loginfo("Finish sending setpoints!")  
+        rospy.loginfo("Finish sending setpoints!") 
+    
+    # ----------- HOVER -----------
+    # got to position and stay there for defined amount of time
+    def hoverAtPos(self, x, y, z, time):
 
+        #go to pos
+        self.goto_pos(x, y, z)
+
+        pose = PoseStamped()
+        frequence = 20
+        waitingTime = time * frequence
+        rate = rospy.Rate(frequence)  # Hz
+
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.position.z = z
+
+        # sent point until time is over
+        for i in range(waitingTime):
+            if(rospy.is_shutdown()):
+                break
+
+            self.pos_setpoint_pub.publish(pose)
+            self.saveDataToLogData(x,y,z)
+            rate.sleep()
+
+        rospy.loginfo("Waiting Over")
+
+    # ----------- FLIGHT PATH METHODS -----------
     def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
 
         hightOverBranch = 0.8
@@ -749,255 +808,6 @@ class MavrosOffboardSuctionMission():
                 last_req = rospy.Time.now()
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
-
-    def navigate_to_starting_position(self, rate, initX, initY, initZ, last_req):
-        offb_set_mode = SetModeRequest()
-        offb_set_mode.custom_mode = 'OFFBOARD'
-
-        arm_cmd = CommandBoolRequest()
-        arm_cmd.value = True
-
-        while(not rospy.is_shutdown()):
-            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
-                    rospy.loginfo("OFFBOARD enabled")
-                
-                last_req = rospy.Time.now()
-            else:
-                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                    if(self.arming_client.call(arm_cmd).success == True):
-                        rospy.loginfo("Vehicle armed")
-                
-                    last_req = rospy.Time.now()
-
-            self.pos_setpoint_pub.publish(self.pos)
-
-            if self.is_at_position(self.offset,initX, initY, initZ, printOut=False):
-                rospy.loginfo("INITIAL POSITION REACHED")
-                break
-
-            
-            rate.sleep()
-        
-        return last_req
-
-    def run_step1(self, xTarget = 0, yTarget = -2, zTarget = 1):
-
-        hightOverBranch = 0.8
-        ropeLengt = 1.6
-
-        # Setpoint publishing MUST be faster than 2Hz
-        rate = rospy.Rate(20)
-
-        # Wait for Flight Controller connection
-        while(not rospy.is_shutdown() and not self.state.connected):
-            rate.sleep()
-
-        initX = self.local_position.pose.position.x
-        initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 2 ##take off 2m 
-
-        self.pos.pose.position.x = initX
-        self.pos.pose.position.y = initY
-        self.pos.pose.position.z = initZ
-
-        # Send a few setpoints before starting
-        for i in range(100):   
-            if(rospy.is_shutdown()):
-                break
-
-            self.pos_setpoint_pub.publish(self.pos)
-            rate.sleep()
-
-        offb_set_mode = SetModeRequest()
-        offb_set_mode.custom_mode = 'OFFBOARD'
-
-        arm_cmd = CommandBoolRequest()
-        arm_cmd.value = True
-
-        last_req = rospy.Time.now()
-
-        while(not rospy.is_shutdown()):
-            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
-                    rospy.loginfo("OFFBOARD enabled")
-                
-                last_req = rospy.Time.now()
-            else:
-                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                    if(self.arming_client.call(arm_cmd).success == True):
-                        rospy.loginfo("Vehicle armed")
-                
-                    last_req = rospy.Time.now()
-
-            self.pos_setpoint_pub.publish(self.pos)
-
-            if self.is_at_position(self.offset,initX, initY, initZ, printOut=False):
-                rospy.loginfo("Pos reached")
-                break
-
-            
-            rate.sleep()
-
-        ## go to start
-        xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
-        yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch 
-        zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
-        initX = xOffset
-        initY = yOffset
-        initZ = zOffset
-
-        self.hoverAtPos(initX, initY, initZ, 2)
-
-        self.hoverAtPos(initX, initY, initZ, 2)
-
-        rospy.loginfo("Go To Pos for Step 1")
-        self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
-        self.hoverAtPos(xOffset, yOffset, zOffset, 5)
-
-        rospy.loginfo("Step 1")
-        self.send_pos_raw(xOffset, yOffset, zOffset)
-
-        rospy.loginfo("Pendelum Swinging")
-        #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
-        self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
-        self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
-
-        rospy.loginfo("Step 2")
-        self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
-
-        # go to original pos
-        rospy.loginfo("Go Back to Landing")
-        self.goto_pos(initX,initY,initZ, writeToDataLogger=False)
-        land_set_mode = SetModeRequest()
-        land_set_mode.custom_mode = 'AUTO.LAND'
-
-        last_req = rospy.Time.now()
-
-        while(not rospy.is_shutdown() and self.state.armed):
-            if(self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(land_set_mode).mode_sent == True):
-                    rospy.loginfo("AUTO.LAND enabled")
-
-                last_req = rospy.Time.now()
-            self.pos_setpoint_pub.publish(self.pos)
-            rate.sleep()
-
-    def run_pendlum_swing(self, xTarget = 0, yTarget = -2, zTarget = 1):
-
-        hightOverBranch = 0.8
-        ropeLengt = 1.6
-
-        # Setpoint publishing MUST be faster than 2Hz
-        rate = rospy.Rate(20)
-
-        # Wait for Flight Controller connection
-        while(not rospy.is_shutdown() and not self.state.connected):
-            rate.sleep()
-
-        initX = self.local_position.pose.position.x
-        initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 2 ##take off 2m 
-
-        self.pos.pose.position.x = initX
-        self.pos.pose.position.y = initY
-        self.pos.pose.position.z = initZ
-
-        # Send a few setpoints before starting
-        for i in range(100):   
-            if(rospy.is_shutdown()):
-                break
-
-            self.pos_setpoint_pub.publish(self.pos)
-            rate.sleep()
-
-        offb_set_mode = SetModeRequest()
-        offb_set_mode.custom_mode = 'OFFBOARD'
-
-        arm_cmd = CommandBoolRequest()
-        arm_cmd.value = True
-
-        last_req = rospy.Time.now()
-
-        while(not rospy.is_shutdown()):
-            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
-                    rospy.loginfo("OFFBOARD enabled")
-                
-                last_req = rospy.Time.now()
-            else:
-                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                    if(self.arming_client.call(arm_cmd).success == True):
-                        rospy.loginfo("Vehicle armed")
-                
-                    last_req = rospy.Time.now()
-
-            self.pos_setpoint_pub.publish(self.pos)
-
-            if self.is_at_position(self.offset,initX, initY, initZ, printOut=False):
-                rospy.loginfo("Pos reached")
-                break
-
-            
-            rate.sleep()
-
-        #self.hoverAtPos(initX, initY, initZ, 2)
-
-        rospy.loginfo("Go To Pos")
-        self.goto_pos(xTarget, yTarget+0.5, zTarget+hightOverBranch, writeToDataLogger=False)
-        self.hoverAtPos(xTarget, yTarget+0.5, zTarget+hightOverBranch, 4)
-
-        rospy.loginfo("Pendelum Swinging")
-        #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
-        self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
-        self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
-
-        rospy.loginfo("Step 2")
-        self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 3)
-
-        # go to original pos
-        rospy.loginfo("Go Back to Landing")
-        self.goto_pos(initX,initY,initZ, writeToDataLogger=False)
-        land_set_mode = SetModeRequest()
-        land_set_mode.custom_mode = 'AUTO.LAND'
-
-        last_req = rospy.Time.now()
-
-        while(not rospy.is_shutdown() and self.state.armed):
-            if(self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(land_set_mode).mode_sent == True):
-                    rospy.loginfo("AUTO.LAND enabled")
-
-                last_req = rospy.Time.now()
-            self.pos_setpoint_pub.publish(self.pos)
-            rate.sleep()
-        
-
-    # got to position and stay there for defined amount of time
-    def hoverAtPos(self, x, y, z, time):
-
-        #go to pos
-        self.goto_pos(x, y, z)
-
-        pose = PoseStamped()
-        frequence = 20
-        waitingTime = time * frequence
-        rate = rospy.Rate(frequence)  # Hz
-
-        pose.pose.position.x = x
-        pose.pose.position.y = y
-        pose.pose.position.z = z
-
-        # sent point until time is over
-        for i in range(waitingTime):
-            if(rospy.is_shutdown()):
-                break
-
-            self.pos_setpoint_pub.publish(pose)
-            self.saveDataToLogData(x,y,z)
-            rate.sleep()
-
-        rospy.loginfo("Waiting Over")
 
     def att_raw_msg(self, dp_count):
         att_target = AttitudeTarget()
