@@ -682,7 +682,8 @@ class MavrosOffboardSuctionMission():
         initY = yOffset
         initZ = zOffset
 
-        self.hoverAtPos(initX, initY, initZ, 2)
+        rospy.loginfo("---- HOVER @ STARTING ----")
+        self.hoverAtPos(initX, initY, initZ, 5)
 
         rospy.loginfo("Go To Pos for Step 1")
         self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
@@ -707,7 +708,7 @@ class MavrosOffboardSuctionMission():
         self.auto_send_landing_pos_att() 
 
         # go to original pos
-        rospy.loginfo("----------------- Go Back to Landing ------------------------")
+        rospy.loginfo("---- LAND ----")
         self.goto_pos(initX,initY,initZ, writeToDataLogger=False)
         land_set_mode = SetModeRequest()
         land_set_mode.custom_mode = 'AUTO.LAND'
