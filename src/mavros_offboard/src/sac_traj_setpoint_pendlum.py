@@ -159,7 +159,7 @@ class MavrosOffboardSuctionMission():
 
 
     # ----------- LOGGIGNG ---------
-    def ros_log_info(message):
+    def ros_log_info(self, message):
         rospy.loginfo("WAYPOINT NAV: " + message)
 
     # ----------- CALLBACKS -----------
