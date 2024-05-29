@@ -36,6 +36,7 @@ class MavrosOffboardSuctionMission():
 
     FIXME: add flight path assertion (needs transformation from ROS frame to NED)
     """
+    GLOBAL_FREQUENCY = 20
 
     def __init__(self, offset = 0.1, vy = 5):
         # ROS services
@@ -157,9 +158,10 @@ class MavrosOffboardSuctionMission():
         self.logData = dataLogger()
 
 
-    #
-    # Helper methods
-    #
+    # ----------- LOGGIGNG ---------
+    def ros_log_info(message):
+        rospy.loginfo("WAYPOINT NAV: " + message)
+
     # ----------- CALLBACKS -----------
     def altitude_callback(self, data):
         self.altitude = data
@@ -514,6 +516,27 @@ class MavrosOffboardSuctionMission():
 
         rospy.loginfo("Waiting Over")
 
+    def hover_at_current_pos(self, time):
+        num_waiting_steps = time * self.GLOBAL_FREQUENCY
+        rate = rospy.Rate(self.GLOBAL_FREQUENCY)
+
+        pose = PoseStamped()
+        pose.pose.position.x = self.pos.pose.position.x
+        pose.pose.position.y = self.pos.pose.position.y
+        pose.pose.position.z = self.pos.pose.position.z
+
+        # sent point until time is over
+        self.ros_log_info(f"About to begin waiting for {time}s ({num_waiting_steps} timesteps)")
+        for i in range(num_waiting_steps):
+            if rospy.is_shutdown():
+                break
+
+            self.pos_setpoint_pub.publish(pose)
+            self.saveDataToLogData(x,y,z)
+            rate.sleep()
+
+        self.ros_log_info("Waiting Over")
+
     # ----------- FLIGHT PATH METHODS -----------
     def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
         hightOverBranch = 0.8
@@ -525,6 +548,7 @@ class MavrosOffboardSuctionMission():
         while(not rospy.is_shutdown() and not self.state.connected):
             rate.sleep()
 
+        # Initially take off 2m in the air and wait
         initX = self.local_position.pose.position.x
         initY = self.local_position.pose.position.y
         initZ = self.local_position.pose.position.z + 2 ##take off 2m
@@ -535,42 +559,42 @@ class MavrosOffboardSuctionMission():
 
         self.startup_mission(rate)
 
-        rospy.loginfo("---- NAVIGATE TO STARTING ----")
+        self.ros_log_info("NAVIGATE TO STARTING")
         last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
-        rospy.loginfo("---- NAVIGATE TO STARTING - ACHIEVED ----")
+        self.ros_log_info("NAVIGATE TO STARTING - ACHIEVED")
 
-        ## go to start
-        xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
-        yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch do not need this any more?
-        zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
-        initX = xOffset
-        initY = yOffset
-        initZ = zOffset
+        self.ros_log_info("HOVER @ TAKEOFF POSITION")
+        self.hover_at_current_pos(time=10)
 
-        rospy.loginfo("---- HOVER @ STARTING ----")
-        self.hoverAtPos(initX, initY, initZ, 5)
+        # ## go to start
+        # xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
+        # yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch do not need this any more?
+        # zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
+        # initX = xOffset
+        # initY = yOffset
+        # initZ = zOffset
 
-        rospy.loginfo("Go To Pos for Step 1")
-        self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
-        self.hoverAtPos(xOffset, yOffset, zOffset, 5)
+        # rospy.loginfo("Go To Pos for Step 1")
+        # self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
+        # self.hoverAtPos(xOffset, yOffset, zOffset, 5)
 
-        rospy.loginfo("Step 1")
-        self.send_pos_raw(xOffset, yOffset, zOffset)
+        # rospy.loginfo("Step 1")
+        # self.send_pos_raw(xOffset, yOffset, zOffset)
 
-        rospy.loginfo("Pendelum Swinging")
-        #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
-        self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
-        self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
+        # rospy.loginfo("Pendelum Swinging")
+        # #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
+        # self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
+        # self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
 
-        rospy.loginfo("Step 2")
-        self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
+        # rospy.loginfo("Step 2")
+        # self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
 
-        rospy.loginfo("Go To Pos for Step 3")
-        self.goto_pos(xTarget, -0.5, 1.45) # yTarget-ropeLengt/3, zTarget)
-        self.hoverAtPos(xTarget, -0.5, 1.45, 4)
+        # rospy.loginfo("Go To Pos for Step 3")
+        # self.goto_pos(xTarget, -0.5, 1.45) # yTarget-ropeLengt/3, zTarget)
+        # self.hoverAtPos(xTarget, -0.5, 1.45, 4)
 
-        rospy.loginfo("Step 3")
-        self.auto_send_landing_pos_att() 
+        # rospy.loginfo("Step 3")
+        # self.auto_send_landing_pos_att() 
 
         # go to original pos
         rospy.loginfo("---- LAND ----")
