@@ -532,7 +532,7 @@ class MavrosOffboardSuctionMission():
                 break
 
             self.pos_setpoint_pub.publish(pose)
-            self.saveDataToLogData(x,y,z)
+            self.saveDataToLogData(self.pos.pose.position.x, self.pos.pose.position.y, self.pos.pose.position.z)
             rate.sleep()
 
         self.ros_log_info("Waiting Over")
