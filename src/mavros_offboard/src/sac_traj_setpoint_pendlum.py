@@ -535,7 +535,9 @@ class MavrosOffboardSuctionMission():
 
         self.startup_mission(rate)
 
+        rospy.loginfo("---- NAVIGATE TO STARTING ----")
         last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
+        rospy.loginfo("---- NAVIGATE TO STARTING - ACHIEVED ----")
 
         ## go to start
         xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
