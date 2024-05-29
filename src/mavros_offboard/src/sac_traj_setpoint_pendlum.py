@@ -672,45 +672,39 @@ class MavrosOffboardSuctionMission():
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
 
-        offb_set_mode = SetModeRequest()
-        offb_set_mode.custom_mode = 'OFFBOARD'
+        last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
 
-        arm_cmd = CommandBoolRequest()
-        arm_cmd.value = True
+        ## go to start
+        xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
+        yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch do not need this any more?
+        zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
+        initX = xOffset
+        initY = yOffset
+        initZ = zOffset
 
-        last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, offb_set_mode, arm_cmd, last_req=rospy.Time.now())
+        self.hoverAtPos(initX, initY, initZ, 2)
 
-        # ## go to start
-        # xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
-        # yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch do not need this any more?
-        # zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
-        # initX = xOffset
-        # initY = yOffset
-        # initZ = zOffset
+        rospy.loginfo("Go To Pos for Step 1")
+        self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
+        self.hoverAtPos(xOffset, yOffset, zOffset, 5)
 
-        # self.hoverAtPos(initX, initY, initZ, 2)
+        rospy.loginfo("Step 1")
+        self.send_pos_raw(xOffset, yOffset, zOffset)
 
-        # rospy.loginfo("Go To Pos for Step 1")
-        # self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
-        # self.hoverAtPos(xOffset, yOffset, zOffset, 5)
+        rospy.loginfo("Pendelum Swinging")
+        #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
+        self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
+        self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
 
-        # rospy.loginfo("Step 1")
-        # self.send_pos_raw(xOffset, yOffset, zOffset)
+        rospy.loginfo("Step 2")
+        self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
 
-        # rospy.loginfo("Pendelum Swinging")
-        # #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
-        # self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
-        # self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
+        rospy.loginfo("Go To Pos for Step 3")
+        self.goto_pos(xTarget, -0.5, 1.45) # yTarget-ropeLengt/3, zTarget)
+        self.hoverAtPos(xTarget, -0.5, 1.45, 4)
 
-        # rospy.loginfo("Step 2")
-        # self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
-
-        # rospy.loginfo("Go To Pos for Step 3")
-        # self.goto_pos(xTarget, -0.5, 1.45) # yTarget-ropeLengt/3, zTarget)
-        # self.hoverAtPos(xTarget, -0.5, 1.45, 4)
-
-        # rospy.loginfo("Step 3")
-        # self.auto_send_landing_pos_att() 
+        rospy.loginfo("Step 3")
+        self.auto_send_landing_pos_att() 
 
         # go to original pos
         rospy.loginfo("----------------- Go Back to Landing ------------------------")
@@ -729,7 +723,13 @@ class MavrosOffboardSuctionMission():
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
 
-    def navigate_to_starting_position(self, rate, initX, initY, initZ, offb_set_mode, arm_cmd, last_req):
+    def navigate_to_starting_position(self, rate, initX, initY, initZ, last_req):
+        offb_set_mode = SetModeRequest()
+        offb_set_mode.custom_mode = 'OFFBOARD'
+
+        arm_cmd = CommandBoolRequest()
+        arm_cmd.value = True
+
         while(not rospy.is_shutdown()):
             if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
                 if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
