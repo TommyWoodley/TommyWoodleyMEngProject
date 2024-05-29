@@ -526,7 +526,7 @@ class MavrosOffboardSuctionMission():
         pose.pose.position.z = self.pos.pose.position.z
 
         # sent point until time is over
-        self.ros_log_info(f"About to begin waiting for {time}s")
+        self.ros_log_info("About to begin waiting for " + time + "seconds.")
         for i in range(num_waiting_steps):
             if rospy.is_shutdown():
                 break
