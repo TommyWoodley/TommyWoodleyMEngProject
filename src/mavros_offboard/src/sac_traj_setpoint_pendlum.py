@@ -516,9 +516,7 @@ class MavrosOffboardSuctionMission():
 
     # ----------- FLIGHT PATH METHODS -----------
     def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
-
         hightOverBranch = 0.8
-        ropeLengt = 1.6
 
         # Setpoint publishing MUST be faster than 2Hz
         rate = rospy.Rate(20)
@@ -529,19 +527,13 @@ class MavrosOffboardSuctionMission():
 
         initX = self.local_position.pose.position.x
         initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 2 ##take off 2m 
+        initZ = self.local_position.pose.position.z + 2 ##take off 2m
 
         self.pos.pose.position.x = initX
         self.pos.pose.position.y = initY
         self.pos.pose.position.z = initZ
 
-        # Send a few setpoints before starting
-        for i in range(100):   
-            if(rospy.is_shutdown()):
-                break
-
-            self.pos_setpoint_pub.publish(self.pos)
-            rate.sleep()
+        self.startup_mission(rate)
 
         last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
 
@@ -592,6 +584,15 @@ class MavrosOffboardSuctionMission():
                     rospy.loginfo("AUTO.LAND enabled")
 
                 last_req = rospy.Time.now()
+            self.pos_setpoint_pub.publish(self.pos)
+            rate.sleep()
+
+    def startup_mission(self, rate):
+        # Send a few setpoints before starting
+        for i in range(100):   
+            if(rospy.is_shutdown()):
+                break
+
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
 
