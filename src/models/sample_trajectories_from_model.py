@@ -34,7 +34,7 @@ class SampleTrajEnv(gym.Wrapper):
 def sample_trajectories(dir, show=True, human=False, phase="all"):
     file_name = f"{dir}/model.zip"
     output_filename = f"{dir}/sample_trajectories.png"
-    sample_trajectories_from_file(file_name, output_filename, show, human, phase=phase)
+    sample_trajectories_from_file(file_name, output_filename, show, human, phase=phase, log_dir=dir)
 
 
 def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all", log_dir=None):
