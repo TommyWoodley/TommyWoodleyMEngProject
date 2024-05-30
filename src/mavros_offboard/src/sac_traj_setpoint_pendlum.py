@@ -240,7 +240,6 @@ class MavrosOffboardSuctionMission():
 
     # ----------- HELPERS -----------
     def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
-        self.ros_log_info("SAMPLE LOG")
         assert duration > 0, "was " + duration
 
         rate = rospy.Rate(10)  # Hz
@@ -260,9 +259,7 @@ class MavrosOffboardSuctionMission():
 
         reached_pos = False
         self.pos_target = PositionTarget()
-        self.ros_log_info("SAMPLE LOG 1" )
         while not rospy.is_shutdown() and not reached_pos:
-            self.ros_log_info("SAMPLE LOG 2" )
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
             
@@ -617,7 +614,7 @@ class MavrosOffboardSuctionMission():
         self.hover_at_current_pos(time=10)
 
         self.ros_log_info("NAVIGATE")
-        self.goto_pos_in_time(5, 0, 0, 20)
+        self.goto_pos_in_time(initX, initY, initZ + 3, 20)
         self.ros_log_info("NAVIGATE ENDED")
 
         # ## go to start
