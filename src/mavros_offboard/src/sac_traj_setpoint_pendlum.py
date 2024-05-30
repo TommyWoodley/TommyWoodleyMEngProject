@@ -265,9 +265,9 @@ class MavrosOffboardSuctionMission():
             elapsed_time = current_time - start_time
             self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
             self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.position.x = current_x + velocity_x * elapsed_time.to_sec()
-            self.pos_target.position.y = current_y + velocity_y * elapsed_time.to_sec()
-            self.pos_target.position.z = current_z + velocity_z * elapsed_time.to_sec()
+            self.pos_target.position.x = current_x + velocity_x * min(elapsed_time.to_sec(), duration)
+            self.pos_target.position.y = current_y + velocity_y * min(elapsed_time.to_sec(), duration)
+            self.pos_target.position.z = current_z + velocity_z * min(elapsed_time.to_sec(), duration)
 
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
