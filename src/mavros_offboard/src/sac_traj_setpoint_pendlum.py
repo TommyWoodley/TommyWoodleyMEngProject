@@ -278,7 +278,7 @@ class MavrosOffboardSuctionMission():
             reached_pos = self.is_at_position(x, y, z)
 
             if writeToDataLogger:
-                self.saveDataToLogData(x,y,z)
+                self.saveDataToLogData(self.pos_target.position.x, self.pos_target.position.y , self.pos_target.position.z)
 
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
@@ -468,7 +468,7 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("NAVIGATE")
 
         waypoints = [(0, 0, 1), (0.5, 0, 1.5), (0.5, -1, 1)]
-        time_between_waypoint = 20
+        time_between_waypoint = 8
 
         for index, (x, y, z) in enumerate(waypoints):
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
