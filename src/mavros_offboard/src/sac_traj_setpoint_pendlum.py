@@ -37,6 +37,7 @@ class MavrosOffboardSuctionMission():
     FIXME: add flight path assertion (needs transformation from ROS frame to NED)
     """
     GLOBAL_FREQUENCY = 20
+    OFFSET = 0.1
 
     def __init__(self, offset = 0.1, vy = 5):
         # ROS services
@@ -276,7 +277,7 @@ class MavrosOffboardSuctionMission():
 
             self.pos_target_setpoint_pub.publish(self.pos_target)
 
-            reached_pos = self.is_at_position(self.offset, x, y, z)
+            reached_pos = self.is_at_position(x, y, z)
 
             if writeToDataLogger:
                 self.saveDataToLogData(x,y,z)
@@ -320,7 +321,7 @@ class MavrosOffboardSuctionMission():
 
             self.pos.header.stamp = rospy.Time.now()
             self.pos_setpoint_pub.publish(self.pos)
-            reached_pos = self.is_at_position(self.offset, x, y, z)
+            reached_pos = self.is_at_position(x, y, z)
 
             if writeToDataLogger:
                 self.saveDataToLogData(x,y,z)
@@ -338,70 +339,8 @@ class MavrosOffboardSuctionMission():
     def returnDifference(self, pos):
         diff = ((self.local_position.pose.position.x-pos[0])**2+(self.local_position.pose.position.y-pos[1])**2+(self.local_position.pose.position.z-pos[2])**2)**0.5
         return diff
-
-    def send_pos_raw(self, xOffset = 0, yOffset = 0, zOffset = 0 ):
-
-        rate = rospy.Rate(20)  # Hz
-        vel = 0.1
-        count = 0
-        attemts = 0
-        self.pos_target = PositionTarget()
         
-        intitalDistanceToNext = self.returnDifference([self.dp[count][0]+xOffset-self.dp[0][0],self.dp[count][1]+yOffset-self.dp[0][1],self.dp[count][2]+zOffset-self.dp[0][2]])
-        xLast = self.dp[count][0]
-        yLast = self.dp[count][1]
-        zLast = self.dp[count][2]
-        
-        while not rospy.is_shutdown() and count < self.dp.shape[0]:
-            attemts += 1 
-            self.pos_target.header = Header()
-            self.pos_target.header.frame_id = "datapoint"
-            self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.type_mask = PositionTarget.IGNORE_AFX + PositionTarget.IGNORE_AFY + PositionTarget.IGNORE_AFZ + \
-                                        PositionTarget.FORCE + PositionTarget.IGNORE_YAW_RATE # + \
-                                        #PositionTarget.IGNORE_VX + PositionTarget.IGNORE_VY + PositionTarget.IGNORE_VZ 
-            self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
-
-            xNext = self.dp[count][0]+xOffset-self.dp[0][0]
-            yNext = self.dp[count][1]+yOffset-self.dp[0][1]  
-            zNext = self.dp[count][2]+zOffset-self.dp[0][2] 
-
-            self.pos_target.position.x = xNext
-            self.pos_target.position.y = yNext  
-            self.pos_target.position.z = zNext
-            
-            self.pos_target.velocity.x = 0.0 
-            self.pos_target.velocity.y = -self.dp[count][4] * vel
-            self.pos_target.velocity.z = -self.dp[count][5] * vel
-            self.pos_target.yaw = self.dp[count][6] 
-            
-            #print("PosTarget: ", self.pos_target.position.x, self.pos_target.position.y, self.pos_target.position.z, 
-            #    self.pos_target.velocity.x, self.pos_target.velocity.y, self.pos_target.velocity.z,
-            #    self.pos_target.yaw)
-            
-            self.pos_target_setpoint_pub.publish(self.pos_target)
-
-            print(self.returnDifference([xNext,yNext,zNext])-intitalDistanceToNext, count)
-
-            self.saveDataToLogData(xNext,yNext,zNext)
-
-            if (self.returnDifference([xLast,yLast,zLast]) > intitalDistanceToNext-self.offset/2) or attemts > 50:
-                count+=1
-                print(attemts)
-                attemts = 0
-                if count<self.dp.shape[0]:
-                    intitalDistanceToNext = self.returnDifference([self.dp[count][0]+xOffset-self.dp[0][0],self.dp[count][1]+yOffset-self.dp[0][1],self.dp[count][2]+zOffset-self.dp[0][2]])
-                xLast = xNext
-                yLast = yNext
-                zLast = zNext
-                print("inital: ", intitalDistanceToNext)
-            
-            try:  # prevent garbage in console output when thread is killed
-                rate.sleep()
-            except rospy.ROSInterruptException:
-                pass
-        
-    def is_at_position(self, offset, x=0, y=0, z=0, printOut = False):
+    def is_at_position(self, x=0, y=0, z=0, printOut = False):
         """offset: meters"""
         rospy.logdebug(
             "current position | x:{0:.2f}, y:{1:.2f}, z:{2:.2f}".format(
@@ -417,77 +356,9 @@ class MavrosOffboardSuctionMission():
             rospy.loginfo(
                 "goto x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  |  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  | diff:{6:.4f}".format(
                     desired[0], desired[1], desired[2], pos[0], pos[1], pos[2], np.linalg.norm(desired - pos) ))
-        return np.linalg.norm(desired - pos) < offset
+        return np.linalg.norm(desired - pos) < self.OFFSET
 
     # ----------- FLIGHT PATH METHODS -----------
-
-    def swingPendelum(self, centerX, centerY, centerZ):
-
-        freqenzy = 20
-        rate = rospy.Rate(freqenzy)  # Hz
-        waiting = False
-
-        amplitude = 1
-
-        PointInfront = [centerX, centerY+amplitude, centerZ]
-        PointBehind = [centerX, centerY-amplitude, centerZ]
-        LastPoint = PointInfront
-
-        intialDifCenter = self.returnDifference([centerX, centerY, centerZ])
-
-        direction = -1
-        count = 0
-        attempts = 0
-        secondsWaiting = 2
-
-        while not rospy.is_shutdown() and count < 3:
-            self.pos_target.header = Header()
-            self.pos_target.header.frame_id = "velocity_pos"
-            self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.type_mask = PositionTarget.IGNORE_AFX + PositionTarget.IGNORE_AFY + PositionTarget.IGNORE_AFZ + \
-                                        PositionTarget.FORCE + PositionTarget.IGNORE_YAW_RATE +  \
-                                        PositionTarget.IGNORE_PX + PositionTarget.IGNORE_PY + PositionTarget.IGNORE_PZ
-            self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
-
-            self.pos_target.position.x = centerX
-            self.pos_target.position.y = centerY
-            self.pos_target.position.z = centerZ
-
-            self.pos_target.velocity.x = 0
-            self.pos_target.velocity.y = 1.7 * direction
-            self.pos_target.velocity.z = 0
-            self.pos_target.yaw = 0
-
-            self.pos_target.type_mask = 0b0000101111000000 #0b0 000 000 000 000 000 ignor yarn acc vel pos
-
-            self.pos_target_setpoint_pub.publish(self.pos_target)
-
-            if self.returnDifference(LastPoint) > 2*amplitude:
-                direction *= -1
-                count += 1
-                attempts = 0
-                #waiting= True
-                if LastPoint == PointInfront:
-                    LastPoint = PointBehind
-                else:
-                    LastPoint = PointInfront
-
-            ## make if call here counting the number of attemtps if more than 3 seconts before increase counter -> connection break loop!
-
-            if attempts > freqenzy*secondsWaiting: # assume conection is made -> can not reach target 
-                rospy.loginfo("Connection made! continue ...")
-                break
-
-            attempts += 1 
-
-            self.saveDataToLogData(centerX, centerY, centerZ)
-
-            print(count,"- distance to next one: ", self.returnDifference([centerX, centerY, centerZ]), "distance to last one: ", self.returnDifference(LastPoint))
-
-            try:  # prevent garbage in console output when thread is killed
-                rate.sleep()
-            except rospy.ROSInterruptException:
-                pass     
 
     def navigate_to_starting_position(self, rate, initX, initY, initZ, last_req):
         offb_set_mode = SetModeRequest()
@@ -511,7 +382,7 @@ class MavrosOffboardSuctionMission():
 
             self.pos_setpoint_pub.publish(self.pos)
 
-            if self.is_at_position(self.offset,initX, initY, initZ, printOut=False):
+            if self.is_at_position(initX, initY, initZ, printOut=False):
                 rospy.loginfo("INITIAL POSITION REACHED")
                 break
 
@@ -545,32 +416,6 @@ class MavrosOffboardSuctionMission():
         rospy.loginfo("Finish sending setpoints!") 
     
     # ----------- HOVER -----------
-    # got to position and stay there for defined amount of time
-    def hoverAtPos(self, x, y, z, time):
-
-        #go to pos
-        self.goto_pos(x, y, z)
-
-        pose = PoseStamped()
-        frequence = 20
-        waitingTime = time * frequence
-        rate = rospy.Rate(frequence)  # Hz
-
-        pose.pose.position.x = x
-        pose.pose.position.y = y
-        pose.pose.position.z = z
-
-        # sent point until time is over
-        for i in range(waitingTime):
-            if(rospy.is_shutdown()):
-                break
-
-            self.pos_setpoint_pub.publish(pose)
-            self.saveDataToLogData(x,y,z)
-            rate.sleep()
-
-        rospy.loginfo("Waiting Over")
-
     def hover_at_current_pos(self, time):
         num_waiting_steps = time * self.GLOBAL_FREQUENCY
         rate = rospy.Rate(self.GLOBAL_FREQUENCY)
@@ -629,36 +474,6 @@ class MavrosOffboardSuctionMission():
         self.goto_pos_in_time(initX + 0.5, initY - 1, initZ + 2.0, 20)
 
         self.ros_log_info("NAVIGATE ENDED")
-
-        # ## go to start
-        # xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
-        # yOffset = yTarget + self.dp[0][1]-self.dp[-1][1]+0.5 ##stop in front of the branch do not need this any more?
-        # zOffset = zTarget + self.dp[0][2]-self.dp[-1][2]+hightOverBranch ## offset over the branch 
-        # initX = xOffset
-        # initY = yOffset
-        # initZ = zOffset
-
-        # rospy.loginfo("Go To Pos for Step 1")
-        # self.goto_pos(xOffset, yOffset, zOffset, writeToDataLogger=False)
-        # self.hoverAtPos(xOffset, yOffset, zOffset, 5)
-
-        # rospy.loginfo("Step 1")
-        # self.send_pos_raw(xOffset, yOffset, zOffset)
-
-        # rospy.loginfo("Pendelum Swinging")
-        # #self.swingPendelumViaPosition(xTarget, yTarget, zTarget+hightOverBranch)
-        # self.swingPendelum(xTarget, yTarget, zTarget+hightOverBranch)
-        # self.goto_pos(xTarget, yTarget, zTarget+hightOverBranch)
-
-        # rospy.loginfo("Step 2")
-        # self.hoverAtPos(xTarget, yTarget, zTarget+hightOverBranch, 4)
-
-        # rospy.loginfo("Go To Pos for Step 3")
-        # self.goto_pos(xTarget, -0.5, 1.45) # yTarget-ropeLengt/3, zTarget)
-        # self.hoverAtPos(xTarget, -0.5, 1.45, 4)
-
-        # rospy.loginfo("Step 3")
-        # self.auto_send_landing_pos_att() 
 
         # go to original pos
         rospy.loginfo("---- LAND ----")
