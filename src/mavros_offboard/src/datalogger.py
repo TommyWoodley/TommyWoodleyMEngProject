@@ -10,7 +10,7 @@ class dataLogger(object):
     def __init__(self):
         self.ticktime = []
         self.ticks = []  # time
-        self.x_ref = []  #aimed pos
+        self.x_ref = []  # aimed pos
         self.y_ref = []
         self.z_ref = []
         self.x_pos = []  # actuall pos
@@ -48,10 +48,10 @@ class dataLogger(object):
         text = colored('Saving all logged data..', 'green', attrs=['reverse', 'blink'])
         print(text)
         with open("FlightLog" + self.timestr + ".txt", "w") as output:
-            output.writelines(map("{};{};{};{};{};{};{};{};{};{}\n".format, self.ticktime,\
-                                  self.x_ref, self.y_ref, self.z_ref,\
-                                    self.x_pos, self.y_pos,self.z_pos, \
-                                      self.vx, self.vy, self.vz))
+            output.writelines(map("{};{};{};{};{};{};{};{};{};{}\n".format, self.ticktime,
+                                  self.x_ref, self.y_ref, self.z_ref,
+                                  self.x_pos, self.y_pos,self.z_pos,
+                                  self.vx, self.vy, self.vz))
 
     def plotFigure(self):
         print('Plotting the results..')
@@ -69,7 +69,7 @@ class dataLogger(object):
         rmsez = np.sqrt(sum(sqrez) / np.size(ez))
         print('RMSE XYZ = ', rmsex, rmsey, rmsez)
 
-        #cal velocety
+        # calculate velocity
         time_np = np.array(self.ticktime)
         x_np = np.array(self.x_pos)
         y_np = np.array(self.y_pos)
@@ -81,11 +81,12 @@ class dataLogger(object):
         tot_v = (ref_vx ** 2 + ref_vy ** 2 + ref_vz ** 2) ** 0.5
         print("v_max = ", max(tot_v))
 
-        fig = plt.figure("XYZ plot", figsize=(16,9))
-        ax1  = plt.subplot2grid((6,8),(0,0),projection='3d', colspan=4, rowspan=6)
+        fig = plt.figure("XYZ plot", figsize=(16, 9))
+        ax1 = plt.subplot2grid((6, 8), (0, 0), projection='3d', colspan=4, rowspan=6)
         ax1.plot3D(self.x_ref, self.y_ref, self.z_ref, 'k--', label='Target', color='blue')
         cmap = plt.get_cmap('autumn')
-        ax1.scatter(self.x_pos[1:], self.y_pos[1:], self.z_pos[1:], c=cmap(1-np.abs(tot_v) / abs(max(tot_v))), edgecolor='none', label='Drone trajectory')
+        ax1.scatter(self.x_pos[1:], self.y_pos[1:], self.z_pos[1:], c=cmap(1 - np.abs(tot_v) / abs(max(tot_v))),
+                    edgecolor='none', label='Drone trajectory')
         ax1.set_xlabel('x')
         ax1.set_ylabel('y')
         ax1.set_zlabel('z')
@@ -94,7 +95,7 @@ class dataLogger(object):
         ax1.set_zlim3d(0, 4)
         ax1.legend()
 
-        ax2 = plt.subplot2grid((6, 8), (0, 4), colspan=2,rowspan=2)
+        ax2 = plt.subplot2grid((6, 8), (0, 4), colspan=2, rowspan=2)
         ax2.plot(self.ticktime, self.x_ref, self.ticktime, self.x_pos)
         ax2.grid(True)
         ax2.set_xlabel('time (s)')
@@ -103,56 +104,52 @@ class dataLogger(object):
         ax3 = plt.subplot2grid((6, 8), (2, 4), colspan=2, rowspan=2)
         ax3.plot(self.ticktime, self.y_ref, self.ticktime, self.y_pos)
         ax3.grid(True)
-        ax3.set_xlabel ('time (s)')
+        ax3.set_xlabel('time (s)')
         ax3.set_ylabel('Y (m)')
-        #ax3.text(2, 1, 'RMSE Y = %.2f'%rmsey, fontsize=10)
 
-        ax4 = plt.subplot2grid((6,8),(4,4),colspan=2,rowspan=2)
-        ax4.plot(self.ticktime,self.z_ref,self.ticktime,self.z_pos)
+        ax4 = plt.subplot2grid((6, 8), (4, 4), colspan=2, rowspan=2)
+        ax4.plot(self.ticktime, self.z_ref, self.ticktime, self.z_pos)
         ax4.grid(True)
-        ax4.set_xlabel ("time(s)")
+        ax4.set_xlabel("time(s)")
         ax4.set_ylabel('Z (m)')
-        ax4.text(50, 0.5, 'RMSE Z = %.2f'%rmsez, fontsize=10)
+        ax4.text(50, 0.5, 'RMSE Z = %.2f' % rmsez, fontsize=10)
 
-        #cal velocety
+        # calculate velocety
         time_np = np.array(self.ticktime)
         x_np = np.array(self.x_pos)
         y_np = np.array(self.y_pos)
         z_np = np.array(self.z_pos)
-        time_steps = (time_np[1:]-time_np[:-1])
-        ref_vx = (x_np[1:]-x_np[:-1])/time_steps
-        ref_vy = (y_np[1:]-y_np[:-1])/time_steps
-        ref_vz = (z_np[1:]-z_np[:-1])/time_steps
+        time_steps = (time_np[1:] - time_np[:-1])
+        ref_vx = (x_np[1:] - x_np[:-1]) / time_steps
+        ref_vy = (y_np[1:] - y_np[:-1]) / time_steps
+        ref_vz = (z_np[1:] - z_np[:-1]) / time_steps
 
-        ax2 = plt.subplot2grid((6,8),(0,6),colspan=2,rowspan=2)
-        ax2.plot(self.ticktime,self.vx,'m*')
-        ax2.plot(self.ticktime[1:],ref_vx,'b^')
+        ax2 = plt.subplot2grid((6, 8), (0, 6), colspan=2,rowspan=2)
+        ax2.plot(self.ticktime, self.vx, 'm*')
+        ax2.plot(self.ticktime[1:], ref_vx, 'b^')
         ax2.grid(True)
-        ax2.set_xlabel ('time (s)')
+        ax2.set_xlabel('time (s)')
         ax2.set_ylabel('Vx (m)')
-        #ax2.text(2, 1, 'RMSE X = %.2f'%rmsex, fontsize=10)
 
-        ax3 = plt.subplot2grid((6,8),(2,6),colspan=2,rowspan=2)
-        ax3.plot(self.ticktime,self.vy,'m*')
-        ax3.plot(self.ticktime[1:],ref_vy,'b^')
+        ax3 = plt.subplot2grid((6, 8), (2, 6), colspan=2, rowspan=2)
+        ax3.plot(self.ticktime, self.vy, 'm*')
+        ax3.plot(self.ticktime[1:], ref_vy, 'b^')
         ax3.grid(True)
-        ax3.set_xlabel ('time (s)')
+        ax3.set_xlabel('time (s)')
         ax3.set_ylabel('Vy (m)')
-        #ax3.text(2, 1, 'RMSE Y = %.2f'%rmsey, fontsize=10)
 
-        ax4 = plt.subplot2grid((6,8),(4,6),colspan=2,rowspan=2)
-        ax4.plot(self.ticktime,self.vz,'m*')
-        ax4.plot(self.ticktime[1:],ref_vz,'b^')
+        ax4 = plt.subplot2grid((6, 8), (4, 6), colspan=2, rowspan=2)
+        ax4.plot(self.ticktime, self.vz, 'm*')
+        ax4.plot(self.ticktime[1:], ref_vz, 'b^')
         ax4.grid(True)
-        ax4.set_xlabel ("time(s)")
+        ax4.set_xlabel("time(s)")
         ax4.set_ylabel('Vz (m)')
-        ax4.text(50, 0.5, 'RMSE Z = %.2f'%rmsez, fontsize=10)
+        ax4.text(50, 0.5, 'RMSE Z = %.2f' % rmsez, fontsize=10)
 
         fig.tight_layout()
         fig.subplots_adjust(hspace=1)
 
         plt.show()
-
 
     def plotControlData(self):
         print('Plotting the control signal..')
@@ -160,7 +157,7 @@ class dataLogger(object):
         plt.plot(self.ticks,self.u_smc,label='SMC')
         plt.plot(self.ticks,self.u_palm, label ='NN')
         plt.grid(True)
-        plt.xlabel ("time(s)")
+        plt.xlabel("time(s)")
         plt.ylabel('control signal')
         plt.legend()
 
