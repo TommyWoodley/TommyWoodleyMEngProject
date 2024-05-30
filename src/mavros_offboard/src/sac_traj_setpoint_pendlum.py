@@ -274,7 +274,7 @@ class MavrosOffboardSuctionMission():
             self.pos_target.velocity.y = velocity_y
             self.pos_target.velocity.z = velocity_z
 
-            self.ros_log_info("Current Position x=", current_x, ", y=", current_y, ", z=", current_z, " | x=", x, ", y=", y, ", z=", z)
+            self.ros_log_info("Current Position x=" + str(current_x) + ", y=" + str(current_y) + ", z=" + str(current_z) + " | x=" + str(x) + ", y=" + str(y) + ", z=" + str(z))
 
             self.pos_target_setpoint_pub.publish(self.pos_target)
 
