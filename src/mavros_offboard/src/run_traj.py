@@ -59,30 +59,10 @@ class MavrosOffboardSuctionMission():
             rospy.loginfo("ROS services are up")
         except rospy.ROSException:
             self.fail("failed to connect to services")
-
-        self.dp = None
-        self.anglePoints = None
+            
         self.vy = vy
         self.vNeeded = 2
         self.droneOrientation = 0
-        try:
-            ## Enter full path of the waypointn txt file here
-            home = expanduser("~")
-            filename = home + "/catkin_ws/src/mavros_offboard/src/velocety2_droneAngel39.txt"
-            self.dp = np.loadtxt(filename, dtype='float', delimiter=' ', skiprows=2)
-            rospy.loginfo("Read datapoint file for Approching.")
-            #self.vy *= self.dp[-1][4] # correct the direction based on the last entry of the waypoint file
-        except Exception as e:
-            self.fail("Failed to read datapoint")
-
-        try:
-            ## Enter full path of the waypointn txt file here
-            home = expanduser("~")
-            filename = home + "/catkin_ws/src/mavros_offboard/src/shutdownControll-5000-plus.txt"
-            self.anglePoints = np.loadtxt(filename, dtype='float', skiprows=2)
-            rospy.loginfo("Read datapoint file for shutdown.")
-        except Exception as e:
-            self.fail("Failed to read datapoint")
         
         # mavros service
         self.set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming',
@@ -389,30 +369,6 @@ class MavrosOffboardSuctionMission():
             rate.sleep()
         
         return last_req
-
-    # using datapoint file and iterate over the datapoint for pitch angle
-    def auto_send_landing_pos_att(self):
-        rate = rospy.Rate(20)  # Hz
-        count = 0
-        loop_file = True
-        
-        while not rospy.is_shutdown():  
-            if True:
-                if loop_file:
-                     count += 1
-                     if count >= self.anglePoints.shape[0]:
-                        count = -1
-                        loop_file = False
-                self.att_setpoint_pub.publish(self.att_raw_msg(count))
-            else:
-                self.pos_target_setpoint_pub.publish(self.pos_raw_msg(None))
-            self.saveDataToLogData(0,0,0)
-            try:  # prevent garbage in console output when thread is killed
-                rate.sleep()
-            except rospy.ROSInterruptException:
-                pass
-                
-        rospy.loginfo("Finish sending setpoints!") 
     
     # ----------- HOVER -----------
     def hover_at_current_pos(self, time):
@@ -501,31 +457,6 @@ class MavrosOffboardSuctionMission():
 
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
-
-    def att_raw_msg(self, dp_count):
-        att_target = AttitudeTarget()
-        att_target.header = Header()
-        att_target.header.frame_id = "landing_att"
-        att_target.header.stamp = rospy.Time.now()
-        #att_target.type_mask = AttitudeTarget.IGNORE_ROLL_RATE + AttitudeTarget.IGNORE_ROLL_RATE + AttitudeTarget.IGNORE_ROLL_RATE
-        att_target.type_mask = AttitudeTarget.IGNORE_ATTITUDE
-        
-        if dp_count is None:
-            vector3 = Vector3(x=self.pitch_input , y=0.0 , z=0.0)
-            att_target.thrust = self.thrust_input
-        else:
-            if dp_count > -1:
-                vector3 = Vector3(x=self.anglePoints[dp_count] , y=0.0 , z=0.0)
-                att_target.thrust = 0.35 ###0.3
-            else:
-                vector3 = Vector3(x=self.anglePoints[-1] , y=0.0 , z=0.0)
-                att_target.thrust = 0.0
-            rospy.loginfo("current pitch rate from file = {0:.6f}".format(self.anglePoints[dp_count]))
-
-
-        att_target.body_rate = vector3
-
-        return att_target
 
 
 if __name__ == '__main__':
