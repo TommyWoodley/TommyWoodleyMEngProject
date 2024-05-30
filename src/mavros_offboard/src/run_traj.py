@@ -2,6 +2,7 @@
 import rospy
 import math
 import numpy as np
+import csv
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from mavros_msgs.msg import Altitude, ExtendedState, HomePosition, State, WaypointList, PositionTarget, AttitudeTarget
 from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest, CommandTOL
@@ -49,6 +50,10 @@ class MavrosOffboardSuctionMission():
         self.vy = vy
         self.vNeeded = 2
         self.droneOrientation = 0
+
+        rospy.loginfo("LOADING WAYPOINTS FROM FILE")
+        self.waypoints = self.load_waypoints_from_file("trajectory_1.csv")
+        rospy.loginfo("WAYPOINTS: " + str(self.waypoints))
 
         # mavros service
         self.set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming',
@@ -126,6 +131,30 @@ class MavrosOffboardSuctionMission():
 
     def ros_log_info(self, message):
         rospy.loginfo("WAYPOINT NAV: " + message)
+
+    # ----------- FILE -------------
+
+    def load_waypoints_from_file(filename):
+        """
+        Loads waypoints from a CSV file and returns a list of (x, y, z) tuples.
+        
+        Parameters:
+        - filename: Name of the CSV file to load.
+        
+        Returns:
+        - List of (x, y, z) tuples representing the waypoints.
+        """
+        waypoints = []
+        
+        with open(filename, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            next(csvreader)  # Skip the header row
+            
+            for row in csvreader:
+                x, y, z = map(float, row)
+                waypoints.append((x, y, z))
+        
+        return waypoints
 
     # ----------- CALLBACKS -----------
 
@@ -393,23 +422,31 @@ class MavrosOffboardSuctionMission():
 
         self.startup_mission(rate)
 
-        self.ros_log_info("NAVIGATE TO STARTING")
+        self.ros_log_info("TAKEOFF")
         last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
-        self.ros_log_info("NAVIGATE TO STARTING - ACHIEVED")
+        self.ros_log_info("TAKEOFF ACHIEVED")
 
-        self.ros_log_info("HOVER @ TAKEOFF POSITION")
+        self.ros_log_info("HOVER @ TAKEOFF POSITION 5s")
+        self.hover_at_current_pos(time=5)
+
+        self.ros_log_info("NAVIGATE TO STARTING POSITION")
+        x_start, y_start, z_start = self.waypoints[0]
+        self.goto_pos(x=x_start, y=y_start, z=z_start, writeToDataLogger=False)
+        self.ros_log_info("REACHED STARTING POSITION")
+
+        self.ros_log_info("HOVER @ STARTING POSITION 10s")
         self.hover_at_current_pos(time=10)
 
-        self.ros_log_info("NAVIGATE")
+        self.ros_log_info("STARTING TRAJECTORY")
 
-        waypoints = [(0, 0, 1), (0.5, 0, 1.5), (0.5, -1, 1)]
-        time_between_waypoint = 8
+        waypoints = self.waypoints
+        time_between_waypoint = 2
 
         for index, (x, y, z) in enumerate(waypoints):
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
             self.goto_pos_in_time(initX + x, initY + y, initZ + z, time_between_waypoint)
 
-        self.ros_log_info("NAVIGATE ENDED")
+        self.ros_log_info("TRAJECTORY ENDED")
 
         # go to original pos
         rospy.loginfo("---- LAND ----")
