@@ -52,7 +52,7 @@ class MavrosOffboardSuctionMission():
         self.droneOrientation = 0
 
         rospy.loginfo("LOADING WAYPOINTS FROM FILE")
-        self.waypoints = self.load_waypoints_from_file("trajectory_1.csv")
+        self.waypoints = self.load_waypoints_from_file("/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/trajectory_1.csv")
         rospy.loginfo("WAYPOINTS: " + str(self.waypoints))
 
         # mavros service
@@ -397,7 +397,7 @@ class MavrosOffboardSuctionMission():
                 break
 
             self.pos_setpoint_pub.publish(pose)
-            self.saveDataToLogData(self.pos.pose.position.x, self.pos.pose.position.y, self.pos.pose.position.z)
+            # self.saveDataToLogData(self.pos.pose.position.x, self.pos.pose.position.y, self.pos.pose.position.z)
             rate.sleep()
 
         self.ros_log_info("Waiting Over")
