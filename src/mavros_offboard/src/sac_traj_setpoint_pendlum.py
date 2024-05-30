@@ -244,7 +244,6 @@ class MavrosOffboardSuctionMission():
 
         rate = rospy.Rate(10)  # Hz
         start_time = rospy.Time.now()
-        end_time = start_time + duration
 
         current_x = self.pos.pose.position.x
         current_y = self.pos.pose.position.y
@@ -264,15 +263,11 @@ class MavrosOffboardSuctionMission():
         while not rospy.is_shutdown and not reached_pos:
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
-            remaining_time = end_time
-
-            if elapsed_time > duration or remaining_time <= 0:
-                self.ros_log_info("ERROR: Ran out of time to reach the target.")
             
             self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.position.x = current_x + velocity_x * elapsed_time
-            self.pos_target.position.y = current_y + velocity_y * elapsed_time
-            self.pos_target.position.z = current_z + velocity_z * elapsed_time
+            self.pos_target.position.x = current_x + velocity_x * elapsed_time.to_sec()
+            self.pos_target.position.y = current_y + velocity_y * elapsed_time.to_sec()
+            self.pos_target.position.z = current_z + velocity_z * elapsed_time.to_sec()
 
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
