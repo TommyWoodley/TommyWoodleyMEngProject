@@ -288,6 +288,10 @@ class MavrosOffboardSuctionMission():
         
         current_time = rospy.Time.now()
         time_taken = current_time - start_time
+        self.pos.pose.position.x = self.pos_target.position.x
+        self.pos.pose.position.y = self.pos_target.position.y
+        self.pos.pose.position.z = self.pos_target.position.z
+
         self.ros_log_info("Time taken: " + str(time_taken.to_sec()))
             
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
