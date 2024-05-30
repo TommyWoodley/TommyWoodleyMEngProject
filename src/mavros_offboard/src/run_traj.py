@@ -157,7 +157,8 @@ class MavrosOffboardSuctionMission():
     def imu_data_callback(self, data):
         self.imu_data = data
 
-        temp = Rotation.from_quat([self.imu_data.orientation.x, self.imu_data.orientation.y, self.imu_data.orientation.z, self.imu_data.orientation.w])
+        temp = Rotation.from_quat([self.imu_data.orientation.x, self.imu_data.orientation.y,
+                                   self.imu_data.orientation.z, self.imu_data.orientation.w])
         self.droneOrientation = temp.as_euler('zyx', degrees=True)
 
         if not self.sub_topics_ready['imu']:
@@ -299,12 +300,11 @@ class MavrosOffboardSuctionMission():
                                      self.local_velocety.twist.linear.z)
 
     def returnDifference(self, pos):
-        diff = ((self.local_position.pose.position.x - pos[0]) ** 2 + (self.local_position.pose.position.y-pos[1]) ** 2 
+        diff = ((self.local_position.pose.position.x - pos[0]) ** 2 + (self.local_position.pose.position.y - pos[1]) ** 2
                 + (self.local_position.pose.position.z - pos[2]) ** 2) ** 0.5
         return diff
-        
-    def is_at_position(self, x=0, y=0, z=0, printOut = False):
-        """offset: meters"""
+
+    def is_at_position(self, x=0, y=0, z=0, printOut=False):
         rospy.logdebug(
             "current position | x:{0:.2f}, y:{1:.2f}, z:{2:.2f}".format(
                 self.local_position.pose.position.x, self.local_position.pose.
@@ -317,8 +317,8 @@ class MavrosOffboardSuctionMission():
 
         if printOut:
             rospy.loginfo("goto x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  ".format(desired[0], desired[1], desired[2])
-                          + "|  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  ".format(pos[0], pos[1], pos[2])
-                          + "| diff:{6:.4f}".format(np.linalg.norm(desired - pos)))
+                          + "|  current x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  ".format(pos[0], pos[1], pos[2])
+                          + "| diff:{0:.4f}".format(np.linalg.norm(desired - pos)))
         return np.linalg.norm(desired - pos) < self.OFFSET
 
     # ----------- FLIGHT PATH METHODS -----------
@@ -330,17 +330,16 @@ class MavrosOffboardSuctionMission():
         arm_cmd = CommandBoolRequest()
         arm_cmd.value = True
 
-        while(not rospy.is_shutdown()):
-            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
+        while not rospy.is_shutdown():
+            if self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                if self.set_mode_client.call(offb_set_mode).mode_sent == True:
                     rospy.loginfo("OFFBOARD enabled")
                 
                 last_req = rospy.Time.now()
             else:
-                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                    if(self.arming_client.call(arm_cmd).success == True):
+                if not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                    if self.arming_client.call(arm_cmd).success:
                         rospy.loginfo("Vehicle armed")
-                
                     last_req = rospy.Time.now()
 
             self.pos_setpoint_pub.publish(self.pos)
@@ -349,12 +348,12 @@ class MavrosOffboardSuctionMission():
                 rospy.loginfo("INITIAL POSITION REACHED")
                 break
 
-            
             rate.sleep()
         
         return last_req
-    
+
     # ----------- HOVER -----------
+
     def hover_at_current_pos(self, time):
         num_waiting_steps = time * self.GLOBAL_FREQUENCY
         rate = rospy.Rate(self.GLOBAL_FREQUENCY)
@@ -377,9 +376,7 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("Waiting Over")
 
     # ----------- FLIGHT PATH METHODS -----------
-    def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
-        hightOverBranch = 0.8
-
+    def run_full_mission(self):
         # Setpoint publishing MUST be faster than 2Hz
         rate = rospy.Rate(20)
 
