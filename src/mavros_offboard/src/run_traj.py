@@ -41,25 +41,25 @@ class MavrosOffboardSuctionMission():
             rospy.wait_for_service('mavros/set_mode', service_timeout)
             rospy.wait_for_service('mavros/cmd/takeoff', service_timeout)
             rospy.wait_for_service('mavros/cmd/land', service_timeout)
-          
+
             rospy.loginfo("ROS services are up")
         except rospy.ROSException:
             self.fail("failed to connect to services")
-            
+
         self.vy = vy
         self.vNeeded = 2
         self.droneOrientation = 0
-        
+
         # mavros service
         self.set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming',
                                                  CommandBool)
         self.set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
         self.set_takeoff_srv = rospy.ServiceProxy('mavros/cmd/takeoff', CommandTOL)
         self.set_land_srv = rospy.ServiceProxy('mavros/cmd/land', CommandTOL)
-        
+
         self.set_trajectory = rospy.ServiceProxy('trajectory', SetBool)
         self.set_waitTrajectory = rospy.ServiceProxy('wait', SetBool)
-        
+
         # mavros topics
         self.altitude = Altitude()
         self.extended_state = ExtendedState()
@@ -69,7 +69,7 @@ class MavrosOffboardSuctionMission():
         self.local_velocety = TwistStamped()
         self.mission_wp = WaypointList()
         self.state = State()
-        
+
         self.pos = PoseStamped()
         self.pos_target = PositionTarget()
         self.angle = AttitudeTarget()
@@ -87,7 +87,7 @@ class MavrosOffboardSuctionMission():
             'mavros/setpoint_attitude/cmd_vel', TwistStamped, queue_size=1)
 
         rospy.wait_for_service("/mavros/cmd/arming")
-        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)    
+        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)
 
         rospy.wait_for_service("/mavros/set_mode")
         self.set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
@@ -108,8 +108,8 @@ class MavrosOffboardSuctionMission():
                                               ExtendedState,
                                               self.extended_state_callback)
         self.imu_data_sub = rospy.Subscriber('mavros/imu/data',
-                                               Imu,
-                                               self.imu_data_callback)
+                                             Imu,
+                                             self.imu_data_callback)
         self.state_sub = rospy.Subscriber('mavros/state', State,
                                           self.state_callback)
         self.local_pos_sub = rospy.Subscriber('mavros/local_position/pose',
@@ -119,16 +119,16 @@ class MavrosOffboardSuctionMission():
                                               TwistStamped,
                                               self.local_velocety_callback)
 
-
         # Data Logger object
         self.logData = dataLogger()
 
-
     # ----------- LOGGIGNG ---------
+
     def ros_log_info(self, message):
         rospy.loginfo("WAYPOINT NAV: " + message)
 
     # ----------- CALLBACKS -----------
+
     def altitude_callback(self, data):
         self.altitude = data
 
@@ -154,7 +154,6 @@ class MavrosOffboardSuctionMission():
         if not self.sub_topics_ready['ext_state']:
             self.sub_topics_ready['ext_state'] = True
 
-
     def imu_data_callback(self, data):
         self.imu_data = data
 
@@ -165,7 +164,6 @@ class MavrosOffboardSuctionMission():
 
         if not self.sub_topics_ready['imu']:
             self.sub_topics_ready['imu'] = True
-
 
     def state_callback(self, data):
         if self.state.armed != data.armed:
@@ -197,7 +195,7 @@ class MavrosOffboardSuctionMission():
 
         if not self.sub_topics_ready['local_pos']:
             self.sub_topics_ready['local_pos'] = True           
-            
+
     def local_velocety_callback(self, data):
         self.local_velocety = data
 
