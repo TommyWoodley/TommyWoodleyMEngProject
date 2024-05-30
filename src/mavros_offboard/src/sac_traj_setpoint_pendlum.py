@@ -397,7 +397,7 @@ class MavrosOffboardSuctionMission():
             except rospy.ROSInterruptException:
                 pass
         
-    def is_at_position(self, offset, x=0, y=0, z=0, printOut = True):
+    def is_at_position(self, offset, x=0, y=0, z=0, printOut = False):
         """offset: meters"""
         rospy.logdebug(
             "current position | x:{0:.2f}, y:{1:.2f}, z:{2:.2f}".format(
@@ -619,6 +619,11 @@ class MavrosOffboardSuctionMission():
 
         self.ros_log_info("NAVIGATE")
         self.goto_pos_in_time(initX, initY, initZ + 3, 20)
+
+        self.goto_pos_in_time(initX + 2, initY, initZ + 3, 5)
+
+        self.goto_pos_in_time(initX + 2, initY - 1, initZ + 3, 10)
+
         self.ros_log_info("NAVIGATE ENDED")
 
         # ## go to start
