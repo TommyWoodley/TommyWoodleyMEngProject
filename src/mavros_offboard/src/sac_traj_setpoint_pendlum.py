@@ -260,8 +260,9 @@ class MavrosOffboardSuctionMission():
 
         reached_pos = False
         self.pos_target = PositionTarget()
-        
+        self.ros_log_info("SAMPLE LOG 1" )
         while not rospy.is_shutdown and not reached_pos:
+            self.ros_log_info("SAMPLE LOG 2" )
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
             
