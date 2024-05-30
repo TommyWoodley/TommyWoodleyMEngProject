@@ -2,26 +2,15 @@
 import rospy
 import math
 import numpy as np
-import time
-from geometry_msgs.msg import PoseStamped, Quaternion, Point, Vector3, Twist, TwistStamped, WrenchStamped, AccelStamped
-from mavros_msgs.msg import ParamValue
-from mavros_msgs.msg import Altitude, ExtendedState, HomePosition, ParamValue, State, \
-                            WaypointList, PositionTarget, AttitudeTarget
-from mavros_msgs.srv import CommandBool, CommandBoolRequest, ParamGet, ParamSet, SetMode, SetModeRequest, WaypointClear, \
-                            WaypointPush, CommandTOL
-from sensor_msgs.msg import NavSatFix, Imu
+from geometry_msgs.msg import PoseStamped, TwistStamped
+from mavros_msgs.msg import Altitude, ExtendedState, HomePosition, State, WaypointList, PositionTarget, AttitudeTarget
+from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest, CommandTOL
+from sensor_msgs.msg import Imu
 from controller_msgs.msg import FlatTarget
-#from mavros_test_common import MavrosTestCommon
 from pymavlink import mavutil
-from six.moves import xrange
 from std_msgs.msg import Header, Float64
-from threading import Thread
-from tf.transformations import quaternion_from_euler, euler_from_quaternion
-from multiprocessing import Value
-from ctypes import c_int
-from collections import deque
-from std_srvs.srv import SetBool, SetBoolRequest
-from os.path import expanduser
+from tf.transformations import quaternion_from_euler
+from std_srvs.srv import SetBool
 
 from datalogger import *
 from scipy.spatial.transform import Rotation
