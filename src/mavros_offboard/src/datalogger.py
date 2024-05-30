@@ -98,7 +98,6 @@ class dataLogger(object):
             ax1.set_zlim3d(0,4)
             ax1.legend()
 
-            matplotlib.style.use('ggplot')
             ax2 = plt.subplot2grid((6,8),(0,4),colspan=2,rowspan=2)
             ax2.plot(self.ticktime,self.x_ref,self.ticktime,self.x_pos)
             ax2.grid(True)
@@ -130,7 +129,6 @@ class dataLogger(object):
             ref_vy = (y_np[1:]-y_np[:-1])/time_steps
             ref_vz = (z_np[1:]-z_np[:-1])/time_steps
 
-            matplotlib.style.use('ggplot')
             ax2 = plt.subplot2grid((6,8),(0,6),colspan=2,rowspan=2)
             ax2.plot(self.ticktime,self.vx,'m*')
             ax2.plot(self.ticktime[1:],ref_vx,'b^')
