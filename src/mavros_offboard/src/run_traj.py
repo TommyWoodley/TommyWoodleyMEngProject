@@ -2,28 +2,17 @@
 import rospy
 import math
 import numpy as np
-import time
-from geometry_msgs.msg import PoseStamped, Quaternion, Point, Vector3, Twist, TwistStamped, WrenchStamped, AccelStamped
-from mavros_msgs.msg import ParamValue
-from mavros_msgs.msg import Altitude, ExtendedState, HomePosition, ParamValue, State, \
-                            WaypointList, PositionTarget, AttitudeTarget
-from mavros_msgs.srv import CommandBool, CommandBoolRequest, ParamGet, ParamSet, SetMode, SetModeRequest, WaypointClear, \
-                            WaypointPush, CommandTOL
-from sensor_msgs.msg import NavSatFix, Imu
+from geometry_msgs.msg import PoseStamped, TwistStamped
+from mavros_msgs.msg import Altitude, ExtendedState, HomePosition, State, WaypointList, PositionTarget, AttitudeTarget
+from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest, CommandTOL
+from sensor_msgs.msg import Imu
 from controller_msgs.msg import FlatTarget
-#from mavros_test_common import MavrosTestCommon
 from pymavlink import mavutil
-from six.moves import xrange
 from std_msgs.msg import Header, Float64
-from threading import Thread
-from tf.transformations import quaternion_from_euler, euler_from_quaternion
-from multiprocessing import Value
-from ctypes import c_int
-from collections import deque
-from std_srvs.srv import SetBool, SetBoolRequest
-from os.path import expanduser
+from tf.transformations import quaternion_from_euler
+from std_srvs.srv import SetBool
 
-from datalogger import *
+from datalogger import dataLogger
 from scipy.spatial.transform import Rotation
 
 
@@ -39,7 +28,7 @@ class MavrosOffboardSuctionMission():
     GLOBAL_FREQUENCY = 20
     OFFSET = 0.1
 
-    def __init__(self, offset = 0.1, vy = 5):
+    def __init__(self, vy=5):
         # ROS services
         service_timeout = 30
         rospy.loginfo("waiting for ROS services")
@@ -52,28 +41,25 @@ class MavrosOffboardSuctionMission():
             rospy.wait_for_service('mavros/set_mode', service_timeout)
             rospy.wait_for_service('mavros/cmd/takeoff', service_timeout)
             rospy.wait_for_service('mavros/cmd/land', service_timeout)
-            
-            #rospy.wait_for_service('/trajectory', service_timeout)
-            #rospy.wait_for_service('/wait', service_timeout)
-            
+
             rospy.loginfo("ROS services are up")
         except rospy.ROSException:
             self.fail("failed to connect to services")
-            
+
         self.vy = vy
         self.vNeeded = 2
         self.droneOrientation = 0
-        
+
         # mavros service
         self.set_arming_srv = rospy.ServiceProxy('mavros/cmd/arming',
                                                  CommandBool)
         self.set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
         self.set_takeoff_srv = rospy.ServiceProxy('mavros/cmd/takeoff', CommandTOL)
         self.set_land_srv = rospy.ServiceProxy('mavros/cmd/land', CommandTOL)
-        
+
         self.set_trajectory = rospy.ServiceProxy('trajectory', SetBool)
         self.set_waitTrajectory = rospy.ServiceProxy('wait', SetBool)
-        
+
         # mavros topics
         self.altitude = Altitude()
         self.extended_state = ExtendedState()
@@ -83,8 +69,7 @@ class MavrosOffboardSuctionMission():
         self.local_velocety = TwistStamped()
         self.mission_wp = WaypointList()
         self.state = State()
-        self.offset = offset
-        
+
         self.pos = PoseStamped()
         self.pos_target = PositionTarget()
         self.angle = AttitudeTarget()
@@ -102,7 +87,7 @@ class MavrosOffboardSuctionMission():
             'mavros/setpoint_attitude/cmd_vel', TwistStamped, queue_size=1)
 
         rospy.wait_for_service("/mavros/cmd/arming")
-        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)    
+        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)
 
         rospy.wait_for_service("/mavros/set_mode")
         self.set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
@@ -123,8 +108,8 @@ class MavrosOffboardSuctionMission():
                                               ExtendedState,
                                               self.extended_state_callback)
         self.imu_data_sub = rospy.Subscriber('mavros/imu/data',
-                                               Imu,
-                                               self.imu_data_callback)
+                                             Imu,
+                                             self.imu_data_callback)
         self.state_sub = rospy.Subscriber('mavros/state', State,
                                           self.state_callback)
         self.local_pos_sub = rospy.Subscriber('mavros/local_position/pose',
@@ -134,16 +119,16 @@ class MavrosOffboardSuctionMission():
                                               TwistStamped,
                                               self.local_velocety_callback)
 
-
         # Data Logger object
         self.logData = dataLogger()
 
-
     # ----------- LOGGIGNG ---------
+
     def ros_log_info(self, message):
         rospy.loginfo("WAYPOINT NAV: " + message)
 
     # ----------- CALLBACKS -----------
+
     def altitude_callback(self, data):
         self.altitude = data
 
@@ -169,18 +154,15 @@ class MavrosOffboardSuctionMission():
         if not self.sub_topics_ready['ext_state']:
             self.sub_topics_ready['ext_state'] = True
 
-
     def imu_data_callback(self, data):
         self.imu_data = data
 
-        #print(data)
-
-        temp = Rotation.from_quat([self.imu_data.orientation.x,self.imu_data.orientation.y,self.imu_data.orientation.z,self.imu_data.orientation.w])
+        temp = Rotation.from_quat([self.imu_data.orientation.x, self.imu_data.orientation.y,
+                                   self.imu_data.orientation.z, self.imu_data.orientation.w])
         self.droneOrientation = temp.as_euler('zyx', degrees=True)
 
         if not self.sub_topics_ready['imu']:
             self.sub_topics_ready['imu'] = True
-
 
     def state_callback(self, data):
         if self.state.armed != data.armed:
@@ -211,13 +193,13 @@ class MavrosOffboardSuctionMission():
         self.local_position = data
 
         if not self.sub_topics_ready['local_pos']:
-            self.sub_topics_ready['local_pos'] = True           
-            
+            self.sub_topics_ready['local_pos'] = True
+
     def local_velocety_callback(self, data):
         self.local_velocety = data
 
         if not self.sub_topics_ready['local_vel']:
-            self.sub_topics_ready['local_vel'] = True 
+            self.sub_topics_ready['local_vel'] = True
 
     # ----------- GOTO -----------
     def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
@@ -258,13 +240,14 @@ class MavrosOffboardSuctionMission():
             reached_pos = self.is_at_position(x, y, z)
 
             if writeToDataLogger:
-                self.saveDataToLogData(self.pos_target.position.x, self.pos_target.position.y , self.pos_target.position.z)
+                self.saveDataToLogData(self.pos_target.position.x, self.pos_target.position.y,
+                                       self.pos_target.position.z)
 
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
             except rospy.ROSInterruptException:
                 pass
-        
+
         current_time = rospy.Time.now()
         time_taken = current_time - start_time
         self.pos.pose.position.x = self.pos_target.position.x
@@ -272,26 +255,26 @@ class MavrosOffboardSuctionMission():
         self.pos.pose.position.z = self.pos_target.position.z
 
         self.ros_log_info("Time taken: " + str(time_taken.to_sec()))
-            
+
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
 
         rate = rospy.Rate(10)  # Hz
         reached_pos = False
         self.pos = PoseStamped()
-    
+
         while not rospy.is_shutdown() and not reached_pos:
             self.pos.header = Header()
             self.pos.header.frame_id = "goto_pos"
             self.pos.pose.position.x = x
             self.pos.pose.position.y = y
-            
-            if z >= 0:
-                 self.pos.pose.position.z = z
-            else:
-                 # in case you use this for the waypoints with negative Z values...
-                 self.pos.pose.position.z = 0.8
 
-            quaternion = quaternion_from_euler(0.0, 0.0, 0.0) # roll, pitch, yaw angle
+            if z >= 0:
+                self.pos.pose.position.z = z
+            else:
+                # in case you use this for the waypoints with negative Z values...
+                self.pos.pose.position.z = 0.8
+
+            quaternion = quaternion_from_euler(0.0, 0.0, 0.0)  # roll, pitch, yaw angle
             self.pos.pose.orientation.x = quaternion[0]
             self.pos.pose.orientation.y = quaternion[1]
             self.pos.pose.orientation.z = quaternion[2]
@@ -302,7 +285,7 @@ class MavrosOffboardSuctionMission():
             reached_pos = self.is_at_position(x, y, z)
 
             if writeToDataLogger:
-                self.saveDataToLogData(x,y,z)
+                self.saveDataToLogData(x, y, z)
 
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
@@ -310,17 +293,19 @@ class MavrosOffboardSuctionMission():
                 pass
 
     # ----------- HELPERS -----------
-    def saveDataToLogData(self,x,y,z):
-            self.logData.appendStateData(rospy.Time.now().to_sec(),x,y,z \
-                , self.local_position.pose.position.x,self.local_position.pose.position.y,self.local_position.pose.position.z \
-                ,self.local_velocety.twist.linear.x,self.local_velocety.twist.linear.y, self.local_velocety.twist.linear.z)
+    def saveDataToLogData(self, x, y, z):
+        self.logData.appendStateData(rospy.Time.now().to_sec(), x, y, z, self.local_position.pose.position.x,
+                                     self.local_position.pose.position.y, self.local_position.pose.position.z,
+                                     self.local_velocety.twist.linear.x, self.local_velocety.twist.linear.y,
+                                     self.local_velocety.twist.linear.z)
 
     def returnDifference(self, pos):
-        diff = ((self.local_position.pose.position.x-pos[0])**2+(self.local_position.pose.position.y-pos[1])**2+(self.local_position.pose.position.z-pos[2])**2)**0.5
+        diff = ((self.local_position.pose.position.x - pos[0]) ** 2
+                + (self.local_position.pose.position.y - pos[1]) ** 2
+                + (self.local_position.pose.position.z - pos[2]) ** 2) ** 0.5
         return diff
-        
-    def is_at_position(self, x=0, y=0, z=0, printOut = False):
-        """offset: meters"""
+
+    def is_at_position(self, x=0, y=0, z=0, printOut=False):
         rospy.logdebug(
             "current position | x:{0:.2f}, y:{1:.2f}, z:{2:.2f}".format(
                 self.local_position.pose.position.x, self.local_position.pose.
@@ -332,9 +317,9 @@ class MavrosOffboardSuctionMission():
                         self.local_position.pose.position.z))
 
         if printOut:
-            rospy.loginfo(
-                "goto x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  |  current x:{3:.4f}, y:{4:.4f}, z:{5:.4f}  | diff:{6:.4f}".format(
-                    desired[0], desired[1], desired[2], pos[0], pos[1], pos[2], np.linalg.norm(desired - pos) ))
+            rospy.loginfo("goto x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  ".format(desired[0], desired[1], desired[2])
+                          + "|  current x:{0:.4f}, y:{1:.4f}, z:{2:.4f}  ".format(pos[0], pos[1], pos[2])
+                          + "| diff:{0:.4f}".format(np.linalg.norm(desired - pos)))
         return np.linalg.norm(desired - pos) < self.OFFSET
 
     # ----------- FLIGHT PATH METHODS -----------
@@ -346,17 +331,15 @@ class MavrosOffboardSuctionMission():
         arm_cmd = CommandBoolRequest()
         arm_cmd.value = True
 
-        while(not rospy.is_shutdown()):
-            if(self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(offb_set_mode).mode_sent == True):
+        while not rospy.is_shutdown():
+            if self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                if self.set_mode_client.call(offb_set_mode).mode_sent:
                     rospy.loginfo("OFFBOARD enabled")
-                
                 last_req = rospy.Time.now()
             else:
-                if(not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                    if(self.arming_client.call(arm_cmd).success == True):
+                if not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                    if self.arming_client.call(arm_cmd).success:
                         rospy.loginfo("Vehicle armed")
-                
                     last_req = rospy.Time.now()
 
             self.pos_setpoint_pub.publish(self.pos)
@@ -364,13 +347,11 @@ class MavrosOffboardSuctionMission():
             if self.is_at_position(initX, initY, initZ, printOut=False):
                 rospy.loginfo("INITIAL POSITION REACHED")
                 break
-
-            
             rate.sleep()
-        
         return last_req
-    
+
     # ----------- HOVER -----------
+
     def hover_at_current_pos(self, time):
         num_waiting_steps = time * self.GLOBAL_FREQUENCY
         rate = rospy.Rate(self.GLOBAL_FREQUENCY)
@@ -393,20 +374,18 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("Waiting Over")
 
     # ----------- FLIGHT PATH METHODS -----------
-    def run_full_mission(self, xTarget = 0, yTarget = -2, zTarget = 1):
-        hightOverBranch = 0.8
-
+    def run_full_mission(self):
         # Setpoint publishing MUST be faster than 2Hz
         rate = rospy.Rate(20)
 
         # Wait for Flight Controller connection
-        while(not rospy.is_shutdown() and not self.state.connected):
+        while not rospy.is_shutdown() and not self.state.connected:
             rate.sleep()
 
         # Initially take off 2m in the air and wait
         initX = self.local_position.pose.position.x
         initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 1 ##take off 2m
+        initZ = self.local_position.pose.position.z + 1  # take off 1m
 
         self.pos.pose.position.x = initX
         self.pos.pose.position.y = initY
@@ -434,25 +413,24 @@ class MavrosOffboardSuctionMission():
 
         # go to original pos
         rospy.loginfo("---- LAND ----")
-        self.goto_pos(initX,initY,initZ, writeToDataLogger=False)
+        self.goto_pos(initX, initY, initZ, writeToDataLogger=False)
         land_set_mode = SetModeRequest()
         land_set_mode.custom_mode = 'AUTO.LAND'
 
         last_req = rospy.Time.now()
 
-        while(not rospy.is_shutdown() and self.state.armed):
-            if(self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(land_set_mode).mode_sent == True):
+        while not rospy.is_shutdown() and self.state.armed:
+            if self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                if self.set_mode_client.call(land_set_mode).mode_sent:
                     rospy.loginfo("AUTO.LAND enabled")
-
                 last_req = rospy.Time.now()
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
 
     def startup_mission(self, rate):
         # Send a few setpoints before starting
-        for i in range(100):   
-            if(rospy.is_shutdown()):
+        for i in range(100):
+            if rospy.is_shutdown():
                 break
 
             self.pos_setpoint_pub.publish(self.pos)
@@ -462,7 +440,7 @@ class MavrosOffboardSuctionMission():
 if __name__ == '__main__':
     rospy.init_node('offboard_mission_node')
     suction_mission = MavrosOffboardSuctionMission()
-    suction_mission.run_full_mission(xTarget = 0.65, yTarget = 0.45, zTarget = 1.4)
+    suction_mission.run_full_mission()
 
     suction_mission.logData.saveAll()
     suction_mission.logData.plotFigure()
