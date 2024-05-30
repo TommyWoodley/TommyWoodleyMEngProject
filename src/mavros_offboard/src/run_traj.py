@@ -12,7 +12,7 @@ from std_msgs.msg import Header, Float64
 from tf.transformations import quaternion_from_euler
 from std_srvs.srv import SetBool
 
-from datalogger import *
+from datalogger import dataLogger
 from scipy.spatial.transform import Rotation
 
 
@@ -28,7 +28,7 @@ class MavrosOffboardSuctionMission():
     GLOBAL_FREQUENCY = 20
     OFFSET = 0.1
 
-    def __init__(self, offset = 0.1, vy = 5):
+    def __init__(self, vy=5):
         # ROS services
         service_timeout = 30
         rospy.loginfo("waiting for ROS services")
@@ -41,10 +41,7 @@ class MavrosOffboardSuctionMission():
             rospy.wait_for_service('mavros/set_mode', service_timeout)
             rospy.wait_for_service('mavros/cmd/takeoff', service_timeout)
             rospy.wait_for_service('mavros/cmd/land', service_timeout)
-            
-            #rospy.wait_for_service('/trajectory', service_timeout)
-            #rospy.wait_for_service('/wait', service_timeout)
-            
+          
             rospy.loginfo("ROS services are up")
         except rospy.ROSException:
             self.fail("failed to connect to services")
@@ -72,7 +69,6 @@ class MavrosOffboardSuctionMission():
         self.local_velocety = TwistStamped()
         self.mission_wp = WaypointList()
         self.state = State()
-        self.offset = offset
         
         self.pos = PoseStamped()
         self.pos_target = PositionTarget()
