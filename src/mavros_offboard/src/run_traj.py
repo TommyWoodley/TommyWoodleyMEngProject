@@ -429,7 +429,7 @@ class MavrosOffboardSuctionMission():
 
     def startup_mission(self, rate):
         # Send a few setpoints before starting
-        for i in range(100):   
+        for i in range(100):
             if rospy.is_shutdown():
                 break
 
