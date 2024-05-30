@@ -450,7 +450,7 @@ class MavrosOffboardSuctionMission():
         # Initially take off 2m in the air and wait
         initX = self.local_position.pose.position.x
         initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 2 ##take off 2m
+        initZ = self.local_position.pose.position.z + 1 ##take off 2m
 
         self.pos.pose.position.x = initX
         self.pos.pose.position.y = initY
@@ -467,7 +467,7 @@ class MavrosOffboardSuctionMission():
 
         self.ros_log_info("NAVIGATE")
 
-        waypoints = [(0, 0, 3), (0.5, 0, 0), (0.5, -1, 0)]
+        waypoints = [(0, 0, 1), (0.5, 0, 1.5), (0.5, -1, 1)]
         time_between_waypoint = 20
 
         for index, (x, y, z) in enumerate(waypoints):
