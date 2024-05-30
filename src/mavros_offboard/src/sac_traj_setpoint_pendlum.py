@@ -239,6 +239,57 @@ class MavrosOffboardSuctionMission():
             self.sub_topics_ready['local_vel'] = True 
 
     # ----------- HELPERS -----------
+    def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
+        assert duration > 0, "was " + duration
+
+        rate = rospy.Rate(10)  # Hz
+        start_time = rospy.Time.now()
+        end_time = start_time + duration
+
+        current_x = self.pos.pose.position.x
+        current_y = self.pos.pose.position.y
+        current_z = self.pos.pose.position.z
+
+        distance_x = x - current_x
+        distance_y = y - current_y
+        distance_z = z - current_z
+
+        velocity_x = distance_x / duration
+        velocity_y = distance_y / duration
+        velocity_z = distance_z / duration
+
+        reached_pos = False
+        self.pos_target = PositionTarget()
+        
+        while not rospy.is_shutdown and not reached_pos:
+            current_time = rospy.Time.now()
+            elapsed_time = current_time - start_time
+            remaining_time = end_time
+
+            if elapsed_time > duration or remaining_time <= 0:
+                self.ros_log_info("ERROR: Ran out of time to reach the target.")
+            
+            self.pos_target.header.stamp = rospy.Time.now()
+            self.pos_target.position.x = current_x + velocity_x * elapsed_time
+            self.pos_target.position.y = current_y + velocity_y * elapsed_time
+            self.pos_target.position.z = current_z + velocity_z * elapsed_time
+
+            self.pos_target.velocity.x = velocity_x
+            self.pos_target.velocity.y = velocity_y
+            self.pos_target.velocity.z = velocity_z
+
+            self.pos_target_setpoint_pub.publish(self.pos_target)
+
+            reached_pos = self.is_at_position(self.offset, x, y, z)
+
+            if writeToDataLogger:
+                self.saveDataToLogData(x,y,z)
+
+            try:  # prevent garbage in console output when thread is killed
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                pass
+            
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
 
         rate = rospy.Rate(10)  # Hz
@@ -565,6 +616,8 @@ class MavrosOffboardSuctionMission():
 
         self.ros_log_info("HOVER @ TAKEOFF POSITION")
         self.hover_at_current_pos(time=10)
+
+        self.goto_pos_in_time(5, 0, 0, 20)
 
         # ## go to start
         # xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
