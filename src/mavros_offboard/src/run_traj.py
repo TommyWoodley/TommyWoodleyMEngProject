@@ -134,7 +134,7 @@ class MavrosOffboardSuctionMission():
 
     # ----------- FILE -------------
 
-    def load_waypoints_from_file(filename):
+    def load_waypoints_from_file(self, filename):
         """
         Loads waypoints from a CSV file and returns a list of (x, y, z) tuples.
         
