@@ -239,16 +239,16 @@ class MavrosOffboardSuctionMission():
         if not self.sub_topics_ready['local_vel']:
             self.sub_topics_ready['local_vel'] = True 
 
-    # ----------- HELPERS -----------
+    # ----------- GOTO -----------
     def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
         assert duration > 0, "was " + duration
 
         rate = rospy.Rate(10)  # Hz
         start_time = rospy.Time.now()
 
-        current_x = self.pos.pose.position.x
-        current_y = self.pos.pose.position.y
-        current_z = self.pos.pose.position.z
+        current_x = self.local_position.pose.position.x
+        current_y = self.local_position.pose.position.y
+        current_z = self.local_position.pose.position.z
 
         distance_x = x - current_x
         distance_y = y - current_y
@@ -272,8 +272,6 @@ class MavrosOffboardSuctionMission():
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
             self.pos_target.velocity.z = velocity_z
-
-            self.ros_log_info("Current Position x=" + str(current_x) + ", y=" + str(current_y) + ", z=" + str(current_z) + " | x=" + str(x) + ", y=" + str(y) + ", z=" + str(z))
 
             self.pos_target_setpoint_pub.publish(self.pos_target)
 
@@ -331,6 +329,7 @@ class MavrosOffboardSuctionMission():
             except rospy.ROSInterruptException:
                 pass
 
+    # ----------- HELPERS -----------
     def saveDataToLogData(self,x,y,z):
             self.logData.appendStateData(rospy.Time.now().to_sec(),x,y,z \
                 , self.local_position.pose.position.x,self.local_position.pose.position.y,self.local_position.pose.position.z \
@@ -467,11 +466,13 @@ class MavrosOffboardSuctionMission():
         self.hover_at_current_pos(time=10)
 
         self.ros_log_info("NAVIGATE")
-        self.goto_pos_in_time(initX, initY, initZ + 3, 20)
 
-        self.goto_pos_in_time(initX + 0.5, initY, initZ + 2.5, 20)
+        waypoints = [(0, 0, 3), (0.5, 0, 0), (0.5, -1, 0)]
+        time_between_waypoint = 20
 
-        self.goto_pos_in_time(initX + 0.5, initY - 1, initZ + 2.0, 20)
+        for index, (x, y, z) in enumerate(waypoints):
+            self.ros_log_info("HEADING TO WAYPOINT " + str(index))
+            self.goto_pos_in_time(initX + x, initY + y, initZ + z, time_between_waypoint)
 
         self.ros_log_info("NAVIGATE ENDED")
 
