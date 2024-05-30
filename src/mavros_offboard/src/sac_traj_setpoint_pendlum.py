@@ -240,6 +240,7 @@ class MavrosOffboardSuctionMission():
 
     # ----------- HELPERS -----------
     def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
+        self.ros_log_info("SAMPLE LOG")
         assert duration > 0, "was " + duration
 
         rate = rospy.Rate(10)  # Hz
