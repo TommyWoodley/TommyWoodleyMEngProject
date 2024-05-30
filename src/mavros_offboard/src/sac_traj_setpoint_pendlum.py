@@ -285,6 +285,10 @@ class MavrosOffboardSuctionMission():
                 rate.sleep()
             except rospy.ROSInterruptException:
                 pass
+        
+        current_time = rospy.Time.now()
+        time_taken = current_time - start_time
+        self.ros_log_info("Time taken: " + str(time_taken.to_sec()))
             
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
 
