@@ -50,7 +50,7 @@ class dataLogger(object):
         with open("FlightLog" + self.timestr + ".txt", "w") as output:
             output.writelines(map("{};{};{};{};{};{};{};{};{};{}\n".format, self.ticktime,
                                   self.x_ref, self.y_ref, self.z_ref,
-                                  self.x_pos, self.y_pos,self.z_pos,
+                                  self.x_pos, self.y_pos, self.z_pos,
                                   self.vx, self.vy, self.vz))
 
     def plotFigure(self):
@@ -124,7 +124,7 @@ class dataLogger(object):
         ref_vy = (y_np[1:] - y_np[:-1]) / time_steps
         ref_vz = (z_np[1:] - z_np[:-1]) / time_steps
 
-        ax2 = plt.subplot2grid((6, 8), (0, 6), colspan=2,rowspan=2)
+        ax2 = plt.subplot2grid((6, 8), (0, 6), colspan=2, rowspan=2)
         ax2.plot(self.ticktime, self.vx, 'm*')
         ax2.plot(self.ticktime[1:], ref_vx, 'b^')
         ax2.grid(True)
@@ -154,8 +154,8 @@ class dataLogger(object):
     def plotControlData(self):
         print('Plotting the control signal..')
         plt.figure("Control signal")
-        plt.plot(self.ticks,self.u_smc,label='SMC')
-        plt.plot(self.ticks,self.u_palm, label ='NN')
+        plt.plot(self.ticks, self.u_smc, label='SMC')
+        plt.plot(self.ticks, self.u_palm, label='NN')
         plt.grid(True)
         plt.xlabel("time(s)")
         plt.ylabel('control signal')
