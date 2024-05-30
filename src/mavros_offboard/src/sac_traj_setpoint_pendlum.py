@@ -612,7 +612,9 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("HOVER @ TAKEOFF POSITION")
         self.hover_at_current_pos(time=10)
 
+        self.ros_log_info("NAVIGATE")
         self.goto_pos_in_time(5, 0, 0, 20)
+        self.ros_log_info("NAVIGATE ENDED")
 
         # ## go to start
         # xOffset = xTarget + self.dp[0][0]-self.dp[-1][0]
