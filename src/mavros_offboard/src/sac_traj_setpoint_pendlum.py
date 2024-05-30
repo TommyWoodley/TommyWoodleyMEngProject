@@ -620,9 +620,9 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("NAVIGATE")
         self.goto_pos_in_time(initX, initY, initZ + 3, 20)
 
-        self.goto_pos_in_time(initX + 0.5, initY, initZ + 2.5, 5)
+        self.goto_pos_in_time(initX + 0.5, initY, initZ + 2.5, 20)
 
-        self.goto_pos_in_time(initX + 0.5, initY - 1, initZ + 2.0, 10)
+        self.goto_pos_in_time(initX + 0.5, initY - 1, initZ + 2.0, 20)
 
         self.ros_log_info("NAVIGATE ENDED")
 
