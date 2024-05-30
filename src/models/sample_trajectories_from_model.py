@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 import gymnasium as gym
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Gym.bullet_drone_env import BulletDroneEnv
@@ -36,7 +37,7 @@ def sample_trajectories(dir, show=True, human=False, phase="all"):
     sample_trajectories_from_file(file_name, output_filename, show, human, phase=phase)
 
 
-def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all"):
+def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all", log_dir=None):
     plotting_degrees = [0, 11.25, 22.5, 33.75, 45]
 
     model = SAC.load(file)
@@ -74,6 +75,37 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False,
     env.close()
 
     plot_trajectories(trajectory_states, output_filename=output_filename, show_plot=show)
+
+    if log_dir is not None:
+        log_trajectories(trajectory_states, log_dir)
+
+
+def log_trajectories(trajectories, output_dir):
+    """
+    Writes each trajectory to a separate CSV file in a subdirectory called 'sampled_trajectories'
+    within the specified output directory.
+    
+    Parameters:
+    - trajectories: List of trajectories, where each trajectory is a list of (x, z) positions.
+    - output_dir: Directory name where the 'sampled_trajectories' subdirectory will be created.
+    """
+    # Define the subdirectory path
+    subdirectory = os.path.join(output_dir, 'sampled_trajectories')
+    
+    # Ensure the subdirectory exists
+    os.makedirs(subdirectory, exist_ok=True)
+    
+    for i, trajectory in enumerate(trajectories):
+        # Define the filename for each trajectory
+        filename = os.path.join(subdirectory, f'trajectory_{i + 1}.csv')
+        
+        # Write the trajectory to a CSV file
+        with open(filename, 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(['x', 'y', 'z'])  # Write the header
+            
+            for x, z in trajectory:
+                csvwriter.writerow([x, 0, z])  # Write the (x, y, z) position with y always being 0
 
 
 if __name__ == "__main__":
