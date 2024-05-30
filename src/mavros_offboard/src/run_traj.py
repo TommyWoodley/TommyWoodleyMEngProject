@@ -300,7 +300,8 @@ class MavrosOffboardSuctionMission():
                                      self.local_velocety.twist.linear.z)
 
     def returnDifference(self, pos):
-        diff = ((self.local_position.pose.position.x - pos[0]) ** 2 + (self.local_position.pose.position.y - pos[1]) ** 2
+        diff = ((self.local_position.pose.position.x - pos[0]) ** 2
+                + (self.local_position.pose.position.y - pos[1]) ** 2
                 + (self.local_position.pose.position.z - pos[2]) ** 2) ** 0.5
         return diff
 
@@ -332,9 +333,8 @@ class MavrosOffboardSuctionMission():
 
         while not rospy.is_shutdown():
             if self.state.mode != "OFFBOARD" and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
-                if self.set_mode_client.call(offb_set_mode).mode_sent == True:
+                if self.set_mode_client.call(offb_set_mode).mode_sent:
                     rospy.loginfo("OFFBOARD enabled")
-                
                 last_req = rospy.Time.now()
             else:
                 if not self.state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
@@ -347,9 +347,7 @@ class MavrosOffboardSuctionMission():
             if self.is_at_position(initX, initY, initZ, printOut=False):
                 rospy.loginfo("INITIAL POSITION REACHED")
                 break
-
             rate.sleep()
-        
         return last_req
 
     # ----------- HOVER -----------
@@ -381,13 +379,13 @@ class MavrosOffboardSuctionMission():
         rate = rospy.Rate(20)
 
         # Wait for Flight Controller connection
-        while(not rospy.is_shutdown() and not self.state.connected):
+        while not rospy.is_shutdown() and not self.state.connected:
             rate.sleep()
 
         # Initially take off 2m in the air and wait
         initX = self.local_position.pose.position.x
         initY = self.local_position.pose.position.y
-        initZ = self.local_position.pose.position.z + 1 ##take off 2m
+        initZ = self.local_position.pose.position.z + 1  # take off 1m
 
         self.pos.pose.position.x = initX
         self.pos.pose.position.y = initY
@@ -415,17 +413,16 @@ class MavrosOffboardSuctionMission():
 
         # go to original pos
         rospy.loginfo("---- LAND ----")
-        self.goto_pos(initX,initY,initZ, writeToDataLogger=False)
+        self.goto_pos(initX, initY, initZ, writeToDataLogger=False)
         land_set_mode = SetModeRequest()
         land_set_mode.custom_mode = 'AUTO.LAND'
 
         last_req = rospy.Time.now()
 
-        while(not rospy.is_shutdown() and self.state.armed):
-            if(self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                if(self.set_mode_client.call(land_set_mode).mode_sent == True):
+        while not rospy.is_shutdown() and self.state.armed:
+            if self.state.mode != "AUTO.LAND" and (rospy.Time.now() - last_req) > rospy.Duration(5.0):
+                if self.set_mode_client.call(land_set_mode).mode_sent:
                     rospy.loginfo("AUTO.LAND enabled")
-
                 last_req = rospy.Time.now()
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
@@ -433,7 +430,7 @@ class MavrosOffboardSuctionMission():
     def startup_mission(self, rate):
         # Send a few setpoints before starting
         for i in range(100):   
-            if(rospy.is_shutdown()):
+            if rospy.is_shutdown():
                 break
 
             self.pos_setpoint_pub.publish(self.pos)
@@ -443,7 +440,7 @@ class MavrosOffboardSuctionMission():
 if __name__ == '__main__':
     rospy.init_node('offboard_mission_node')
     suction_mission = MavrosOffboardSuctionMission()
-    suction_mission.run_full_mission(xTarget = 0.65, yTarget = 0.45, zTarget = 1.4)
+    suction_mission.run_full_mission()
 
     suction_mission.logData.saveAll()
     suction_mission.logData.plotFigure()
