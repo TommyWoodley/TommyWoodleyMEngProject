@@ -458,7 +458,7 @@ class MavrosOffboardSuctionMission():
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
             prev_index = index - 1 if index - 1 >= 0 else 0
             prev_x, prev_y, prev_z = waypoints[prev_index]
-            self.goto_pos_in_time(x, y, z, time_between_waypoint)
+            self.goto_pos_in_time(x, y, z, prev_x, prev_y, prev_z, time_between_waypoint)
 
         self.ros_log_info("TRAJECTORY ENDED")
 
