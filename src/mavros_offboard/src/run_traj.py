@@ -427,7 +427,7 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("TAKEOFF ACHIEVED")
 
         self.ros_log_info("HOVER @ TAKEOFF POSITION 5s")
-        self.hover_at_current_pos(time=5)
+        self.hover_at_current_pos(time=3)
 
         self.ros_log_info("NAVIGATE TO STARTING POSITION")
         x_start, y_start, z_start = self.waypoints[0]
@@ -435,7 +435,7 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("REACHED STARTING POSITION")
 
         self.ros_log_info("HOVER @ STARTING POSITION 10s")
-        self.hover_at_current_pos(time=10)
+        self.hover_at_current_pos(time=5)
 
         self.ros_log_info("STARTING TRAJECTORY")
 
@@ -444,7 +444,7 @@ class MavrosOffboardSuctionMission():
 
         for index, (x, y, z) in enumerate(waypoints):
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
-            self.goto_pos_in_time(initX + x, initY + y, initZ + z, time_between_waypoint)
+            self.goto_pos_in_time(x, y, z, time_between_waypoint)
 
         self.ros_log_info("TRAJECTORY ENDED")
 
