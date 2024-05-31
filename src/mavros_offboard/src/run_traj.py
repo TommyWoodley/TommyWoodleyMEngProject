@@ -231,19 +231,19 @@ class MavrosOffboardSuctionMission():
             self.sub_topics_ready['local_vel'] = True
 
     # ----------- GOTO -----------
-    def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, writeToDataLogger=True):
+    def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, prev_x=0, prev_y=0, prev_z=0, writeToDataLogger=True):
         assert duration > 0, "was " + duration
 
         rate = rospy.Rate(10)  # Hz
         start_time = rospy.Time.now()
 
-        current_x = self.local_position.pose.position.x
-        current_y = self.local_position.pose.position.y
-        current_z = self.local_position.pose.position.z
+        original_x = self.local_position.pose.position.x
+        original_y = self.local_position.pose.position.y
+        original_z = self.local_position.pose.position.z
 
-        distance_x = x - current_x
-        distance_y = y - current_y
-        distance_z = z - current_z
+        original_distance_x = x - current_x
+        original_distance_y = y - current_y
+        original_distance_z = z - current_z
 
         velocity_x = distance_x / duration
         velocity_y = distance_y / duration
@@ -251,14 +251,29 @@ class MavrosOffboardSuctionMission():
 
         reached_pos = False
         self.pos_target = PositionTarget()
-        while not rospy.is_shutdown() and not reached_pos:
-            current_time = rospy.Time.now()
-            elapsed_time = current_time - start_time
+        num_timesteps = duration * 10
+        for i in range(num_timesteps):
+            current_x = self.local_position.pose.position.x
+            current_y = self.local_position.pose.position.y
+            current_z = self.local_position.pose.position.z
+
+            distance_x = x - current_x
+            distance_y = y - current_y
+            distance_z = z - current_z
+
+            remaining_time = duration - (rospy.Time.now() - start_time).to_sec()
+            if remaining_time <= 0:
+                break
+
+            velocity_x = distance_x / remaining_time
+            velocity_y = distance_y / remaining_time
+            velocity_z = distance_z / remaining_time
+
             self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
             self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.position.x = current_x + velocity_x * min(elapsed_time.to_sec(), duration)
-            self.pos_target.position.y = current_y + velocity_y * min(elapsed_time.to_sec(), duration)
-            self.pos_target.position.z = current_z + velocity_z * min(elapsed_time.to_sec(), duration)
+            self.pos_target.position.x = current_x + velocity_x / 10
+            self.pos_target.position.y = current_y + velocity_y / 10
+            self.pos_target.position.z = current_z + velocity_z / 10
 
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
@@ -266,11 +281,12 @@ class MavrosOffboardSuctionMission():
 
             self.pos_target_setpoint_pub.publish(self.pos_target)
 
-            reached_pos = self.is_at_position(x, y, z)
-
             if writeToDataLogger:
-                self.saveDataToLogData(self.pos_target.position.x, self.pos_target.position.y,
-                                       self.pos_target.position.z)
+                interpolated_x = prev_x + ((x - prev_x) / num_timesteps) * (i + 1)
+                interpolated_y = prev_y + ((y - prev_y) / num_timesteps) * (i + 1)
+                interpolated_z = prev_z + ((z - prev_z) / num_timesteps) * (i + 1)
+
+                self.saveDataToLogData(interpolated_x, interpolated_y, interpolated_z)
 
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
