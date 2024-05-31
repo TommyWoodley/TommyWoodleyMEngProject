@@ -245,10 +245,6 @@ class MavrosOffboardSuctionMission():
         original_distance_y = y - original_y
         original_distance_z = z - original_z
 
-        velocity_x = distance_x / duration
-        velocity_y = distance_y / duration
-        velocity_z = distance_z / duration
-
         reached_pos = False
         self.pos_target = PositionTarget()
         num_timesteps = duration * 10
