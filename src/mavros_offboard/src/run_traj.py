@@ -410,15 +410,19 @@ class MavrosOffboardSuctionMission():
         rospy.loginfo(message + " (set ROS parameter 'mission_confirm' to 'yes' or 'no')")
         while not rospy.is_shutdown():
             if rospy.has_param('mission_confirm'):
-                user_input = rospy.get_param('mission_confirm').strip().lower()
-                if user_input == 'yes':
-                    rospy.delete_param('mission_confirm')
-                    return True
-                elif user_input == 'no':
-                    rospy.delete_param('mission_confirm')
-                    return False
+                user_input = rospy.get_param('mission_confirm')
+                if isinstance(user_input, str):
+                    user_input = user_input.strip().lower()
+                    if user_input == 'yes':
+                        rospy.delete_param('mission_confirm')
+                        return True
+                    elif user_input == 'no':
+                        rospy.delete_param('mission_confirm')
+                        return False
+                    else:
+                        rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'yes' or 'no'.")
                 else:
-                    rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'yes' or 'no'.")
+                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'yes' or 'no'.")
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
