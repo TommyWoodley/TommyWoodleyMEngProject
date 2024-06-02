@@ -477,10 +477,13 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("HOVER @ STARTING POSITION 10s")
         self.hover_at_current_pos(time=5)
 
+        if not self.confirm_next_stage("Confirm Start Trajectory", hover=True):
+            return
+
         self.ros_log_info("STARTING TRAJECTORY")
 
         waypoints = self.waypoints
-        time_between_waypoint = 2
+        time_between_waypoint = 1
 
         for index, (x, y, z) in enumerate(waypoints):
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
