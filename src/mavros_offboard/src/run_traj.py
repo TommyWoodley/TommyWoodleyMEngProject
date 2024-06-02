@@ -407,7 +407,8 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("Waiting Over")
     
     def confirm_next_stage(self, message):
-        rospy.loginfo(message + " (set ROS parameter 'mission_confirm' to 'yes' or 'no')")
+        rospy.delete_param('mission_confirm')
+        rospy.loginfo(message + " (set ROS parameter 'mission_confirm' to 'confirm' or 'stop')")
         while not rospy.is_shutdown():
             if rospy.has_param('mission_confirm'):
                 user_input = rospy.get_param('mission_confirm')
@@ -420,9 +421,11 @@ class MavrosOffboardSuctionMission():
                         rospy.delete_param('mission_confirm')
                         return False
                     else:
-                        rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'yes' or 'no'.")
+                        rospy.delete_param('mission_confirm')
+                        rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'confirm' or 'stop'.")
                 else:
-                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'yes' or 'no': " + str(user_input))
+                    rospy.delete_param('mission_confirm')
+                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'confirm' or 'stop': " + str(user_input))
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
