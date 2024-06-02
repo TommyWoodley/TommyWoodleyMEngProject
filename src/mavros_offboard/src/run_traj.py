@@ -245,31 +245,22 @@ class MavrosOffboardSuctionMission():
         original_distance_y = y - original_y
         original_distance_z = z - original_z
 
-        reached_pos = False
+        velocity_x = original_distance_x / duration
+        velocity_y = original_distance_y / duration
+        velocity_z = original_distance_z / duration
+
         self.pos_target = PositionTarget()
         num_timesteps = duration * 10
         for i in range(num_timesteps):
-            current_x = self.local_position.pose.position.x
-            current_y = self.local_position.pose.position.y
-            current_z = self.local_position.pose.position.z
-
-            distance_x = x - current_x
-            distance_y = y - current_y
-            distance_z = z - current_z
-
-            remaining_time = duration - (rospy.Time.now() - start_time).to_sec()
-            if remaining_time <= 0:
+            if rospy.is_shutdown:
                 break
-
-            velocity_x = distance_x / remaining_time
-            velocity_y = distance_y / remaining_time
-            velocity_z = distance_z / remaining_time
-
+            current_time = rospy.Time.now()
+            elapsed_time = current_time - start_time
             self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
             self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.position.x = current_x + velocity_x / 10
-            self.pos_target.position.y = current_y + velocity_y / 10
-            self.pos_target.position.z = current_z + velocity_z / 10
+            self.pos_target.position.x = original_x + velocity_x * min(elapsed_time.to_sec(), duration)
+            self.pos_target.position.y = original_y + velocity_y * min(elapsed_time.to_sec(), duration)
+            self.pos_target.position.z = original_z + velocity_z * min(elapsed_time.to_sec(), duration)
 
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
