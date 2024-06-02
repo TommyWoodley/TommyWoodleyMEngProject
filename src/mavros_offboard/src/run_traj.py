@@ -252,7 +252,7 @@ class MavrosOffboardSuctionMission():
         self.pos_target = PositionTarget()
         num_timesteps = duration * 10
         for i in range(num_timesteps):
-            if rospy.is_shutdown:
+            if rospy.is_shutdown():
                 break
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
