@@ -406,7 +406,7 @@ class MavrosOffboardSuctionMission():
 
         self.ros_log_info("Waiting Over")
     
-    def confirm_next_stage(self, message):
+    def confirm_next_stage(self, message, hover):
         if rospy.has_param('mission_confirm'):
             rospy.delete_param('mission_confirm')
         rospy.loginfo(message + " (set ROS parameter 'mission_confirm' to 'confirm' or 'stop')")
@@ -427,6 +427,13 @@ class MavrosOffboardSuctionMission():
                 else:
                     rospy.delete_param('mission_confirm')
                     rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'confirm' or 'stop': " + str(user_input))
+            if hover:
+                pose = PoseStamped()
+                pose.pose.position.x = self.pos.pose.position.x
+                pose.pose.position.y = self.pos.pose.position.y
+                pose.pose.position.z = self.pos.pose.position.z
+                self.pos_setpoint_pub.publish(pose)
+                
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
@@ -449,7 +456,7 @@ class MavrosOffboardSuctionMission():
 
         self.startup_mission(rate)
 
-        if not self.confirm_next_stage("Confirm Drone Takeoff"):
+        if not self.confirm_next_stage("Confirm Drone Takeoff", hover=False):
             return
 
         self.ros_log_info("TAKEOFF")
@@ -459,7 +466,7 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("HOVER @ TAKEOFF POSITION 5s")
         self.hover_at_current_pos(time=3)
 
-        if not self.confirm_next_stage("Confirm Drone Move to Starting"):
+        if not self.confirm_next_stage("Confirm Drone Move to Starting", hover=True):
             return
 
         self.ros_log_info("NAVIGATE TO STARTING POSITION")
