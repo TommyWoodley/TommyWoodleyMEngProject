@@ -458,6 +458,9 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("HOVER @ TAKEOFF POSITION 5s")
         self.hover_at_current_pos(time=3)
 
+        if not self.confirm_next_stage("Confirm Drone Move to Starting"):
+            return
+
         self.ros_log_info("NAVIGATE TO STARTING POSITION")
         x_start, y_start, z_start = self.waypoints[0]
         self.goto_pos(x=x_start, y=y_start, z=z_start, writeToDataLogger=False)
