@@ -405,6 +405,16 @@ class MavrosOffboardSuctionMission():
             rate.sleep()
 
         self.ros_log_info("Waiting Over")
+    
+    def confirm_next_stage(self, message):
+        while True:
+            user_input = input(message + " (yes/no): ").strip().lower()
+            if user_input == 'yes':
+                return True
+            elif user_input == 'no':
+                return False
+            else:
+                print("Invalid input. Please enter 'yes' or 'no'.")
 
     # ----------- FLIGHT PATH METHODS -----------
     def run_full_mission(self):
@@ -425,6 +435,9 @@ class MavrosOffboardSuctionMission():
         self.pos.pose.position.z = initZ
 
         self.startup_mission(rate)
+
+        if not self.confirm_next_stage("Confirm Drone Takeoff"):
+            return
 
         self.ros_log_info("TAKEOFF")
         last_req = self.navigate_to_starting_position(rate, initX, initY, initZ, last_req=rospy.Time.now())
