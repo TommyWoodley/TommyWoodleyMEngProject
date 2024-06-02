@@ -414,10 +414,10 @@ class MavrosOffboardSuctionMission():
                 user_input = rospy.get_param('mission_confirm')
                 if isinstance(user_input, str):
                     user_input = user_input.strip().lower()
-                    if user_input == 'yes':
+                    if user_input == 'confirm':
                         rospy.delete_param('mission_confirm')
                         return True
-                    elif user_input == 'no':
+                    elif user_input == 'stop':
                         rospy.delete_param('mission_confirm')
                         return False
                     else:
