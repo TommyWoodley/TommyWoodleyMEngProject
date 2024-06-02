@@ -405,11 +405,11 @@ class MavrosOffboardSuctionMission():
             rate.sleep()
 
         self.ros_log_info("Waiting Over")
-    
+
     def confirm_next_stage(self, message, hover):
         if rospy.has_param('mission_confirm'):
             rospy.delete_param('mission_confirm')
-        rospy.loginfo(message + " (set ROS parameter 'mission_confirm' to 'confirm' or 'stop')")
+        self.ros_log_info(message + " (set ROS parameter 'mission_confirm' to 'confirm' or 'stop')")
         while not rospy.is_shutdown():
             if rospy.has_param('mission_confirm'):
                 user_input = rospy.get_param('mission_confirm')
@@ -423,17 +423,18 @@ class MavrosOffboardSuctionMission():
                         return False
                     else:
                         rospy.delete_param('mission_confirm')
-                        rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'confirm' or 'stop'.")
+                        self.ros_log_info("Invalid input. Please set 'mission_confirm' to 'confirm' or 'stop'.")
                 else:
                     rospy.delete_param('mission_confirm')
-                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'confirm' or 'stop': " + str(user_input))
+                    self.ros_log_info(
+                        "Invalid input type. Please set 'mission_confirm' to 'confirm' or 'stop': " + str(user_input))
             if hover:
                 pose = PoseStamped()
                 pose.pose.position.x = self.pos.pose.position.x
                 pose.pose.position.y = self.pos.pose.position.y
                 pose.pose.position.z = self.pos.pose.position.z
                 self.pos_setpoint_pub.publish(pose)
-                
+
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
