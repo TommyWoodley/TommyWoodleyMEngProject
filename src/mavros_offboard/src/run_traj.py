@@ -52,7 +52,8 @@ class MavrosOffboardSuctionMission():
         self.droneOrientation = 0
 
         rospy.loginfo("LOADING WAYPOINTS FROM FILE")
-        self.waypoints = self.load_waypoints_from_file("/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/trajectory_1.csv")
+        self.waypoints = self.load_waypoints_from_file(
+            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/trajectory_1.csv")
         rospy.loginfo("WAYPOINTS: " + str(self.waypoints))
 
         # mavros service
@@ -137,23 +138,23 @@ class MavrosOffboardSuctionMission():
     def load_waypoints_from_file(self, filename):
         """
         Loads waypoints from a CSV file and returns a list of (x, y, z) tuples.
-        
+
         Parameters:
         - filename: Name of the CSV file to load.
-        
+
         Returns:
         - List of (x, y, z) tuples representing the waypoints.
         """
         waypoints = []
-        
+
         with open(filename, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             next(csvreader)  # Skip the header row
-            
+
             for row in csvreader:
                 x, y, z = map(float, row)
                 waypoints.append((x, y, z))
-        
+
         return waypoints
 
     # ----------- CALLBACKS -----------

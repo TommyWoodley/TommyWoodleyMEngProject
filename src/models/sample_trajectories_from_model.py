@@ -84,26 +84,26 @@ def log_trajectories(trajectories, output_dir):
     """
     Writes each trajectory to a separate CSV file in a subdirectory called 'sampled_trajectories'
     within the specified output directory.
-    
+
     Parameters:
     - trajectories: List of trajectories, where each trajectory is a list of (x, z) positions.
     - output_dir: Directory name where the 'sampled_trajectories' subdirectory will be created.
     """
     # Define the subdirectory path
     subdirectory = os.path.join(output_dir, 'sampled_trajectories')
-    
+
     # Ensure the subdirectory exists
     os.makedirs(subdirectory, exist_ok=True)
-    
+
     for i, trajectory in enumerate(trajectories):
         # Define the filename for each trajectory
         filename = os.path.join(subdirectory, f'trajectory_{i + 1}.csv')
-        
+
         # Write the trajectory to a CSV file
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(['x', 'y', 'z'])  # Write the header
-            
+
             for x, z in trajectory:
                 csvwriter.writerow([x, 0, z])  # Write the (x, y, z) position with y always being 0
 

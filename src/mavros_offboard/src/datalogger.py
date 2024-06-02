@@ -8,7 +8,6 @@ from termcolor import colored, cprint
 
 # Data Logger object
 class dataLogger(object):
-   """docstring for dataLogger"""
     def __init__(self):
         self.ticktime = []
         self.ticks = []  # time
