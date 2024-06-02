@@ -407,8 +407,9 @@ class MavrosOffboardSuctionMission():
         self.ros_log_info("Waiting Over")
     
     def confirm_next_stage(self, message):
+        rospy.loginfo(message + " (yes/no): ")
         while True:
-            user_input = input(message + " (yes/no): ").strip().lower()
+            user_input = input().strip().lower()
             if user_input == 'yes':
                 return True
             elif user_input == 'no':
