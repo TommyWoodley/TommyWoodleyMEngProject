@@ -422,7 +422,7 @@ class MavrosOffboardSuctionMission():
                     else:
                         rospy.loginfo("Invalid input. Please set 'mission_confirm' to 'yes' or 'no'.")
                 else:
-                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'yes' or 'no'.")
+                    rospy.loginfo("Invalid input type. Please set 'mission_confirm' to 'yes' or 'no': " + str(user_input))
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
