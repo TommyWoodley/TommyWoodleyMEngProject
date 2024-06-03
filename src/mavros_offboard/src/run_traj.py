@@ -53,13 +53,15 @@ class MavrosOffboardSuctionMission():
         self.vNeeded = 2
         self.droneOrientation = 0
 
-        traj_files = self.list_trajectory_files("/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/sampled_trajectories/")
-        
+        traj_files = self.list_trajectory_files(
+            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/sampled_trajectories/")
+
         file_choice = self.get_user_choice(traj_files)
 
         rospy.loginfo("LOADING WAYPOINTS FROM FILE")
         self.waypoints = self.load_waypoints_from_file(
-            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/sampled_trajectories/trajectory_" + str(file_choice) + ".csv")
+            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/sampled_trajectories/trajectory_"
+            + str(file_choice) + ".csv")
         rospy.loginfo("WAYPOINTS: " + str(self.waypoints))
 
         # mavros service
@@ -443,25 +445,28 @@ class MavrosOffboardSuctionMission():
                 self.pos_setpoint_pub.publish(pose)
 
             rospy.sleep(1)
-    
+
     def get_user_choice(self, options):
         if rospy.has_param('traj_num'):
             rospy.delete_param('traj')
         # Present the options to the user
-        self.ros_log_info("Please choose a trajectory file (set ROS parameter 'traj_num' to 'one of the numbers below')")
+        self.ros_log_info(
+            "Please choose a trajectory file (set ROS parameter 'traj_num' to 'one of the numbers below')")
         for i, option in enumerate(options):
             print("\t" + str(i + 1) + ": trajectory_" + str(option) + ".csv")
-        
+
         while not rospy.is_shutdown():
             if rospy.has_param('traj_num'):
                 user_input = rospy.get_param('traj_num')
                 if user_input in options:
-                        rospy.delete_param('traj_num')
-                        return user_input
+                    rospy.delete_param('traj_num')
+                    return user_input
                 else:
                     rospy.delete_param('traj_num')
                     self.ros_log_info(
-                        "Invalid input type. Please choose a trajectory file (set ROS parameter 'traj_num' to 'one of the numbers below'): " + str(user_input))
+                        "Invalid input type. Please choose a trajectory file"
+                        + "(set ROS parameter 'traj_num' to 'one of the numbers below'): "
+                        + str(user_input))
             rospy.sleep(1)
 
     # ----------- FLIGHT PATH METHODS -----------
@@ -545,14 +550,14 @@ class MavrosOffboardSuctionMission():
 
             self.pos_setpoint_pub.publish(self.pos)
             rate.sleep()
-    
+
     def list_trajectory_files(self, directory):
         files = os.listdir(directory)
-        
+
         pattern = re.compile(r'trajectory_(\d+)\.csv')
         trajectory_files = [pattern.match(file) for file in files]
         trajectory_files = [int(match.group(1)) for match in trajectory_files if match]
-        
+
         return sorted(trajectory_files)
 
 
