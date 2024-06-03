@@ -51,6 +51,7 @@ def plot_trajectories_with_rewards(trajectories, traj_rewards, output_filename=N
     else:
         plt.clf()
 
+
 def plot_trajectories(trajectories, output_filename=None, window_size=10,
                       title='Sample Trajectories', show_plot=True):
     for trajectory in trajectories:
