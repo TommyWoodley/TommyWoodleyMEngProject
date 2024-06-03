@@ -29,13 +29,16 @@ def transform_demo(csv_file):
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='ns')
 
     waypoints = []
-    waypoints.append((df.iloc[0]['drone_x'], df.iloc[0]['drone_z'] + 1000))
     previous_time = df['Timestamp'].iloc[0]
 
+    start_adding_waypoints = False
     for index, row in df.iterrows():
-        if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
-            waypoints.append((row['drone_x'], row['drone_z'] + 1000))
-            previous_time = row['Timestamp']
+        if row['drone_z'] > 2000:
+            start_adding_waypoints = True
+        if start_adding_waypoints:
+            if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
+                waypoints.append((row['drone_x'], row['drone_z'] + 1000))
+                previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
     # Calculate state, action rewards
@@ -49,12 +52,22 @@ def transform_demo(csv_file):
     num_wraps = 0.0
     curr_x = x / 1000
     curr_y = y / 1000
+    max_action_magnitude = 0
     for i in range(len(waypoints) - 1):
         next_x, next_y = waypoints[i]
         next_x = next_x / 1000
         next_y = next_y / 1000
         action_x = curr_x - next_x
         action_y = curr_y - next_y
+
+        action_magnitude = np.sqrt(action_x**2 + action_y**2)
+    
+        # Check if the magnitude exceeds 0.25 and print a warning if it does
+        if action_magnitude > 0.25:
+            print(f"Warning: Action magnitude exceeds 0.25 at index {i}. Magnitude: {action_magnitude}")
+
+        if action_magnitude > max_action_magnitude:
+            max_action_magnitude = action_magnitude
         
         state_action_reward.append(((curr_x, curr_y, num_wraps), (action_x, action_y), 0.0, (next_x, next_y)))
 
@@ -65,6 +78,8 @@ def transform_demo(csv_file):
     print("STATE,ACTION,REWARDS: ")
     for strs in state_action_reward:
         print(strs)
+    print(f"Largest action magnitude: {max_action_magnitude}")
+    print("NUM_WAYPOINTS: " + str(len(waypoints)))
 
     state_action_reward_serializable = []
 
