@@ -7,7 +7,7 @@ import numpy as np
 import glob
 import os
 
-DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/src/Data/PreviousWorkTrajectories/rl_demos"
+DEMO_PATH = "/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/src/Demonstrations/rl_demos"
 DEFAULT_CHECKPOINT = 5000
 
 # ---------------------------------- RL UTIL ----------------------------------
@@ -33,14 +33,15 @@ def generate_graphs(directory, phase="all"):
 # Shows the demonstration data in the enviornment - useful for verification purpose
 def show_in_env(env, transformed_data):
     start, _, _, _, _, _ = transformed_data[0]
-    x, z, _, _, _, _, _, _, _, _ = start
+    x, z, _, _ = start
 
     state = env.reset(position=np.array([x, 0.0, z]))
     done = False
 
     # Run through each action in the provided list
-    for _, _, action, _, _, _ in transformed_data:
+    for correct_state, _, action, _, _, _ in transformed_data:
         state, reward, done, truncated, _ = env.step(action)
+        print(f"Correct State: {correct_state}, {state}")
 
         if done or truncated:
             print("Episode finished")
@@ -61,7 +62,7 @@ def show_in_env(env, transformed_data):
 
 
 def get_buffer_data(env, directory, show_demos_in_env):
-    pattern = f"{directory}/rl_demo_approaching_angle_*.json"
+    pattern = f"{directory}/rl_demo_*.json"
     files = glob.glob(pattern)
     all_data = []
     for file in files:
@@ -77,15 +78,16 @@ def convert_data(env, json_data):
     dataset = []
     num = 0
     for item in json_data:
-        _, _, _, _, _, _, x, z, t = item['state']
+        print(item)
+        x, z, t = item['state']
         obs = np.append(np.array([x, z, t]), num / 100.0)
         _next_obs = item['next_state']
-        _, _, _, _, _, _, x, z, t = _next_obs
+        x, z, t = _next_obs
         next_obs = np.append(np.array(np.array([x, z, t])), (num + 1) / 100.0)
 
         # Normalised action TODO: Define this relative to the env so it's consistent
         action = np.array(item['action']) * 4.0
-        reward = np.array(env.unwrapped.calc_reward([x, 0, z]))
+        reward = np.array(item['reward'])
         done = np.array([False])
         info = [{}]
         dataset.append((obs, next_obs, action, reward, done, info))

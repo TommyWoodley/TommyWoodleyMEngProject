@@ -51,8 +51,8 @@ class WeightCalculator():
         return abs(self.weight_cumulative_angle_change)
 
 
-def transform_demo(csv_file):
-    interval_seconds = 0.1
+def transform_demo(version, csv_file):
+    interval_seconds = 0.10
     # Load the CSV file
     df = pd.read_csv(f"2024_05_22_Flight_Data/processed/" + csv_file)
 
@@ -82,7 +82,7 @@ def transform_demo(csv_file):
                 initial_movement_found = True
         if start_adding_waypoints and initial_movement_found:
             if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
-                waypoints.append((row['drone_x'], row['drone_z'] + 1000, num_wraps))
+                waypoints.append((row['drone_x'] - row['round_bar_x'], row['drone_z'] - row['round_bar_z'] + 2700, num_wraps))
                 previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
@@ -96,13 +96,14 @@ def transform_demo(csv_file):
     x, y, w = waypoints[0]
     curr_x = x / 1000
     curr_y = y / 1000
+    curr_w = w
     max_action_magnitude = 0
     for i in range(len(waypoints) - 1):
-        next_x, next_y, w = waypoints[i]
+        next_x, next_y, next_w = waypoints[i]
         next_x = next_x / 1000
         next_y = next_y / 1000
-        action_x = curr_x - next_x
-        action_y = curr_y - next_y
+        action_x = next_x - curr_x
+        action_y = next_y - curr_y
 
         action_magnitude = np.sqrt(action_x**2 + action_y**2)
     
@@ -113,10 +114,12 @@ def transform_demo(csv_file):
         if action_magnitude > max_action_magnitude:
             max_action_magnitude = action_magnitude
         
-        state_action_reward.append(((curr_x, curr_y, w), (action_x, action_y), calc_reward((curr_x, curr_y, w)), (next_x, next_y)))
+        state_action_reward.append(((curr_x, curr_y, curr_w), (action_x, action_y), calc_reward((curr_x, curr_y, w)), (next_x, next_y, next_w)))
 
         curr_x = next_x
         curr_y = next_y
+        curr_w = next_w
+
 
     # Print the state, action, reward list
     print("STATE,ACTION,REWARDS: ")
@@ -137,13 +140,13 @@ def transform_demo(csv_file):
         })
 
     # Write the serializable list to a JSON file
-    with open(f"rl_demos/{csv_file}.json", 'w') as file:
+    with open(f"rl_demos/rl_demo_{version}.json", 'w') as file:
         json.dump(state_action_reward_serializable, file, indent=4)
 
-    print(f"Data saved to {csv_file}.json")
+    print(f"Data saved to rl_demos/rl_demo_{version}.json")
 
 
-csv_file = ["rosbag2_2024_05_22-17_00_56.csv", "rosbag2_2024_05_22-17_03_00.csv", "rosbag2_2024_05_22-17_20_43.csv",
+csv_file = ["rosbag2_2024_05_22-17_20_43.csv",
             "rosbag2_2024_05_22-17_26_15.csv", "rosbag2_2024_05_22-18_10_51.csv", "rosbag2_2024_05_22-18_16_45.csv"]
-for file in csv_file:
-    transform_demo(file)
+for i in range(len(csv_file)):
+    transform_demo(i + 3, csv_file[i])

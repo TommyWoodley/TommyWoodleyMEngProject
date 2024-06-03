@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.graphics.plot_trajectories import plot_trajectories_with_rewards
 
-json_files = [""]
+json_files = ["3", "4", "5", "6"]
 
 
 def extract_and_plot(dir):
@@ -13,7 +13,7 @@ def extract_and_plot(dir):
     traj_rewards = []
 
     for i, angle in enumerate(json_files):
-        filename = f"{dir}/rl_demo_approaching.json"
+        filename = f"{dir}/rl_demo_{angle}.json"
         # Load data from each JSON file
         with open(filename, 'r') as file:
             data = json.load(file)
