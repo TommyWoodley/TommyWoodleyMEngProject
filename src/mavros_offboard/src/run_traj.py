@@ -53,7 +53,7 @@ class MavrosOffboardSuctionMission():
 
         rospy.loginfo("LOADING WAYPOINTS FROM FILE")
         self.waypoints = self.load_waypoints_from_file(
-            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src/trajectory_1.csv")
+            "/home/tomwoodley/TommyWoodleyMEngProject/src/mavros_offboard/src//sampled_trajectories/trajectory_1.csv")
         rospy.loginfo("WAYPOINTS: " + str(self.waypoints))
 
         # mavros service
