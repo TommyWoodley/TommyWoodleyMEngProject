@@ -3,7 +3,7 @@ Description: This script reads a rosbag file and extracts the positions of the d
 The extracted data is then interpolated to fill in missing values and saved to a CSV file.
 
 Install by running: 'pip3 install rosbags'
-Usage: python3 rosbag_reader_combined.py --path ~/Documents/rosbag-tensile-perching/success/rosbag2_2024_05_22-17_26_15
+Usage: python3 rosbag_reader_combined.py --path <path-to-file>
 
 All ros topics related to the positions of the drone, payload, and round bar are as follows:
 
@@ -12,7 +12,6 @@ Payload ROS2 Topics: /vicon/perching_payload/perching_payload
 Round Bar ROS2 Topics: /vicon/perching_round_bar/perching_round_bar
 '''
 
-import csv
 import os
 import argparse
 from collections import defaultdict
@@ -33,12 +32,12 @@ STRIDX_MSG = """
 float32 x_trans
 float32 y_trans
 float32 z_trans
-float32 x_rot 
-float32 y_rot 
-float32 z_rot 
-float32 w 
+float32 x_rot
+float32 y_rot
+float32 z_rot
+float32 w
 string segment_name
-string subject_name 
+string subject_name
 int32 frame_number
 string translation_type
 """
@@ -49,10 +48,12 @@ typestore.register(get_types_from_msg(STRIDX_MSG, 'vicon_msgs/msg/Position'))
 
 StrIdx = typestore.types['vicon_msgs/msg/Position']
 
+
 def print_connections(reader):
     """Prints all topic and msgtype information available in the rosbag."""
     for connection in reader.connections:
         print(connection.topic, connection.msgtype)
+
 
 def collect_messages(reader, topics):
     """Collects messages from specified topics in the rosbag and returns a dictionary of timestamped data."""
@@ -72,6 +73,7 @@ def collect_messages(reader, topics):
 
     return data
 
+
 def interpolate_data(data):
     """Interpolates missing values in the collected data."""
     df = pd.DataFrame.from_dict(data, orient='index')
@@ -81,10 +83,12 @@ def interpolate_data(data):
     df.bfill(inplace=True)
     return df
 
+
 def save_messages_to_csv(df, csv_filename):
     """Saves the interpolated data to a CSV file."""
     df.to_csv(csv_filename, index_label='Timestamp')
     print(f"Data saved to {csv_filename}")
+
 
 def main():
     """Main function to read the rosbag, process messages, interpolate data, and save them to a CSV file."""
@@ -97,17 +101,18 @@ def main():
     with Reader(bag_path) as reader:
         print("Connections:")
         print_connections(reader)
-        
+
         print("\nCollecting Positions:")
         data = collect_messages(reader, TOPICS)
-        
+
         print("\nInterpolating Data:")
         df = interpolate_data(data)
-        
+
         # Extract folder name from the bag path and create the CSV filename
         folder_name = os.path.basename(bag_path)
         csv_filename = f'{folder_name}.csv'
         save_messages_to_csv(df, csv_filename)
+
 
 if __name__ == "__main__":
     main()
