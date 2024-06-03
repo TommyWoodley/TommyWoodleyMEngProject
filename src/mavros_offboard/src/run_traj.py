@@ -14,6 +14,7 @@ from pymavlink import mavutil
 from std_msgs.msg import Header, Float64
 from tf.transformations import quaternion_from_euler
 from std_srvs.srv import SetBool
+from scipy.interpolate import CubicSpline
 
 from datalogger import dataLogger
 from scipy.spatial.transform import Rotation
@@ -241,14 +242,13 @@ class MavrosOffboardSuctionMission():
             self.sub_topics_ready['local_vel'] = True
 
     # ----------- GOTO -----------
-    def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, prev_x=0, prev_y=0, prev_z=0, writeToDataLogger=True):
+    def goto_pos_in_time(self, previous_point, current_point, go_to_point, next_point, duration=5, writeToDataLogger=True):
         """
-        Moves to the specified (x, y, z) position over a given duration.
+        Moves to the go_to_point from the current_point over a given duration using cubic splines formed with four points.
 
         Args:
-            x, y, z (float): Target coordinates.
-            duration (float): Time to reach the target.
-            prev_x, prev_y, prev_z (float): Previous coordinates for logging interpolation.
+            previous_point, current_point, go_to_point, next_point (tuple): Tuples of (x, y, z) defining the trajectory.
+            duration (float): Time to reach the go_to_point.
             writeToDataLogger (bool): Flag to log data.
         """
         assert duration > 0, f"Duration must be positive, but was {duration}"
@@ -256,43 +256,55 @@ class MavrosOffboardSuctionMission():
         rate = rospy.Rate(10)  # Hz
         start_time = rospy.Time.now()
 
-        original_x = self.local_position.pose.position.x
-        original_y = self.local_position.pose.position.y
-        original_z = self.local_position.pose.position.z
+        # Extract x, y, z coordinates from the points
+        points = [previous_point, current_point, go_to_point, next_point]
+        x_coords = [point[0] for point in points]
+        y_coords = [point[1] for point in points]
+        z_coords = [point[2] for point in points]
 
-        original_distance_x = x - original_x
-        original_distance_y = y - original_y
-        original_distance_z = z - original_z
+        # Time points for each control point (normalized to [0, 1])
+        time_points = [0, 1/3, 2/3, 1]
 
-        velocity_x = original_distance_x / duration
-        velocity_y = original_distance_y / duration
-        velocity_z = original_distance_z / duration
+        # Create cubic splines for each coordinate
+        spline_x = CubicSpline(time_points, x_coords)
+        spline_y = CubicSpline(time_points, y_coords)
+        spline_z = CubicSpline(time_points, z_coords)
 
         self.pos_target = PositionTarget()
         num_timesteps = duration * 10
         for i in range(num_timesteps):
             if rospy.is_shutdown():
                 break
+
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
             elapsed_secs = min(elapsed_time.to_sec(), duration)
 
+            # Normalized time for interpolation between current_point (1/3) and go_to_point (2/3)
+            t_normalized = elapsed_secs / duration / 3 + 1/3
+
+            # Interpolated positions
+            pos_x = spline_x(t_normalized)
+            pos_y = spline_y(t_normalized)
+            pos_z = spline_z(t_normalized)
+
             self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
             self.pos_target.header.stamp = current_time
-            self.pos_target.position.x = original_x + velocity_x * elapsed_secs
-            self.pos_target.position.y = original_y + velocity_y * elapsed_secs
-            self.pos_target.position.z = original_z + velocity_z * elapsed_secs
+            self.pos_target.position.x = pos_x
+            self.pos_target.position.y = pos_y
+            self.pos_target.position.z = pos_z
 
-            self.pos_target.velocity.x = velocity_x
-            self.pos_target.velocity.y = velocity_y
-            self.pos_target.velocity.z = velocity_z
+            # Velocity can be approximated as the first derivative of the spline
+            self.pos_target.velocity.x = spline_x.derivative()(t_normalized)
+            self.pos_target.velocity.y = spline_y.derivative()(t_normalized)
+            self.pos_target.velocity.z = spline_z.derivative()(t_normalized)
 
             self.pos_target_setpoint_pub.publish(self.pos_target)
 
             if writeToDataLogger:
-                interpolated_x = prev_x + ((x - prev_x) / num_timesteps) * (i + 1)
-                interpolated_y = prev_y + ((y - prev_y) / num_timesteps) * (i + 1)
-                interpolated_z = prev_z + ((z - prev_z) / num_timesteps) * (i + 1)
+                interpolated_x = previous_point[0] + ((go_to_point[0] - previous_point[0]) / num_timesteps) * (i + 1)
+                interpolated_y = previous_point[1] + ((go_to_point[0] - previous_point[1]) / num_timesteps) * (i + 1)
+                interpolated_z = previous_point[2] + ((go_to_point[0] - previous_point[2]) / num_timesteps) * (i + 1)
                 self.saveDataToLogData(interpolated_x, interpolated_y, interpolated_z)
 
             try:
@@ -528,7 +540,7 @@ class MavrosOffboardSuctionMission():
         waypoints = self.waypoints
         time_between_waypoint = 1
 
-        approaching = True
+        approaching = True # (self, previous_point, current_point, go_to_point, next_point, duration=5, writeToDataLogger=True):
         for index, (x, y, z, h) in enumerate(waypoints):
             if approaching and h:
                 # First waypoint of curling underneath so allow user to confirm
@@ -536,9 +548,16 @@ class MavrosOffboardSuctionMission():
                 if not self.confirm_next_stage("Confirm Wrapping Achieved", hover=True):
                     return
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
-            prev_index = index - 1 if index - 1 >= 0 else 0
-            prev_x, prev_y, prev_z, _ = waypoints[prev_index]
-            self.goto_pos_in_time(x, y, z, time_between_waypoint, prev_x, prev_y, prev_z)
+            p_index = index - 1 if index - 1 >= 0 else 0
+            p_p_index = index - 2 if index - 2 >= 0 else 0
+            n_index = index + 1 if index + 1 < len(waypoints) else -1
+            p_x, p_y, p_z, _ = waypoints[p_index]
+            p_p_x, p_p_y, p_p_z, _ = waypoints[p_p_index]
+            n_x, n_y, n_z = waypoints[n_index]
+            self.goto_pos_in_time(previous_point=(p_p_x, p_p_y, p_p_z),
+                                  current_point=(p_x, p_y, p_z),
+                                  go_to_point=(x, y, z),
+                                  next_point=(n_x, n_y, n_z))
 
         self.ros_log_info("TRAJECTORY ENDED")
 
