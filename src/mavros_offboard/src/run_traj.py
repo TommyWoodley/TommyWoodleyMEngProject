@@ -503,7 +503,7 @@ class MavrosOffboardSuctionMission():
             return
 
         self.ros_log_info("NAVIGATE TO STARTING POSITION")
-        x_start, y_start, z_start = self.waypoints[0]
+        x_start, y_start, z_start, _ = self.waypoints[0]
         self.goto_pos(x=x_start, y=y_start, z=z_start, writeToDataLogger=False)
         self.ros_log_info("REACHED STARTING POSITION")
 
@@ -527,7 +527,7 @@ class MavrosOffboardSuctionMission():
                     return
             self.ros_log_info("HEADING TO WAYPOINT " + str(index))
             prev_index = index - 1 if index - 1 >= 0 else 0
-            prev_x, prev_y, prev_z = waypoints[prev_index]
+            prev_x, prev_y, prev_z, _ = waypoints[prev_index]
             self.goto_pos_in_time(x, y, z, time_between_waypoint, prev_x, prev_y, prev_z)
 
         self.ros_log_info("TRAJECTORY ENDED")
