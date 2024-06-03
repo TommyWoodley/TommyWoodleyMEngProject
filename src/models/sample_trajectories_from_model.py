@@ -51,6 +51,7 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False,
         print("Num Trajectories: ", num_trajectories)
     trajectory_length = 100
     trajectory_states = []
+    hanging_states = []
     done = False
 
     for _ in range(num_trajectories):
@@ -58,8 +59,11 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False,
             obs = model.env.reset()
             global global_info
         trajectory = []
+        hanging = []
         x, _, z, _ = global_info["original_state"]
         trajectory.append(np.array([x, z]))
+        hanging.append(False)
+
         for i in range(trajectory_length):
             action, _ = model.predict(obs, deterministic=True)
             obs, reward, done, info = model.env.step(action)
@@ -70,17 +74,22 @@ def sample_trajectories_from_file(file, output_filename, show=True, human=False,
                 print(f"Done: {i}")
                 break
             x, _, z, _ = info[0]["original_state"]
+            if reward < -2.0:
+                hanging.append(False)
+            else:
+                hanging.append(True)
             trajectory.append(np.array([x, z]))
         trajectory_states.append(trajectory)
+        hanging_states.append(hanging)
     env.close()
 
     plot_trajectories(trajectory_states, output_filename=output_filename, show_plot=show)
 
     if log_dir is not None:
-        log_trajectories(trajectory_states, log_dir)
+        log_trajectories(trajectory_states, hanging_states, log_dir)
 
 
-def log_trajectories(trajectories, output_dir):
+def log_trajectories(trajectories, hanging_states, output_dir):
     """
     Writes each trajectory to a separate CSV file in a subdirectory called 'sampled_trajectories'
     within the specified output directory.
@@ -95,17 +104,17 @@ def log_trajectories(trajectories, output_dir):
     # Ensure the subdirectory exists
     os.makedirs(subdirectory, exist_ok=True)
 
-    for i, trajectory in enumerate(trajectories):
+    for i, (trajectory, haning) in enumerate(zip(trajectories, hanging_states)):
         # Define the filename for each trajectory
         filename = os.path.join(subdirectory, f'trajectory_{i + 1}.csv')
 
         # Write the trajectory to a CSV file
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(['x', 'y', 'z'])  # Write the header
+            csvwriter.writerow(['x', 'y', 'z', 'h'])  # Write the header
 
-            for x, z in trajectory:
-                csvwriter.writerow([x, 0, z])  # Write the (x, y, z) position with y always being 0
+            for (x, z), is_hang in zip(trajectory, haning):
+                csvwriter.writerow([x, 0, z, is_hang])  # Write the (x, y, z) position with y always being 0
 
 
 if __name__ == "__main__":
