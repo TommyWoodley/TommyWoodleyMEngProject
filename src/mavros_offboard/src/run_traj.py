@@ -242,7 +242,16 @@ class MavrosOffboardSuctionMission():
 
     # ----------- GOTO -----------
     def goto_pos_in_time(self, x=0, y=0, z=0, duration=5, prev_x=0, prev_y=0, prev_z=0, writeToDataLogger=True):
-        assert duration > 0, "was " + duration
+        """
+        Moves to the specified (x, y, z) position over a given duration.
+
+        Args:
+            x, y, z (float): Target coordinates.
+            duration (float): Time to reach the target.
+            prev_x, prev_y, prev_z (float): Previous coordinates for logging interpolation.
+            writeToDataLogger (bool): Flag to log data.
+        """
+        assert duration > 0, f"Duration must be positive, but was {duration}"
 
         rate = rospy.Rate(10)  # Hz
         start_time = rospy.Time.now()
@@ -266,11 +275,13 @@ class MavrosOffboardSuctionMission():
                 break
             current_time = rospy.Time.now()
             elapsed_time = current_time - start_time
+            elapsed_secs = min(elapsed_time.to_sec(), duration)
+
             self.pos_target.coordinate_frame = PositionTarget.FRAME_LOCAL_NED
-            self.pos_target.header.stamp = rospy.Time.now()
-            self.pos_target.position.x = original_x + velocity_x * min(elapsed_time.to_sec(), duration)
-            self.pos_target.position.y = original_y + velocity_y * min(elapsed_time.to_sec(), duration)
-            self.pos_target.position.z = original_z + velocity_z * min(elapsed_time.to_sec(), duration)
+            self.pos_target.header.stamp = current_time
+            self.pos_target.position.x = original_x + velocity_x * elapsed_secs
+            self.pos_target.position.y = original_y + velocity_y * elapsed_secs
+            self.pos_target.position.z = original_z + velocity_z * elapsed_secs
 
             self.pos_target.velocity.x = velocity_x
             self.pos_target.velocity.y = velocity_y
@@ -282,10 +293,9 @@ class MavrosOffboardSuctionMission():
                 interpolated_x = prev_x + ((x - prev_x) / num_timesteps) * (i + 1)
                 interpolated_y = prev_y + ((y - prev_y) / num_timesteps) * (i + 1)
                 interpolated_z = prev_z + ((z - prev_z) / num_timesteps) * (i + 1)
-
                 self.saveDataToLogData(interpolated_x, interpolated_y, interpolated_z)
 
-            try:  # prevent garbage in console output when thread is killed
+            try:
                 rate.sleep()
             except rospy.ROSInterruptException:
                 pass
@@ -296,7 +306,7 @@ class MavrosOffboardSuctionMission():
         self.pos.pose.position.y = self.pos_target.position.y
         self.pos.pose.position.z = self.pos_target.position.z
 
-        self.ros_log_info("Time taken: " + str(time_taken.to_sec()))
+        self.ros_log_info(f"Time taken: {time_taken.to_sec()} seconds")
 
     def goto_pos(self, x=0, y=0, z=0, writeToDataLogger=True):
 
