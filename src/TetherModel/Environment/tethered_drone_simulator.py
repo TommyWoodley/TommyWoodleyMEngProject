@@ -32,8 +32,8 @@ class TetheredDroneSimulator:
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
 
-        # if self.gui_mode:
-        #     time.sleep(0.001)
+        if self.gui_mode:
+            time.sleep(0.001)
 
         # Update drone position
         if action is not None:

@@ -16,6 +16,7 @@ def calc_reward(state):
     x, z, t = state
     return bulletDroneEnv.calc_reward_and_done(np.array([x, 0.0, z]), num_wraps=t)
 
+
 class WeightCalculator():
     def __init__(self) -> None:
         self.weight_prev_angle = None
@@ -54,7 +55,7 @@ class WeightCalculator():
 def transform_demo(version, csv_file):
     interval_seconds = 0.10
     # Load the CSV file
-    df = pd.read_csv(f"2024_05_22_Flight_Data/processed/" + csv_file)
+    df = pd.read_csv("2024_05_22_Flight_Data/processed/" + csv_file)
 
     df['delta_drone_x'] = df['drone_x'].diff().fillna(0)
     df['delta_drone_z'] = df['drone_z'].diff().fillna(0)
@@ -85,7 +86,9 @@ def transform_demo(version, csv_file):
                 initial_movement_found = True
         if start_adding_waypoints and initial_movement_found:
             if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
-                waypoints.append((row['drone_x'] - row['round_bar_x'], row['drone_z'] - row['round_bar_z'] + 2700, num_wraps))
+                waypoints.append((row['drone_x'] - row['round_bar_x'],
+                                  row['drone_z'] - row['round_bar_z'] + 2700,
+                                  num_wraps))
                 previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
@@ -95,7 +98,6 @@ def transform_demo(version, csv_file):
     print(f"Angle: {csv_file} is {mult}")
 
     state_action_reward = []
-    memory = []
     x, y, w = waypoints[0]
     curr_x = x / 1000
     curr_y = y / 1000
@@ -109,16 +111,16 @@ def transform_demo(version, csv_file):
         action_y = next_y - curr_y
 
         action_magnitude = np.sqrt(action_x**2 + action_y**2)
-    
+
         # Check if the magnitude exceeds 0.25 and print a warning if it does
         if action_magnitude > 0.25:
             print(f"Warning: Action magnitude exceeds 0.25 at index {i}. Magnitude: {action_magnitude}")
 
         if action_magnitude > max_action_magnitude:
             max_action_magnitude = action_magnitude
-        
+
         reward, done = calc_reward((curr_x, curr_y, next_w))
-        
+
         state_action_reward.append(((curr_x, curr_y, curr_w), (action_x, action_y), reward, (next_x, next_y, next_w)))
 
         curr_x = next_x
@@ -127,7 +129,6 @@ def transform_demo(version, csv_file):
 
         if done:
             break
-
 
     # Print the state, action, reward list
     print("STATE,ACTION,REWARDS: ")

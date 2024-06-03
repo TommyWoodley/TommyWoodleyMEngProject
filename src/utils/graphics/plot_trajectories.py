@@ -1,24 +1,25 @@
 import matplotlib.pyplot as plt
 
+
 def plot_trajectories_with_rewards(trajectories, traj_rewards, output_filename=None, window_size=10,
-                      title='Sample Trajectories', show_plot=True):
+                                   title='Sample Trajectories', show_plot=True):
     # Flatten rewards for normalization
     all_rewards = [reward for rewards in traj_rewards for reward in rewards]
-    
+
     # Normalize the rewards for colormap
     norm = plt.Normalize(min(all_rewards), max(all_rewards))
     cmap = plt.cm.viridis  # You can choose another colormap if you prefer
-    
+
     fig, ax = plt.subplots()  # Create a figure and an axes object
-    
+
     for trajectory, rewards in zip(trajectories, traj_rewards):
         x_values = [state[0] for state in trajectory]
         y_values = [state[1] for state in trajectory]
-        
+
         for (x, y), reward in zip(zip(x_values, y_values), rewards):
             color = cmap(norm(reward))
             ax.plot(x, y, marker='o', linestyle='-', color=color)
-            
+
     # Add labels and title
     ax.set_xlabel('X position')
     ax.set_ylabel('Z position')
@@ -38,7 +39,7 @@ def plot_trajectories_with_rewards(trajectories, traj_rewards, output_filename=N
     # Create a ScalarMappable object for the color bar
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # Only needed for matplotlib < 3.1
-    
+
     # Add the color bar to the figure
     cbar = fig.colorbar(sm, ax=ax)
     cbar.set_label('Rewards')

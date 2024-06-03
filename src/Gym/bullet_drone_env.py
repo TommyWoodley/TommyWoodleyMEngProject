@@ -135,7 +135,7 @@ class BulletDroneEnv(gym.Env):
         reward, _ = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
                                           num_wraps=num_wraps)
         return reward
-    
+
     def calc_reward_and_done(self, state, num_wraps=0.0):
         branch_pos = np.array([0.0, 0.0, 2.7])  # Branch position
         tether_pos = state - np.array([0, 0, 0.5])
@@ -144,7 +144,7 @@ class BulletDroneEnv(gym.Env):
         has_collided = bool(dist_tether_branch < 0.1)
 
         reward, done = self.reward.calculate(state, has_collided, dist_tether_branch, dist_drone_branch,
-                                          num_wraps=num_wraps)
+                                             num_wraps=num_wraps)
         return reward, done
 
     def log_state(self, pos, orn_euler, phase):
