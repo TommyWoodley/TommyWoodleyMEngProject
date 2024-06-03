@@ -12,7 +12,7 @@ Drone ROS2 Topics: /vicon/beemav/beemav
 Payload ROS2 Topics: /vicon/perching_payload/perching_payload
 Round Bar ROS2 Topics: /vicon/perching_round_bar/perching_round_bar
 
-Credit to Atar Babgei
+Script adapted from one created by Atar Babgei
 '''
 
 import os
