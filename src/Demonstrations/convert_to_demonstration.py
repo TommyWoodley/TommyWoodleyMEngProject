@@ -12,9 +12,43 @@ bulletDroneEnv = BulletDroneEnv()
 angle = "22.5"
 
 
-# def calc_reward(state):
-#     x, z, t = state
-#     return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]))
+def calc_reward(state):
+    x, z, t = state
+    return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]), num_wraps=t)
+
+class WeightCalculator():
+    def __init__(self) -> None:
+        self.weight_prev_angle = None
+        self.weight_cumulative_angle_change = 0
+        self.weight_wraps = 0
+
+    def compute_total_rotation(self, weight_x, weight_y):
+        # ANGLE FOR WEIGHT
+        weight_delta_x = weight_x - 0
+        weight_delta_y = 2.7 - weight_y
+
+        # Compute the angle using arctan2, which considers quadrant location
+        weight_angle_radians = np.arctan2(weight_delta_x, weight_delta_y)  # swapped x and y to align with the vertical
+        weight_angle_degrees = np.degrees(weight_angle_radians)
+
+        if self.weight_prev_angle is not None:
+            # Calculate angle change considering the wrap around at 180/-180
+            weight_angle_change = weight_angle_degrees - self.weight_prev_angle
+            if weight_angle_change > 180:
+                weight_angle_change -= 360
+            elif weight_angle_change < -180:
+                weight_angle_change += 360
+
+            # Update cumulative angle change
+            self.weight_cumulative_angle_change += weight_angle_change
+
+            # Update wraps as a float
+            self.weight_wraps = self.weight_cumulative_angle_change / 360.0
+
+        # Update the previous angle for the next call
+        self.weight_prev_angle = weight_angle_degrees
+
+        return abs(self.weight_cumulative_angle_change)
 
 
 def transform_demo(csv_file):
@@ -34,6 +68,10 @@ def transform_demo(csv_file):
     start_adding_waypoints = False
     initial_movement_found = False
     for index, row in df.iterrows():
+        if row['drone_x'] < 0:
+            num_wraps = 1.0
+        else:
+            num_wraps = 0.0
         if not start_adding_waypoints and row['drone_z'] > 2000:
             start_adding_waypoints = True
             prev_x = row['drone_x']
@@ -44,24 +82,23 @@ def transform_demo(csv_file):
                 initial_movement_found = True
         if start_adding_waypoints and initial_movement_found:
             if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
-                waypoints.append((row['drone_x'], row['drone_z'] + 1000))
+                waypoints.append((row['drone_x'], row['drone_z'] + 1000, num_wraps))
                 previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
     # Calculate state, action rewards
-    x_original, _ = waypoints[0]
+    x_original, _, _ = waypoints[0]
     mult = 1 if x_original >= 0 else -1
     print(f"Angle: {csv_file} is {mult}")
 
     state_action_reward = []
     memory = []
-    x, y = waypoints[0]
-    num_wraps = 0.0
+    x, y, w = waypoints[0]
     curr_x = x / 1000
     curr_y = y / 1000
     max_action_magnitude = 0
     for i in range(len(waypoints) - 1):
-        next_x, next_y = waypoints[i]
+        next_x, next_y, w = waypoints[i]
         next_x = next_x / 1000
         next_y = next_y / 1000
         action_x = curr_x - next_x
@@ -76,7 +113,7 @@ def transform_demo(csv_file):
         if action_magnitude > max_action_magnitude:
             max_action_magnitude = action_magnitude
         
-        state_action_reward.append(((curr_x, curr_y, num_wraps), (action_x, action_y), i, (next_x, next_y)))
+        state_action_reward.append(((curr_x, curr_y, w), (action_x, action_y), calc_reward((curr_x, curr_y, w)), (next_x, next_y)))
 
         curr_x = next_x
         curr_y = next_y
@@ -100,14 +137,13 @@ def transform_demo(csv_file):
         })
 
     # Write the serializable list to a JSON file
-    with open(f"rl_demos/rl_demo_approaching.json", 'w') as file:
+    with open(f"rl_demos/{csv_file}.json", 'w') as file:
         json.dump(state_action_reward_serializable, file, indent=4)
 
-    print(f"Data saved to rl_demo_approaching.json")
+    print(f"Data saved to {csv_file}.json")
 
 
-csv_file = ["rosbag2_2024_05_22-17_00_56.csv",]
-            # "rosbag2_2024_05_22-17_03_00.csv", "rosbag2_2024_05_22-17_20_43.csv",
-            # "rosbag2_2024_05_22-17_26_15.csv", "rosbag2_2024_05_22-18_10_51.csv", "rosbag2_2024_05_22-18_16_45.csv"]
+csv_file = ["rosbag2_2024_05_22-17_00_56.csv", "rosbag2_2024_05_22-17_03_00.csv", "rosbag2_2024_05_22-17_20_43.csv",
+            "rosbag2_2024_05_22-17_26_15.csv", "rosbag2_2024_05_22-18_10_51.csv", "rosbag2_2024_05_22-18_16_45.csv"]
 for file in csv_file:
     transform_demo(file)
