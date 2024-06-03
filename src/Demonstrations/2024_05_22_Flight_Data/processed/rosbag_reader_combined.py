@@ -11,6 +11,8 @@ All ros topics related to the positions of the drone, payload, and round bar are
 Drone ROS2 Topics: /vicon/beemav/beemav
 Payload ROS2 Topics: /vicon/perching_payload/perching_payload
 Round Bar ROS2 Topics: /vicon/perching_round_bar/perching_round_bar
+
+Credit to Atar Babgei
 '''
 
 import os
