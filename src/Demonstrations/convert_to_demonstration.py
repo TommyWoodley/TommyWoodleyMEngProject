@@ -3,22 +3,22 @@ import numpy as np
 import json
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from Gym.bullet_drone_env import BulletDroneEnv
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# from Gym.bullet_drone_env import BulletDroneEnv
 
-bulletDroneEnv = BulletDroneEnv()
+# bulletDroneEnv = BulletDroneEnv()
 
 
 angle = "22.5"
 
 
-def calc_reward(state):
-    x, z, t = state
-    return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]))
+# def calc_reward(state):
+#     x, z, t = state
+#     return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]))
 
 
 def transform_demo(csv_file):
-    interval_seconds = 5
+    interval_seconds = 0.1
     # Load the CSV file
     df = pd.read_csv(f"2024_05_22_Flight_Data/processed/" + csv_file)
 
@@ -29,52 +29,37 @@ def transform_demo(csv_file):
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='ns')
 
     waypoints = []
-    waypoints.append((df.iloc[0]['dron_x'], df.iloc[0]['drone_z'] + 3))
+    waypoints.append((df.iloc[0]['drone_x'], df.iloc[0]['drone_z'] + 1000))
     previous_time = df['Timestamp'].iloc[0]
 
-    cumulative_distance = 0
     for index, row in df.iterrows():
         if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
-            waypoints.append((row['drone_x'], row['drone_z'] + 3))
+            waypoints.append((row['drone_x'], row['drone_z'] + 1000))
             previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
     # Calculate state, action rewards
     x_original, _ = waypoints[0]
     mult = 1 if x_original >= 0 else -1
-    print(f"Angle: {angle} is {mult}")
+    print(f"Angle: {csv_file} is {mult}")
 
     state_action_reward = []
     memory = []
+    x, y = waypoints[0]
+    num_wraps = 0.0
+    curr_x = x / 1000
+    curr_y = y / 1000
     for i in range(len(waypoints) - 1):
-        x, y = waypoints[i]
-        current_state = (x * mult, y, 0.0)
+        next_x, next_y = waypoints[i]
+        next_x = next_x / 1000
+        next_y = next_y / 1000
+        action_x = curr_x - next_x
+        action_y = curr_y - next_y
+        
+        state_action_reward.append(((curr_x, curr_y, num_wraps), (action_x, action_y), 0.0, (next_x, next_y)))
 
-        if i == 0:
-            memory = [current_state] * 3
-
-        memory.append(current_state)
-        if len(memory) > 3:
-            memory.pop(0)
-
-        augmented_current_state = tuple(item for state in memory for item in state)
-
-        x, y = waypoints[i + 1]
-        next_state = (x * mult, y, 0.0)
-
-        # Add next state to the memory to calculate augmented next state
-        memory.append(next_state)
-        if len(memory) > 3:
-            augmented_next_state = tuple(item for state in memory[-3:] for item in state)
-        else:
-            augmented_next_state = tuple(item for state in memory for item in state)
-        memory.pop()  # Remove the next state from memory after using it for augmentation
-
-        # Calculate action as difference between next and current state
-        action = (next_state[0] - current_state[0], next_state[1] - current_state[1])
-
-        reward = calc_reward(current_state)
-        state_action_reward.append((augmented_current_state, action, reward, augmented_next_state))
+        curr_x = next_x
+        curr_y = next_y
 
     # Print the state, action, reward list
     print("STATE,ACTION,REWARDS: ")
@@ -93,10 +78,10 @@ def transform_demo(csv_file):
         })
 
     # Write the serializable list to a JSON file
-    with open(f"rl_demos/rl_demo_approaching_angle_{angle}.json", 'w') as file:
+    with open(f"rl_demos/rl_demo_approaching.json", 'w') as file:
         json.dump(state_action_reward_serializable, file, indent=4)
 
-    print(f"Data saved to rl_demo_approaching_angle_{angle}.json")
+    print(f"Data saved to rl_demo_approaching.json")
 
 
 csv_file = ["rosbag2_2024_05_22-17_00_56.csv",]
