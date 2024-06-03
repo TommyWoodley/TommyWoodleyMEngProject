@@ -13,7 +13,7 @@ class Hanging():
     def reward_fun(self, state, has_collided, dist_tether_branch, dist_drone_branch, num_wraps):
         x, y, z = state
 
-        if z < 2.0 and z > 0.3 and x > -0.5 and x < 0.5:
+        if z < 2.5 and z > 0.3 and x > -0.5 and x < 0.5:
             return 1.0, True, None
         else:
             if x > 0:

@@ -14,7 +14,7 @@ angle = "22.5"
 
 def calc_reward(state):
     x, z, t = state
-    return bulletDroneEnv.calc_reward(np.array([x, 0.0, z]), num_wraps=t)
+    return bulletDroneEnv.calc_reward_and_done(np.array([x, 0.0, z]), num_wraps=t)
 
 class WeightCalculator():
     def __init__(self) -> None:
@@ -67,8 +67,11 @@ def transform_demo(version, csv_file):
 
     start_adding_waypoints = False
     initial_movement_found = False
+    has_hit = False
     for index, row in df.iterrows():
-        if row['drone_x'] < 0:
+        if row['drone_x'] - row['round_bar_x'] < 0:
+            has_hit = True
+        if has_hit:
             num_wraps = 1.0
         else:
             num_wraps = 0.0
@@ -114,11 +117,16 @@ def transform_demo(version, csv_file):
         if action_magnitude > max_action_magnitude:
             max_action_magnitude = action_magnitude
         
-        state_action_reward.append(((curr_x, curr_y, curr_w), (action_x, action_y), calc_reward((curr_x, curr_y, w)), (next_x, next_y, next_w)))
+        reward, done = calc_reward((curr_x, curr_y, next_w))
+        
+        state_action_reward.append(((curr_x, curr_y, curr_w), (action_x, action_y), reward, (next_x, next_y, next_w)))
 
         curr_x = next_x
         curr_y = next_y
         curr_w = next_w
+
+        if done:
+            break
 
 
     # Print the state, action, reward list
@@ -126,7 +134,7 @@ def transform_demo(version, csv_file):
     for strs in state_action_reward:
         print(strs)
     print(f"Largest action magnitude: {max_action_magnitude}")
-    print("NUM_WAYPOINTS: " + str(len(waypoints)))
+    print("NUM_WAYPOINTS: " + str(len(state_action_reward)))
 
     state_action_reward_serializable = []
 
@@ -150,3 +158,4 @@ csv_file = ["rosbag2_2024_05_22-17_20_43.csv",
             "rosbag2_2024_05_22-17_26_15.csv", "rosbag2_2024_05_22-18_10_51.csv", "rosbag2_2024_05_22-18_16_45.csv"]
 for i in range(len(csv_file)):
     transform_demo(i + 3, csv_file[i])
+    bulletDroneEnv.reset()
