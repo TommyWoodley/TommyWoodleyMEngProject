@@ -1,5 +1,6 @@
 '''
-Description: This script reads a rosbag file and extracts the positions of the drone, payload, and round bar from the Vicon system.
+Description: This script reads a rosbag file and extracts the positions of the drone, payload
+and round bar from the Vicon system.
 The extracted data is then interpolated to fill in missing values and saved to a CSV file.
 
 Install by running: 'pip3 install rosbags'
