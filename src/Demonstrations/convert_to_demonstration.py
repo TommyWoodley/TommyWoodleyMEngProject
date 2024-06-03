@@ -18,6 +18,7 @@ def calc_reward(state):
 
 
 def transform_demo(csv_file):
+    interval_seconds = 5
     # Load the CSV file
     df = pd.read_csv(f"2024_05_22_Flight_Data/processed/" + csv_file)
 
@@ -28,13 +29,14 @@ def transform_demo(csv_file):
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='ns')
 
     waypoints = []
-    waypoints.append((df.iloc[0]['cycleX'], df.iloc[0]['cycleZ'] + 3))
+    waypoints.append((df.iloc[0]['dron_x'], df.iloc[0]['drone_z'] + 3))
+    previous_time = df['Timestamp'].iloc[0]
+
     cumulative_distance = 0
     for index, row in df.iterrows():
-        cumulative_distance += row['distance']
-        if cumulative_distance >= 0.25:
-            waypoints.append((row['cycleX'], row['cycleZ'] + 3))
-            cumulative_distance = 0  # Reset the distance accumulator
+        if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
+            waypoints.append((row['drone_x'], row['drone_z'] + 3))
+            previous_time = row['Timestamp']
     print("WAYPOINTS: ", waypoints)
 
     # Calculate state, action rewards
