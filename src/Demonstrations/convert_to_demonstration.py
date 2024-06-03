@@ -32,10 +32,17 @@ def transform_demo(csv_file):
     previous_time = df['Timestamp'].iloc[0]
 
     start_adding_waypoints = False
+    initial_movement_found = False
     for index, row in df.iterrows():
-        if row['drone_z'] > 2000:
+        if not start_adding_waypoints and row['drone_z'] > 2000:
             start_adding_waypoints = True
-        if start_adding_waypoints:
+            prev_x = row['drone_x']
+        if start_adding_waypoints and not initial_movement_found:
+            delta_x = row['drone_x'] - prev_x
+            if abs(delta_x) > 0.3 * 1000:
+                print(f"Movement found {delta_x}")
+                initial_movement_found = True
+        if start_adding_waypoints and initial_movement_found:
             if (row['Timestamp'] - previous_time).total_seconds() >= interval_seconds:
                 waypoints.append((row['drone_x'], row['drone_z'] + 1000))
                 previous_time = row['Timestamp']
