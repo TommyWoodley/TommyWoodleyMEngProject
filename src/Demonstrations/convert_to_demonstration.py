@@ -3,10 +3,10 @@ import numpy as np
 import json
 import sys
 import os
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-# from Gym.bullet_drone_env import BulletDroneEnv
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Gym.bullet_drone_env import BulletDroneEnv
 
-# bulletDroneEnv = BulletDroneEnv()
+bulletDroneEnv = BulletDroneEnv()
 
 
 angle = "22.5"
@@ -76,7 +76,7 @@ def transform_demo(csv_file):
         if action_magnitude > max_action_magnitude:
             max_action_magnitude = action_magnitude
         
-        state_action_reward.append(((curr_x, curr_y, num_wraps), (action_x, action_y), 0.0, (next_x, next_y)))
+        state_action_reward.append(((curr_x, curr_y, num_wraps), (action_x, action_y), i, (next_x, next_y)))
 
         curr_x = next_x
         curr_y = next_y
