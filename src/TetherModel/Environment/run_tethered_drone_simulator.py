@@ -1,6 +1,7 @@
 from tethered_drone_simulator import TetheredDroneSimulator
 from typing import List
 import numpy as np
+import time
 
 
 class TetheredDroneSimulatorRunner:
@@ -15,6 +16,7 @@ class TetheredDroneSimulatorRunner:
         already_moved = False
         action_size = None
         action_mags = []
+
         while True:
             it = min(self.iteration, (len(self.xs) - 1))
             x = self.xs[it]

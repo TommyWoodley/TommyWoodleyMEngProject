@@ -13,8 +13,8 @@ def main(xs: List[float], zs: List[float]) -> None:
 
 
 if __name__ == "__main__":
-    sys.path.append('/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository/')
-    data_loaded = np.loadtxt("/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/04_Repository"
+    sys.path.append('/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/src/')
+    data_loaded = np.loadtxt("/Users/tomwoodley/Desktop/TommyWoodleyMEngProject/src"
                              + "/Data/PreviousWorkTrajectories/Original/trajectory_data.txt", delimiter=',')
 
     # If you need to separate the loaded data back into cycleX, cycleZ, and finalPosDrone
