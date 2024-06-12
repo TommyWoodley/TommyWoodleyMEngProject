@@ -100,6 +100,7 @@ bin/
 build/
 
 04_Repository/.venv
+.venv/*
 *.pyc
 
 *.mypy
