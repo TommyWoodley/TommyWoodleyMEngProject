@@ -124,7 +124,7 @@ def get_env(dir_name, render_mode, phase):
     from Gym.Wrappers.custom_monitor import CustomMonitor
 
     env = HoveringWrapper(PositionWrapper(TwoDimWrapper(
-        SymmetricWrapper(BulletDroneEnv(render_mode=render_mode, phase=phase)))))
+        BulletDroneEnv(render_mode=render_mode, phase=phase))))
 
     if dir_name is not None:
         env = CustomMonitor(env, f"models/{dir_name}/logs")

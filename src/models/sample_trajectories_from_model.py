@@ -38,7 +38,7 @@ def sample_trajectories(dir, show=True, human=False, phase="all"):
 
 
 def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all", log_dir=None):
-    plotting_degrees = [0, 11.25, 22.5, 33.75, 45]
+    plotting_degrees = [0, 22.5, 45, 180, 157.5, 135]
 
     model = SAC.load(file)
     render_mode = "console" if not human else "human"
