@@ -20,38 +20,38 @@ class SymmetricWrapper(gym.Wrapper):
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[Any, Any]]:
         # Adjust action
-        if self.positive:
-            new_action = action
-        else:
-            x, y, z = action
-            new_action = np.array([-1 * x, y, z])
+        # if self.positive:
+        #     new_action = action
+        # else:
+        #     x, y, z = action
+        #     new_action = np.array([-1 * x, y, z])
 
-        state, reward, terminated, truncated, info = self.env.step(new_action)
+        state, reward, terminated, truncated, info = self.env.step(action)
 
         info["original_state"] = state
 
-        if self.positive:
-            new_state = state
-        else:
-            x, y, z, t = state
-            new_state = (-1 * x, y, z, t)
+        # if self.positive:
+        #     new_state = state
+        # else:
+        #     x, y, z, t = state
+        #     new_state = (-1 * x, y, z, t)
 
-        return new_state, reward, terminated, truncated, info
+        return state, reward, terminated, truncated, info
 
     def reset(self, seed: int = None, options: Dict[Any, Any] = None,
               degrees: int = None, position=None) -> Tuple[np.ndarray, Dict[Any, Any]]:
         state, info = self.env.reset(seed, options, degrees, position)
-        x, y, z, t = state  # Do we need this line?
-        if x >= 0:
-            self.positive = True
-        else:
-            self.positive = False
+        # x, y, z, t = state  # Do we need this line?
+        # if x >= 0:
+        #     self.positive = True
+        # else:
+        #     self.positive = False
 
         info["original_state"] = state
 
-        if self.positive:
-            new_state = state
-        else:
-            x, y, z, t = state
-            new_state = (-1 * x, y, z, t)
-        return new_state, info
+        # if self.positive:
+        #     new_state = state
+        # else:
+        #     x, y, z, t = state
+        #     new_state = (-1 * x, y, z, t)
+        return state, info
