@@ -31,13 +31,13 @@ class SampleTrajEnv(gym.Wrapper):
         return obs, info
 
 
-def sample_trajectories(dir, show=True, human=False, phase="all"):
+def sample_trajectories(dir, show=True, human=False, phase="approaching"):
     file_name = f"{dir}/model.zip"
     output_filename = f"{dir}/sample_trajectories.png"
     sample_trajectories_from_file(file_name, output_filename, show, human, phase=phase, log_dir=dir)
 
 
-def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="all", log_dir=None):
+def sample_trajectories_from_file(file, output_filename, show=True, human=False, phase="approaching", log_dir=None):
     plotting_degrees = [0, 11.25, 22.5, 33.75, 45]
 
     model = SAC.load(file)

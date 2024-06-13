@@ -139,7 +139,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
 
     _policy = "MlpPolicy"
     _seed = 0
-    _batch_size = hyperparams.get("batch_size", 64)
+    _batch_size = hyperparams.get("batch_size", 128)
     _policy_kwargs = dict(net_arch=[128, 128, 64])
     _lr_schedular = LinearLearningRateSchedule(hyperparams.get("lr", 0.0002))
 
@@ -155,6 +155,7 @@ def get_agent(algorithm, env, demo_path, show_demos_in_env, hyperparams):
             learning_rate=_lr_schedular,
             gamma=0.96,
             policy_kwargs=_policy_kwargs,
+            verbose=1
         )
     elif algorithm == "SACfD":
         agent = SACfD(

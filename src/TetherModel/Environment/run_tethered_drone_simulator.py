@@ -20,7 +20,7 @@ class TetheredDroneSimulatorRunner:
             x = self.xs[it]
             z = self.zs[it] + 3
             drone_pos = np.array([x, 0, z], dtype=np.float32)
-            self.iteration += 395
+            self.iteration += 495
 
             action = drone_pos - self.prev_pos
             action_mags.append(np.linalg.norm(action))

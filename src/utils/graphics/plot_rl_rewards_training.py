@@ -111,17 +111,17 @@ def _plot_reward_graph(rewards, episode_lens, output_filename, window_size, titl
     ax1.set_ylabel('Reward Value', color='red')
     ax1.tick_params(axis='y', labelcolor='red')
     ax1.grid(True)
-    ax1.set_ylim(min(-350, rewards.min()), max(0, rewards.max()))
+    ax1.set_ylim(min(-100, rewards.min()), max(-20, rewards.max()))
 
     # Create a second y-axis for episode lengths
     if episode_lens is not None:
         ax2 = ax1.twinx()
-        running_avg_episode_lens = episode_lens.rolling(window=100, min_periods=1).mean()
+        running_avg_episode_lens = episode_lens.rolling(window=window_size, min_periods=1).mean()
         ax2.plot(running_avg_episode_lens.index, running_avg_episode_lens, color='blue', linestyle='-',
                  linewidth=2, label='Episode Length Average')
         ax2.set_ylabel('Episode Length', color='blue')
         ax2.tick_params(axis='y', labelcolor='blue')
-        ax2.set_ylim(0, 100)
+        ax2.set_ylim(15, 30)
 
     # Add titles and legends
     plt.title(title)
