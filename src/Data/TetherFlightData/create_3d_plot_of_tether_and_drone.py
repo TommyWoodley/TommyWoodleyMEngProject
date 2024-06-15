@@ -22,6 +22,23 @@ def extract_positions(csv_file, flight_start, flight_end):
 
     return timesteps, drone_x, drone_y, drone_z, payload_x, payload_y, payload_z
 
+def extract_sim_positions(csv_file):
+    # Load the CSV file
+    data = pd.read_csv(csv_file)
+
+    # Extract positions and convert from mm to m
+    drone_x = data['drone_x']
+    drone_y = data['drone_y']
+    drone_z = data['drone_z']
+    payload_x = data['payload_x']
+    payload_y = data['payload_y']
+    payload_z = data['payload_z']
+    sim_payload_x = data['sim_payload_x']
+    sim_payload_y = data['sim_payload_y']
+    sim_payload_z = data['sim_payload_z']
+
+    return drone_x, drone_y, drone_z, payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z
+
 def plot_3d_positions(csv_file, flight_start, flight_end):
     timesteps, drone_x, drone_y, drone_z, payload_x, payload_y, payload_z = extract_positions(csv_file, flight_start, flight_end)
 
@@ -126,6 +143,45 @@ def plot_dual_axis(csv_file, flight_start, flight_end):
     plt.tight_layout()
     plt.show()
 
+def plot_dual_sim_axis(csv_file):
+    drone_x, drone_y, drone_z, payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z = extract_sim_positions(csv_file)
+
+    # Create subplots for dual axis
+    fig, axs = plt.subplots(1, 3, figsize=(15, 4), sharex=True)
+    window_size=500
+    # Plot X component
+    # axs[0].plot(drone_x, 'b', label='Drone X')
+    axs[0].plot(payload_x.rolling(window=window_size, min_periods=1).mean(), 'r', label='Actual Payload X',linewidth=2)
+    axs[0].plot(sim_payload_x.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload X',linewidth=2)
+    axs[0].set_ylabel('X Position (m)')
+    # axs[0].set_ylim(-1.0, 0.3)
+    axs[0].set_title('Drone and Payload X Positions Over Time')
+    axs[0].legend(loc='best')
+
+    # Plot Y component
+    # axs[1].plot(drone_y, 'b', label='Drone Y')
+    axs[1].plot(payload_y.rolling(window=window_size, min_periods=1).mean(), 'r', label='Payload Y',linewidth=2)
+    axs[1].plot(sim_payload_y.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload Y',linewidth=2)
+    axs[1].set_ylabel('Y Position (m)')
+    # axs[1].set_ylim(-1.0, 0.3)
+    axs[1].set_title('Drone and Payload Y Positions Over Time')
+    axs[1].legend(loc='lower left')
+
+    # Plot Z component
+    # axs[2].plot(drone_z, 'b', label='Drone Z')
+    axs[2].plot(payload_z.rolling(window=window_size, min_periods=1).mean(), 'r', label='Payload Z',linewidth=2)
+    axs[2].plot(sim_payload_z.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload Z',linewidth=2)
+    axs[2].set_xlabel('Time')
+    axs[2].set_ylabel('Z Position (m)')
+    axs[2].set_title('Drone and Payload Z Positions Over Time')
+    # axs[2].set_ylim(0.8, 2.0)
+    axs[2].legend(loc='lower right')
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.savefig("position_plots.png", dpi=500)
+    plt.show()
+
 
 def generate_from_sim(input_file, start_time, end_time):
     # Function to generate data from simulation based on input parameters
@@ -157,7 +213,7 @@ def generate_from_sim(input_file, start_time, end_time):
     # Use the simulator to generate data 
     starting_pos = np.array([drone_x.iloc[0], drone_y.iloc[0], drone_z.iloc[0]])
     print(f"Using starting position: {starting_pos}")
-    simulator = TetheredDroneSimulator(starting_pos, branch_enabled=False)
+    simulator = TetheredDroneSimulator(starting_pos, branch_enabled=False, gui_mode=False)
 
       # List to store tether payload positions
     payload_positions = []
@@ -205,14 +261,12 @@ def generate_from_sim(input_file, start_time, end_time):
     plt.plot(sim_x, label='Simulated X')
     plt.xlabel('Step')
     plt.ylabel('X Position')
-    plt.ylim(-1.0, 0.5)
     plt.legend()
 
     plt.subplot(312)
     plt.plot(payload_y_list, label='Extracted Y')
     plt.plot(sim_y, label='Simulated Y')
     plt.xlabel('Step')
-    plt.ylim(-1.0, 0.5)
     plt.ylabel('Y Position')
     plt.legend()
 
@@ -221,7 +275,6 @@ def generate_from_sim(input_file, start_time, end_time):
     plt.plot(sim_z, label='Simulated Z')
     plt.xlabel('Step')
     plt.ylabel('Z Position')
-    plt.ylim(1.0, 2.0)
     plt.legend()
 
     plt.tight_layout()
@@ -245,6 +298,10 @@ if __name__ == "__main__":
     generate_parser.add_argument('--start', '-s', type=int, required=True, help='Start timestep for the generation.')
     generate_parser.add_argument('--end', '-e', type=int, required=True, help='End timestep for the generation.')
 
+    # Subparser for sim plot command
+    sim_plot_parser = subparsers.add_parser('sim_plot', help='Generate data from simulation.')
+    sim_plot_parser.add_argument('--input', '-i', type=str, required=True, help='Input file for simulation data.')
+
     args = parser.parse_args()
 
     if args.command == 'plot':
@@ -256,3 +313,5 @@ if __name__ == "__main__":
             plot_dual_axis(args.input, args.start, args.end)
     elif args.command == 'generate':
         generate_from_sim(args.input, args.start, args.end)
+    elif sim_plot_parser:
+        plot_dual_sim_axis(args.input)
