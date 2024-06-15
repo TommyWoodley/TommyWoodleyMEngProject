@@ -8,7 +8,7 @@ from TetherModel.Environment.environment import Environment
 
 
 class TetheredDroneSimulator:
-    def __init__(self, drone_pos: np.ndarray, gui_mode=True) -> None:
+    def __init__(self, drone_pos: np.ndarray, gui_mode=True, branch_enabled=True) -> None:
         assert isinstance(drone_pos, np.ndarray), "drone_pos must be an instance of np.ndarray"
         self.gui_mode = gui_mode
 
@@ -21,19 +21,21 @@ class TetheredDroneSimulator:
         p.setGravity(0, 0, -9.8)
         self.drone = Drone(self.drone_pos)
         tether_top_position = self.drone.get_world_centre_bottom()
-        self.tether = Tether(length=1.0, top_position=tether_top_position, physics_client=self.physicsClient)
+        self.tether = Tether(length=0.85, top_position=tether_top_position, physics_client=self.physicsClient)
         self.tether.attach_to_drone(drone=self.drone)
         tether_bottom_position = self.tether.get_world_centre_bottom()
         self.weight = Weight(top_position=tether_bottom_position)
         self.tether.attach_weight(weight=self.weight)
+
         self.environment = Environment()
-        self.branch = self.environment.add_tree_branch([0, 0, 2.7])
+        x_pos = 0 if branch_enabled else 100
+        self.branch = self.environment.add_tree_branch([x_pos, 0, 2.7])
 
     def step(self, action: np.ndarray = None) -> None:
         assert isinstance(action, (np.ndarray, type(None))), "action must be an instance of np.ndarray"
 
-        if self.gui_mode:
-            time.sleep(0.001)
+        # if self.gui_mode:
+        #     time.sleep(0.001)
 
         # Update drone position
         if action is not None:
