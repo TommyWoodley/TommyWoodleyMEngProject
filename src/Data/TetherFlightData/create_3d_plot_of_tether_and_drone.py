@@ -7,14 +7,14 @@ def extract_positions(csv_file, flight_start, flight_end):
     # Load the CSV file
     data = pd.read_csv(csv_file)
 
-    # Extract positions
+    # Extract positions and convert from mm to m
     timesteps = data['Timestamp'][flight_start:flight_end]
-    drone_x = data['drone_x'][flight_start:flight_end]
-    drone_y = data['drone_y'][flight_start:flight_end]
-    drone_z = data['drone_z'][flight_start:flight_end]
-    payload_x = data['payload_x'][flight_start:flight_end]
-    payload_y = data['payload_y'][flight_start:flight_end]
-    payload_z = data['payload_z'][flight_start:flight_end]
+    drone_x = data['drone_x'][flight_start:flight_end] / 1000.0
+    drone_y = data['drone_y'][flight_start:flight_end] / 1000.0
+    drone_z = data['drone_z'][flight_start:flight_end] / 1000.0
+    payload_x = data['payload_x'][flight_start:flight_end] / 1000.0
+    payload_y = data['payload_y'][flight_start:flight_end] / 1000.0
+    payload_z = data['payload_z'][flight_start:flight_end] / 1000.0
 
     return timesteps, drone_x, drone_y, drone_z, payload_x, payload_y, payload_z
 
@@ -31,10 +31,10 @@ def plot_3d_positions(csv_file, flight_start, flight_end):
     # Plot payload positions
     ax.scatter(payload_x, payload_y, payload_z, c='r', marker='^', label='Payload')
 
-    # Set labels
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
+    # Set labels with units in meters
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    ax.set_zlabel('Z (m)')
     ax.set_title('3D Plot of Drone and Payload Positions (Timesteps {} to {})'.format(flight_start, flight_end))
     ax.legend()
 
@@ -50,39 +50,39 @@ def plot_single_axis(csv_file, flight_start, flight_end):
     # Plot X component
     axs[0, 0].plot(timesteps, drone_x, 'b', label='Drone X')
     axs[0, 0].set_xlabel('Time')
-    axs[0, 0].set_ylabel('X Position')
+    axs[0, 0].set_ylabel('X Position (m)')
     axs[0, 0].set_title('Drone X Position Over Time')
     axs[0, 0].legend()
 
     axs[0, 1].plot(timesteps, payload_x, 'r', label='Payload X')
     axs[0, 1].set_xlabel('Time')
-    axs[0, 1].set_ylabel('X Position')
+    axs[0, 1].set_ylabel('X Position (m)')
     axs[0, 1].set_title('Payload X Position Over Time')
     axs[0, 1].legend()
 
     # Plot Y component
     axs[1, 0].plot(timesteps, drone_y, 'b', label='Drone Y')
     axs[1, 0].set_xlabel('Time')
-    axs[1, 0].set_ylabel('Y Position')
+    axs[1, 0].set_ylabel('Y Position (m)')
     axs[1, 0].set_title('Drone Y Position Over Time')
     axs[1, 0].legend()
 
     axs[1, 1].plot(timesteps, payload_y, 'r', label='Payload Y')
     axs[1, 1].set_xlabel('Time')
-    axs[1, 1].set_ylabel('Y Position')
+    axs[1, 1].set_ylabel('Y Position (m)')
     axs[1, 1].set_title('Payload Y Position Over Time')
     axs[1, 1].legend()
 
     # Plot Z component
     axs[2, 0].plot(timesteps, drone_z, 'b', label='Drone Z')
     axs[2, 0].set_xlabel('Time')
-    axs[2, 0].set_ylabel('Z Position')
+    axs[2, 0].set_ylabel('Z Position (m)')
     axs[2, 0].set_title('Drone Z Position Over Time')
     axs[2, 0].legend()
 
     axs[2, 1].plot(timesteps, payload_z, 'r', label='Payload Z')
     axs[2, 1].set_xlabel('Time')
-    axs[2, 1].set_ylabel('Z Position')
+    axs[2, 1].set_ylabel('Z Position (m)')
     axs[2, 1].set_title('Payload Z Position Over Time')
     axs[2, 1].legend()
 
