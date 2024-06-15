@@ -1,6 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import argparse
 
 def extract_positions(csv_file, flight_start, flight_end):
@@ -90,12 +89,45 @@ def plot_single_axis(csv_file, flight_start, flight_end):
     plt.tight_layout()
     plt.show()
 
+def plot_dual_axis(csv_file, flight_start, flight_end):
+    timesteps, drone_x, drone_y, drone_z, payload_x, payload_y, payload_z = extract_positions(csv_file, flight_start, flight_end)
+
+    # Create subplots for dual axis
+    fig, axs = plt.subplots(1, 3, figsize=(15, 4), sharex=True)
+
+    # Plot X component
+    axs[0].plot(timesteps, drone_x, 'b', label='Drone X')
+    axs[0].plot(timesteps, payload_x, 'r', label='Payload X')
+    axs[0].set_ylabel('X Position (m)')
+    axs[0].set_title('Drone and Payload X Positions Over Time')
+    axs[0].legend()
+
+    # Plot Y component
+    axs[1].plot(timesteps, drone_y, 'b', label='Drone Y')
+    axs[1].plot(timesteps, payload_y, 'r', label='Payload Y')
+    axs[1].set_ylabel('Y Position (m)')
+    axs[1].set_title('Drone and Payload Y Positions Over Time')
+    axs[1].legend()
+
+    # Plot Z component
+    axs[2].plot(timesteps, drone_z, 'b', label='Drone Z')
+    axs[2].plot(timesteps, payload_z, 'r', label='Payload Z')
+    axs[2].set_xlabel('Time')
+    axs[2].set_ylabel('Z Position (m)')
+    axs[2].set_title('Drone and Payload Z Positions Over Time')
+    axs[2].legend()
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Plot 3D positions of drone and payload from tether flight data.')
+    parser = argparse.ArgumentParser(description='Plot positions of drone and payload from tether flight data.')
     parser.add_argument('--input', '-i', type=str, required=True, help='Path to the tether flight data CSV file.')
     parser.add_argument('--start', '-s', type=int, required=True, help='Start timestep for the flight data.')
     parser.add_argument('--end', '-e', type=int, required=True, help='End timestep for the flight data.')
-    parser.add_argument('--type', '-t', type=str, choices=['3d', 'single'], required=True, help='Type of plot to generate: "3d" for 3D plot, "single" for single axis plots.')
+    parser.add_argument('--type', '-t', type=str, choices=['3d', 'single', 'dual'], required=True, help='Type of plot to generate: "3d" for 3D plot, "single" for single axis plots, "dual" for dual axis plots.')
 
     args = parser.parse_args()
 
@@ -103,3 +135,5 @@ if __name__ == "__main__":
         plot_3d_positions(args.input, args.start, args.end)
     elif args.type == 'single':
         plot_single_axis(args.input, args.start, args.end)
+    elif args.type == 'dual':
+        plot_dual_axis(args.input, args.start, args.end)
