@@ -5,7 +5,7 @@ import seaborn as sns
 def smooth_data(data, window_size=100):
     return data.rolling(window=window_size).mean()
 
-plotting_length = 1500
+plotting_length = 1200
 
 # Load data from CSV files
 data_5_demos = pd.read_csv('training_5_demos_2024_06_14_00_16/logs.monitor.csv', skiprows=1)
@@ -29,14 +29,17 @@ sns.set_theme(style="whitegrid")
 # Plotting the data
 plt.figure(figsize=(10, 6))
 
-plt.plot(smoothed_rewards_5_demos, label='5 Demonstrations', linewidth=2)
-plt.plot(smoothed_rewards_1_demo, label='1 Demonstration', linewidth=2)
-plt.plot(smoothed_rewards_0_demos, label='0 Demonstrations', linewidth=2)
+plt.plot(smoothed_rewards_5_demos, label='5 Demonstrations', linewidth=3)
+plt.plot(smoothed_rewards_1_demo, label='1 Demonstration', linewidth=3)
+plt.plot(smoothed_rewards_0_demos, label='0 Demonstrations', linewidth=3)
+plt.xlim(100, 1200)
 
 plt.xlabel('Timesteps')
 plt.ylabel('Rewards')
-plt.title('Comparative Learning of Tensile Perching from Demonstrations')
+plt.title('Comparative Learning of Tensile Perching from Demonstrations', fontsize=15)
 plt.legend(loc='best')
 plt.grid(True)
+
+plt.savefig('comparative_learning.png', dpi=500)
 
 plt.show()
