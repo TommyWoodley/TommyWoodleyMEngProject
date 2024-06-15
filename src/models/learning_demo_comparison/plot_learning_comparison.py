@@ -34,7 +34,7 @@ plt.plot(smoothed_rewards_1_demo, label='1 Demonstration', linewidth=3)
 plt.plot(smoothed_rewards_0_demos, label='0 Demonstrations', linewidth=3)
 plt.xlim(100, 1200)
 
-plt.xlabel('Timesteps')
+plt.xlabel('Episodes')
 plt.ylabel('Rewards')
 plt.title('Comparative Learning of Tensile Perching from Demonstrations', fontsize=15)
 plt.legend(loc='best')
