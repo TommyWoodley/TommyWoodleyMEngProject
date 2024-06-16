@@ -6,6 +6,25 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from TetherModel.Environment.tethered_drone_simulator import TetheredDroneSimulator
 import numpy as np
+import seaborn as sns
+
+def calculate_error_metrics(real, simulated):
+    # Calculate differences
+    differences = real - simulated
+
+    # Calculate MBE
+    mbe = np.mean(differences)
+    
+    # Calculate MAE
+    mae = np.mean(np.abs(differences))
+    
+    # Calculate RMSE
+    rmse = np.sqrt(np.mean(differences ** 2))
+    
+    # Calculate SD
+    sd = np.std(differences)
+    
+    return mbe, mae, rmse, sd
 
 def extract_positions(csv_file, flight_start, flight_end):
     # Load the CSV file
@@ -27,15 +46,15 @@ def extract_sim_positions(csv_file):
     data = pd.read_csv(csv_file)
 
     # Extract positions and convert from mm to m
-    drone_x = data['drone_x']
-    drone_y = data['drone_y']
-    drone_z = data['drone_z']
-    payload_x = data['payload_x']
-    payload_y = data['payload_y']
-    payload_z = data['payload_z']
-    sim_payload_x = data['sim_payload_x']
-    sim_payload_y = data['sim_payload_y']
-    sim_payload_z = data['sim_payload_z']
+    drone_x = data['drone_x'][:6000]
+    drone_y = data['drone_y'][:6000]
+    drone_z = data['drone_z'][:6000]
+    payload_x = data['payload_x'][:6000]
+    payload_y = data['payload_y'][:6000]
+    payload_z = data['payload_z'][:6000]
+    sim_payload_x = data['sim_payload_x'][:6000]
+    sim_payload_y = data['sim_payload_y'][:6000]
+    sim_payload_z = data['sim_payload_z'][:6000]
 
     return drone_x, drone_y, drone_z, payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z
 
@@ -47,19 +66,20 @@ def plot_3d_positions(csv_file, flight_start, flight_end):
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot drone positions
-    ax.scatter(drone_x, drone_y, drone_z, c='b', marker='o', label='Drone')
+    ax.plot(drone_x, drone_y, drone_z, c='b', label='Drone')
 
     # Plot payload positions
-    ax.scatter(payload_x, payload_y, payload_z, c='r', marker='^', label='Payload')
+    ax.plot(payload_x, payload_y, payload_z, c='r', label='Payload')
 
     # Set labels with units in meters
     ax.set_xlabel('X (m)')
     ax.set_ylabel('Y (m)')
     ax.set_zlabel('Z (m)')
-    ax.set_title('3D Plot of Drone and Payload Positions (Timesteps {} to {})'.format(flight_start, flight_end))
+    ax.set_title('3D Plot of Drone and Payload Positions \nDuring Random Flight'.format(flight_start, flight_end))
     ax.legend()
 
     # Show plot
+    plt.savefig("./rosbag2_2024_06_14-12_06_23_tether_flight_data/RandomFlightPlot.png", dpi=500)
     plt.show()
 
 def plot_single_axis(csv_file, flight_start, flight_end):
@@ -143,6 +163,74 @@ def plot_dual_axis(csv_file, flight_start, flight_end):
     plt.tight_layout()
     plt.show()
 
+def smooth_list(data, window_size=10):
+    return pd.Series(data).rolling(window=window_size, min_periods=1).mean().tolist()
+
+def plot_one_axis(csv_file, flight_start, flight_end):
+    timesteps, drone_x, drone_y, drone_z, payload_x, payload_y, payload_z = extract_positions(csv_file, flight_start, flight_end)
+
+    # Create a single plot
+    sns.set_theme(style='whitegrid')
+    plt.figure(figsize=(10, 6))
+
+    # Plot X component
+    avg_drone_x = sum(drone_x) / len(drone_x)
+    adjusted_drone_x = [x - avg_drone_x for x in drone_x]
+    plt.plot(timesteps, smooth_list(adjusted_drone_x), 'b', label='x')
+
+    # Plot Y component
+    avg_drone_y = sum(drone_y) / len(drone_y)
+    adjusted_drone_y = [y - avg_drone_y for y in drone_y]
+    plt.plot(timesteps, smooth_list(adjusted_drone_y), 'g', label='y')
+
+    # Plot Z component
+    avg_drone_z = sum(drone_z) / len(drone_z)
+    adjusted_drone_z = [z - avg_drone_z for z in drone_z]
+    plt.plot(timesteps, smooth_list(adjusted_drone_z), 'r', label='z')
+
+    # Labels and title
+    plt.xlabel('Time')
+    plt.ylabel('Offset from fixed target position (m)')
+    plt.title('Drone Positions Over Time When Hovering at a Fixed Point', fontsize=15)
+    plt.legend()
+
+    # Show plot
+    plt.tight_layout()
+    plt.savefig("hoverin_position_plot.png", dpi=500)
+    plt.show()
+
+def print_all_metrics(payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z):
+    # Convert to numpy arrays for calculation
+    payload_x = np.array(payload_x)
+    payload_y = np.array(payload_y)
+    payload_z = np.array(payload_z)
+    sim_payload_x = np.array(sim_payload_x)
+    sim_payload_y = np.array(sim_payload_y)
+    sim_payload_z = np.array(sim_payload_z)
+
+    # Calculate error metrics for each dimension
+    mbe_x, mae_x, rmse_x, sd_x = calculate_error_metrics(payload_x, sim_payload_x)
+    mbe_y, mae_y, rmse_y, sd_y = calculate_error_metrics(payload_y, sim_payload_y)
+    mbe_z, mae_z, rmse_z, sd_z = calculate_error_metrics(payload_z, sim_payload_z)
+
+    total_real = np.sqrt(payload_x**2 + payload_y**2 + payload_z**2)
+    total_simulated = np.sqrt(sim_payload_x**2 + sim_payload_y**2 + sim_payload_z**2)
+    mbe_totoal, mae_total, rmse_total, sd_total = calculate_error_metrics(total_real, total_simulated)
+
+    results = pd.DataFrame({
+        'Metric': ['MBE', 'MAE', 'RMSE', 'SD'],
+        'X': [mbe_x, mae_x, rmse_x, sd_x],
+        'Y': [mbe_y, mae_y, rmse_y, sd_y],
+        'Z': [mbe_z, mae_z, rmse_z, sd_z],
+        'Total': [mbe_totoal, mae_total, rmse_total, sd_total]
+    })
+
+    # Display the results
+    print(results)
+
+    # Optionally, you can save the results to a CSV file
+    results.to_csv('error_metrics.csv', index=False)
+
 def plot_dual_sim_axis(csv_file):
     drone_x, drone_y, drone_z, payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z = extract_sim_positions(csv_file)
 
@@ -180,6 +268,44 @@ def plot_dual_sim_axis(csv_file):
     # Adjust layout
     plt.tight_layout()
     plt.savefig("position_plots.png", dpi=500)
+    plt.show()
+
+def plot_dual_sim_axis_individual_save(csv_file):
+    _, _, _, payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z = extract_sim_positions(csv_file)
+    print_values = print_all_metrics(payload_x, payload_y, payload_z, sim_payload_x, sim_payload_y, sim_payload_z)
+    window_size = 500
+
+    # Plot X component
+    fig_x, ax_x = plt.subplots(figsize=(5, 4))
+    ax_x.plot(payload_x.rolling(window=window_size, min_periods=1).mean(), 'r', label='Actual Payload X', linewidth=2)
+    ax_x.plot(sim_payload_x.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload X', linewidth=2)
+    ax_x.set_ylabel('X Position (m)')
+    ax_x.set_title('Drone and Payload X Positions Over Time')
+    ax_x.legend(loc='best')
+    plt.tight_layout()
+    fig_x.savefig("position_plot_x.png", dpi=500)
+
+    # Plot Y component
+    fig_y, ax_y = plt.subplots(figsize=(5, 4))
+    ax_y.plot(payload_y.rolling(window=window_size, min_periods=1).mean(), 'r', label='Payload Y', linewidth=2)
+    ax_y.plot(sim_payload_y.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload Y', linewidth=2)
+    ax_y.set_ylabel('Y Position (m)')
+    ax_y.set_title('Drone and Payload Y Positions Over Time')
+    ax_y.legend(loc='lower left')
+    plt.tight_layout()
+    fig_y.savefig("position_plot_y.png", dpi=500)
+
+    # Plot Z component
+    fig_z, ax_z = plt.subplots(figsize=(5, 4))
+    ax_z.plot(payload_z.rolling(window=window_size, min_periods=1).mean(), 'r', label='Payload Z', linewidth=2)
+    ax_z.plot(sim_payload_z.rolling(window=window_size, min_periods=1).mean(), label='Simulated Payload Z', linewidth=2)
+    ax_z.set_xlabel('Time')
+    ax_z.set_ylabel('Z Position (m)')
+    ax_z.set_title('Drone and Payload Z Positions Over Time')
+    ax_z.legend(loc='lower right')
+    plt.tight_layout()
+    fig_z.savefig("position_plot_z.png", dpi=500)
+
     plt.show()
 
 
@@ -290,7 +416,7 @@ if __name__ == "__main__":
     plot_parser.add_argument('--input', '-i', type=str, required=True, help='Path to the tether flight data CSV file.')
     plot_parser.add_argument('--start', '-s', type=int, required=True, help='Start timestep for the flight data.')
     plot_parser.add_argument('--end', '-e', type=int, required=True, help='End timestep for the flight data.')
-    plot_parser.add_argument('--type', '-t', type=str, choices=['3d', 'single', 'dual'], required=True, help='Type of plot to generate.')
+    plot_parser.add_argument('--type', '-t', type=str, choices=['3d', 'single', 'dual', 'one'], required=True, help='Type of plot to generate.')
 
     # Subparser for generating command
     generate_parser = subparsers.add_parser('generate', help='Generate data from simulation.')
@@ -311,7 +437,9 @@ if __name__ == "__main__":
             plot_single_axis(args.input, args.start, args.end)
         elif args.type == 'dual':
             plot_dual_axis(args.input, args.start, args.end)
+        elif args.type == 'one':
+            plot_one_axis(args.input, args.start, args.end)
     elif args.command == 'generate':
         generate_from_sim(args.input, args.start, args.end)
     elif sim_plot_parser:
-        plot_dual_sim_axis(args.input)
+        plot_dual_sim_axis_individual_save(args.input)
